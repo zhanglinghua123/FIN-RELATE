@@ -10,10 +10,15 @@
 <script>
 import Demo1 from '../demo/demo1.vue'
 import Demo2 from '../demo/demo2.vue'
+import Demo3 from "../demo/demo3.vue"
+import Demo4 from "../demo/demo4.vue"
+
 export default {
   components: {
     Demo1,
-    Demo2
+    Demo2,
+    Demo3,
+    Demo4,
   }
 }
 </script>
