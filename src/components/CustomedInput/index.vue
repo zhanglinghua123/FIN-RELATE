@@ -17,7 +17,7 @@
 
 <script setup>
 import { reactive, toRefs, onMounted } from 'vue'
-import LineChartData from "./data.json"
+import LineChartData from "../../assets/data.json"
 import * as d3 from "d3";
 const tags = [
   {

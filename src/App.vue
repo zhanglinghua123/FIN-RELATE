@@ -24,7 +24,7 @@
   align-items: center;
 }
 .button-layout button{
-  width: 200px;
+  width: 150px;
   height: 40px;
 }
 .overview-layput{

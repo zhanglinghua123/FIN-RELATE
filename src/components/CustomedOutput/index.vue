@@ -40,8 +40,8 @@ const loadDemo = (value) => {
 }
 
 .demo {
-  width: 300px;
-  height: 300px;
+  width: 600px;
+  height: 400px;
   border: 1px solid;
 }
 </style>
