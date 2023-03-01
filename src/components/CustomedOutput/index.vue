@@ -35,6 +35,8 @@ const loadDemo = (value) => {
 .output-layout {
   display: flex;
   flex-direction: column;
+  height: 600px;
+  justify-content: space-evenly;
 }
 
 .demo {

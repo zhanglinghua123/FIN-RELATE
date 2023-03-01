@@ -9,9 +9,6 @@
           <a-tag v-for="(item, index) in tags" :key="item.name" :data-index="index" class="tag-item" :color="item.color">
             {{ item.name }}
           </a-tag>
-        <!-- <a-tag color="pink" class="tag-item">圆</a-tag>
-        <a-tag color="green" class="tag-item">矩形高亮</a-tag>
-                  <a-tag color="yellow" class="tag-item">箭头</a-tag> -->
         </div>
       </div>
     </section>
