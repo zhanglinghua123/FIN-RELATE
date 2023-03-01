@@ -19,19 +19,20 @@ type animationData = {
     // color
     color : string
 }
-// id 为 rect 元素 对应的id
+// id 为 rect 元素 对应的id id一定要唯一
 function addMultiRectangularShadow(id :string = "rectAnimation"  ,datas:animationData[],animation:animation){
     const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
     return {
         mount : (ele)=>ele
         .insert("g",":first-child")
         .selectAll("rect")
+        .attr("id",`${id}-container`)
         .data(datas)
         .enter()
         .append("rect")
+        .attr("id",id)
         .attr("x",val=>`${val.x || 0 }px`)
         .attr("y",val=>`${val.y || 0 }px`)   
-        .attr("id",id)
         .attr("width",val=>val.width || 100)
         .attr("height",val=>val.height || 100)
         .attr("fill",val=>val.color || "rgba(0,0,0,0.4)")
@@ -41,7 +42,6 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  ,datas:animatio
             let count = enterFrame
             let hander = setInterval(()=>{
                 if(count >= 0){
-                    console.log( 1 - count / enterFrame ,)
                     d3.selectAll(`#${id}`)
                     .attr("opacity", 1 - count / enterFrame )
                     count--   
@@ -59,7 +59,7 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  ,datas:animatio
                     count--
                 }else{
                     clearInterval(hander)
-                    d3.selectAll(`#${id}`).remove()
+                    d3.selectAll(`#${id}-container`).remove()
                 }
             }, leaveDuration * 1000 / leaveFrame)
         }
