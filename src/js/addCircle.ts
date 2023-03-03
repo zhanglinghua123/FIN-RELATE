@@ -19,13 +19,17 @@ type animation = {
     leaveFrame?:number
 }
 import * as d3 from "d3"
-function addCircle(data:cirCleConfigItem[],animation:animation){
+function addCircle(data:cirCleConfigItem[],animation:animation) : {
+    mount : (svgNode:any)=>void
+    beginAnimation : ()=>void
+    endAnimation : ()=>void
+} {
     const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
     let circle
     return {
+        // ele 为 需要挂载的 svg元素
         mount:(ele)=>{
             circle = ele.append("g")
-
             circle.
             selectAll("text")
             .data(data)
