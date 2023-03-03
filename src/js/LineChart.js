@@ -55,7 +55,6 @@ function LineChart(data, id, {
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height])
       .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
-      console.log(d3.select(id))
     svg.append("g")
       .attr("transform", `translate(0,${height - marginBottom})`)
       .call(xAxis);
