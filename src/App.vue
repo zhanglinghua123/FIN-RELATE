@@ -87,29 +87,26 @@ const testAnimation = (containerId) => {
     y: 20,
     color: "rgba(0,0,0,0.1)"
   }], {})
-  animationForm(
-    [{
-      animation: () => animation2Video(svgContainer)
-    },
-      // {
-      //   stopTime: 2,
-      //   duration: 3,
-      //   gap: 2,
-      //   animation: () => {
-      //     MultiRect.mount(lastSvg)
-      //     console.log("svg---2 ")
-      //     MultiRect.beginAnimation()
-      //   }
-      // }, {
-      //   stopTime: 2,
-      //   duration: 3,
-      //   gap: 2,
-      //   animation: () => {
-      //     console.log("svg---8 ")
-      //     MultiRect.endAnimation()
-      //   }
-      // }
-    ])
+  animation2Video([
+    {
+      stopTime: 2,
+      duration: 3,
+      gap: 2,
+      animation: () => {
+        MultiRect.mount(lastSvg)
+        console.log("svg---2 ")
+        MultiRect.beginAnimation()
+      }
+    }, {
+      stopTime: 2,
+      duration: 3,
+      gap: 0,
+      animation: () => {
+        console.log("svg---8 ")
+        MultiRect.endAnimation()
+      }
+    }
+  ], svgContainer)
 }
 
 </script>

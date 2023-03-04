@@ -1,6 +1,7 @@
 <template>
     <div>
-        <a-modal width="640px" ref="modalRef" v-model:visible="visible" :wrap-style="{ overflow: 'hidden' }" @ok="handleOk">
+        <a-modal cancelText="取消" okText="确认" @ok="downloadVideo" forceRender width="640px" ref="modalRef"
+            v-model:visible="visible" :wrap-style="{ overflow: 'hidden' }" @cancel="interruptSvg2Video">
             <canvas id="video"></canvas>
             <template #title>
                 <div ref="modalTitleRef" style="width: 100%; cursor: move">视频预览</div>
@@ -16,6 +17,7 @@
 <script>
 import { defineComponent, ref, computed, watch, watchEffect } from 'vue';
 import { useDraggable } from '@vueuse/core';
+import { interruptSvg2Video, downloadVideo } from "../../js/animation"
 export default defineComponent({
     setup() {
         const visible = ref(false);
@@ -80,6 +82,8 @@ export default defineComponent({
             handleOk,
             modalTitleRef,
             transformStyle,
+            interruptSvg2Video,
+            downloadVideo
         };
     },
 });

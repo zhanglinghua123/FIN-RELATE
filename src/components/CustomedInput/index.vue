@@ -57,7 +57,8 @@ onMounted(() => {
   ({ svg, svgConfig } = chart);
   //把同一种类型放一起，方便管理
   svg.append("g").attr("class", "circleG");
-  svg.insert("g", ":first-child").attr("class", "rectG");
+  // 插入到白色背景元素的前面
+  svg.insert("g", ":nth-child(2)").attr("class", "rectG");
   svg.append("g").attr("class", "arrowG");
 
   svg.on("mousedown", e => {
