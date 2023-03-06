@@ -55,6 +55,13 @@ function LineChart(data, id, {
       .attr("height", height)
       .attr("viewBox", [0, 0, width, height])
       .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+    // 添加背景颜色    
+    svg.append("g")
+      .attr("id","rect-background")
+      .append("rect","white")
+      .attr("width",width)
+      .attr("height",height)
+      .style("fill","white")
     svg.append("g")
       .attr("transform", `translate(0,${height - marginBottom})`)
       .call(xAxis);

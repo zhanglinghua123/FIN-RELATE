@@ -57,7 +57,8 @@ onMounted(() => {
   ({ svg, svgConfig } = chart);
   //把同一种类型放一起，方便管理
   svg.append("g").attr("class", "circleG");
-  svg.append("g").attr("class", "rectG");
+  // 插入到白色背景元素的前面
+  svg.insert("g", ":nth-child(2)").attr("class", "rectG");
   svg.append("g").attr("class", "arrowG");
 
   svg.on("mousedown", e => {
@@ -86,11 +87,13 @@ onMounted(() => {
     const selectedWord = getFieldSelection(document.getElementById('textarea'));
     if (type === 'RECT') {
       addRect(x1, y1, currentId);
+      addHistory(type, currentId, selectedWord)
     } else if (type === 'CIRCLE') {
       addCircle(x1, y1, currentId);
       addHistory(type, currentId, selectedWord);
     } else if (type === 'ARROW') {
       addArrow(x1, y1, currentId);
+      addHistory(type, currentId, selectedWord);
     }
     isDraw = true
     currentId += 1
@@ -127,8 +130,8 @@ const remove = (_, item) => {
   if (delEl) {
     delEl.remove();
   }
-  const index = history.value.findIndex(his=>his.id===item.id);
-  if(index!==-1){
+  const index = history.value.findIndex(his => his.id === item.id);
+  if (index !== -1) {
     history.value.splice(index, 1);
   }
 }
@@ -147,6 +150,49 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
     .attr('cy', yr / 2 + endY > startPos[1] ? startPos[1] : endY)
     .attr('fill', fill)
     .attr('stroke', stroke);
+}
+const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
+  const delEl = document.getElementById(id)
+  if (delEl) {
+    delEl.remove()
+  }
+  const width = Math.abs(endX - startPos[0]);
+  const height = Math.abs(endY - startPos[1]);
+  // const r = Math.sqrt(xr * xr + yr * yr) / 2;
+  d3.select(".rectG").append('rect')
+    .attr('id', id)
+    .attr('width', width)
+    .attr('height', height)
+    .attr('x', endX > startPos[0] ? startPos[0] : endX)
+    .attr('y', endY > startPos[1] ? startPos[1] : endY)
+    .attr("fill", fill)
+    .attr('stroke', stroke);
+}
+const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
+  const delEl = document.getElementById(id)
+  const delMarker = document.getElementById(`${id}-marker`)
+  if (delEl) {
+    delEl.remove()
+    delMarker.remove()
+  }
+  // 添加箭头
+  const arrow = d3.select(".arrowG").append('path')
+    .attr("id", id)
+    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY}`)
+    .attr("stroke", stroke)
+    .attr("stroke-width", "2")
+    .attr("style", `marker-end: url(#${id}-marker)`)
+
+  d3.select(".arrowG").append("marker")
+    .attr("orient", "auto")
+    .attr("id", `${id}-marker`)
+    .attr("markerUnits", "strokeWidth")
+    .attr("markerWidth", "5")
+    .attr("markerHeight", "4")
+    .attr("refX", 0)
+    .attr("refY", 2)
+    .append("path")
+    .attr("d", "M 0 0 L 5 2 L 0 4 z")
 }
 const clickTag = (event) => {
   const classList = event.target.classList;

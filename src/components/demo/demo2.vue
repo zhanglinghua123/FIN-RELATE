@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-  <div id="demoChart2"></div>
+  <div id="d3"></div>
 </template>
 
 <script setup>
@@ -10,13 +10,13 @@ import { LineChart } from '../../js/LineChart';
 import * as d3 from "d3";
 
 
-const addArrow = (index,to,text,needDis,chart) => {
-  const {svg,svgConfig} = chart;
+const addArrow = (index, to, text, needDis, chart) => {
+  const { svg, svgConfig } = chart;
   // let index = 0;
   const colorArrow = "#264653";
   const pos = svgConfig.X.map((d, index) => [svgConfig.xScale(d), svgConfig.yScale(svgConfig.Y[index])]);
   const i0 = Math.max(index - 1, 0),
-    i2 = Math.min(to??(index + 1), pos.length - 1),
+    i2 = Math.min(to ?? (index + 1), pos.length - 1),
     [x, y] = pos[index],
     [x1, y1] = pos[i0],
     [x2, y2] = pos[i2],
@@ -32,10 +32,10 @@ const addArrow = (index,to,text,needDis,chart) => {
   const arrow = svg
     .append('g')
     .attr("class", "arrowG");
-    arrow
+  arrow
     .transition()
     .duration(2000)
-    .attr("opacity",1)
+    .attr("opacity", 1)
     .attr('stroke', colorArrow)
     .attr('stroke-width', 2)
     .attr(
@@ -44,12 +44,12 @@ const addArrow = (index,to,text,needDis,chart) => {
     )
     .transition()
     .duration(2000)
-    .attr("opacity",needDis?0:1)
+    .attr("opacity", needDis ? 0 : 1)
 
   arrow
-  .append("text")
-  .text(text)
-  .attr('transform', `translate(${(x2+x)/2-60} ${(y2+y)/2})`);
+    .append("text")
+    .text(text)
+    .attr('transform', `translate(${(x2 + x) / 2 - 60} ${(y2 + y) / 2})`);
   arrow
     .append('path')
     .attr('fill', 'none')
@@ -75,15 +75,13 @@ const addArrow = (index,to,text,needDis,chart) => {
 
 }
 onMounted(() => {
-  const chart = LineChart(LineChartData.data, "#demoChart2", {
+  const chart = LineChart(LineChartData.data, "#d3", {
     x: d => new Date(d.date),
     y: d => d.value,
   });
-  addArrow(5,7,"30%",true,chart);
-  setTimeout(()=>addArrow(8,10,"80%",false,chart),2000);
+  addArrow(5, 7, "30%", true, chart);
+  setTimeout(() => addArrow(8, 10, "80%", false, chart), 2000);
 
 })
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

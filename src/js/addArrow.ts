@@ -17,11 +17,16 @@ type animation = {
     // 淡出帧数
     leaveFrame?:number
 }
-function addArrow( config:ArrowConfig,animation:animation = {}){
+function addArrow( config:ArrowConfig,animation:animation = {}) : {
+    mount : (svgNode:any)=>void
+    beginAnimation : ()=>void
+    endAnimation : ()=>void
+} {
     const {x1 , y1 , x2 , y2} = config
     const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
     let arrow
     return  {
+          // ele 为 需要挂载的 svg元素
         mount:(ele)=>{
             arrow = ele
             .append("g")
