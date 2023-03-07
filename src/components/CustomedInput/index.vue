@@ -1,11 +1,14 @@
 
 <template>
   <div class="input-layout">
-    <a-textarea id="textarea" ref="textarea" v-model:value="value" placeholder="输入分析语句" :rows="4" />
+    <!-- <div id="textarea" ref="textarea" contenteditable="true">物品</div> -->
+    <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
+    <!-- <a-textarea id="textarea" ref="textarea" v-model:value="value" placeholder="输入分析语句" :rows="4" /> -->
     <section class="basic-layout">
       <div id="basicChart"></div>
       <div class="tag-layout" @click="clickTag">
-        <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :color="item.color">
+        <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
+          :color="item.color">
           {{ item.name }}
         </a-tag>
       </div>
@@ -27,6 +30,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import LineChartData from "../../assets/data.json"
 import { LineChart } from '../../js/LineChart';
+import { message } from 'ant-design-vue';
 import * as d3 from "d3";
 const tags = [
   {
@@ -45,11 +49,28 @@ const tags = [
     key: "ARROW"
   },
 ];
-let svg = null, svgConfig = {}, isDraw = true, type = "", currentId = 0;
+let svg = null, svgConfig = {}, isDraw = true, type = "", currentId = 0, selectedWord = '', needReSelect = false;
 const colorArrow = "#264653";
 const startPos = [];
 const history = ref([]);
+const itemRefs = []
+const setItemRef = el => {
+  if (el) {
+    itemRefs.push(el)
+  }
+}
+const selectWords = (e) => {
+  let tmp = window.getSelection().toString();
+  if (["CIRCLE", "RECT", "ARROW"].includes(type)) {
+    needReSelect = false;
+    selectedWord = tmp;
+  } else {
+    selectedWord = "";
+    message.error("请先选择可视化类型再选中！")
+  }
+}
 onMounted(() => {
+  const textarea = document.getElementById('textarea');
   const chart = LineChart(LineChartData.data, "#basicChart", {
     x: d => new Date(d.date),
     y: d => d.value,
@@ -84,7 +105,6 @@ onMounted(() => {
   svg.on("mouseup", e => {
     const x1 = e.offsetX;
     const y1 = e.offsetY;
-    const selectedWord = getFieldSelection(document.getElementById('textarea'));
     if (type === 'RECT') {
       addRect(x1, y1, currentId);
       addHistory(type, currentId, selectedWord)
@@ -99,13 +119,41 @@ onMounted(() => {
     currentId += 1
   })
 })
-const addHistory = (type, id, words = "empty") => {
+const labelString = (str) => {
+  str = str.replace(/\<[^>]*\>(([^<])*)/gi, function () {
+    return arguments[1];
+  });
+  console.log(str);
+  return str;
+};
+const highlightText = (words,method='ADD') => {
+  if (words.length && (method==='DELETE' || !needReSelect)) {
+    const textarea = document.getElementById("textarea");
+    const inner = textarea.innerHTML.toString();
+    let pureInner = labelString(inner);
+    let str = '';
+    let colorCnt = 0;
+    history.value.forEach((his) => {
+      if (his.words.length) {
+        const index = pureInner.indexOf(his.words);
+        str = `${str}${pureInner.slice(0, index)}<Font color="${d3.schemeCategory10[colorCnt++]}">${his.words}</Font>`;
+        pureInner = pureInner.slice(index + his.words.length);
+      }
+    })
+    console.log(str,pureInner);
+    str = str + pureInner;
+    textarea.innerHTML = str;
+  }
+}
+const addHistory = (type, id, words = "") => {
   history.value.push({
     operate: type,
     words,
     time: new Date().toLocaleString(),
     id,
   })
+  highlightText(words);
+  needReSelect = true;
 }
 function getFieldSelection(select_field) {
   let word = '';
@@ -123,9 +171,9 @@ function getFieldSelection(select_field) {
     }
   }
   return word;
-
 }
 const remove = (_, item) => {
+  console.log(item);
   const delEl = document.getElementById(item.id);
   if (delEl) {
     delEl.remove();
@@ -134,6 +182,7 @@ const remove = (_, item) => {
   if (index !== -1) {
     history.value.splice(index, 1);
   }
+  highlightText(item.words,'DELETE');
 }
 const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   const delEl = document.getElementById(id)
@@ -194,19 +243,51 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     .append("path")
     .attr("d", "M 0 0 L 5 2 L 0 4 z")
 }
+const refRemoveClass = (ref_info, class_name) => {
+  ref_info.forEach((element) => {
+    // 区分是否为组件内，使用需要用 $el
+    let class_name_arr = element.$el
+      ? element.$el.className.split(" ")
+      : element.className.split(" ");
+    let index = class_name_arr.findIndex((item) => {
+      return item == class_name;
+    });
+    if (index !== -1) class_name_arr.splice(index, 1);
+    if (element.$el) {
+      element.$el.className = class_name_arr.join(" ");
+    } else {
+      element.className = class_name_arr.join(" ");
+    }
+  });
+}
 const clickTag = (event) => {
+  console.log(document.getElementById("textarea").innerHTML)
   const classList = event.target.classList;
   type = event.target.dataset.key;
-  if (classList.contains("no-opacity")) {
-    classList.remove("no-opacity");
-  } else {
-    event.target.classList.add("no-opacity");
-  }
+  refRemoveClass(itemRefs, "no-opacity")
+  classList.add("no-opacity");
 
 }
 
 </script>
 <style lang="scss" scoped>
+.textarea {
+  width: 400px;
+  min-height: 120px;
+  max-height: 300px;
+  _height: 120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3px;
+  outline: 0;
+  border: 1px solid #a0b3d6;
+  font-size: 12px;
+  word-wrap: break-word;
+  overflow-x: hidden;
+  overflow-y: auto;
+  _overflow-y: visible;
+}
+
 .input-layout {
   display: flex;
   justify-content: space-evenly;
