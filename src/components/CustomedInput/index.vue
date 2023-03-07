@@ -70,7 +70,6 @@ const selectWords = (e) => {
   }
 }
 onMounted(() => {
-  const textarea = document.getElementById('textarea');
   const chart = LineChart(LineChartData.data, "#basicChart", {
     x: d => new Date(d.date),
     y: d => d.value,
@@ -106,24 +105,23 @@ onMounted(() => {
     const x1 = e.offsetX;
     const y1 = e.offsetY;
     if (type === 'RECT') {
-      addRect(x1, y1, currentId);
-      addHistory(type, currentId, selectedWord)
+      const pos = addRect(x1, y1, currentId);
+      addHistory(type, currentId, pos, selectedWord);
     } else if (type === 'CIRCLE') {
-      addCircle(x1, y1, currentId);
-      addHistory(type, currentId, selectedWord);
+      const pos = addCircle(x1, y1, currentId);
+      addHistory(type, currentId, pos, selectedWord);
     } else if (type === 'ARROW') {
-      addArrow(x1, y1, currentId);
-      addHistory(type, currentId, selectedWord);
+      const pos = addArrow(x1, y1, currentId);
+      addHistory(type, currentId, pos, selectedWord);
     }
-    isDraw = true
-    currentId += 1
+    isDraw = true;
+    currentId += 1;
   })
 })
 const labelString = (str) => {
   str = str.replace(/\<[^>]*\>(([^<])*)/gi, function () {
     return arguments[1];
   });
-  console.log(str);
   return str;
 };
 const highlightText = (words,method='ADD') => {
@@ -140,17 +138,17 @@ const highlightText = (words,method='ADD') => {
         pureInner = pureInner.slice(index + his.words.length);
       }
     })
-    console.log(str,pureInner);
     str = str + pureInner;
     textarea.innerHTML = str;
   }
 }
-const addHistory = (type, id, words = "") => {
+const addHistory = (type, id, pos, words = "") => {
   history.value.push({
     operate: type,
     words,
     time: new Date().toLocaleString(),
     id,
+    pos,
   })
   highlightText(words);
   needReSelect = true;
@@ -192,13 +190,16 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   const xr = Math.abs(endX - startPos[0]);
   const yr = Math.abs(endY - startPos[1]);
   const r = Math.sqrt(xr * xr + yr * yr) / 2;
+  const cx = xr / 2 + endX > startPos[0] ? startPos[0] : endX;
+  const cy = yr / 2 + endY > startPos[1] ? startPos[1] : endY;
   d3.select(".circleG").append('circle')
     .attr('id', id)
     .attr('r', r)
-    .attr('cx', xr / 2 + endX > startPos[0] ? startPos[0] : endX)
-    .attr('cy', yr / 2 + endY > startPos[1] ? startPos[1] : endY)
+    .attr('cx', cx)
+    .attr('cy', cy)
     .attr('fill', fill)
     .attr('stroke', stroke);
+  return {cx,cy,r};
 }
 const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
   const delEl = document.getElementById(id)
@@ -225,6 +226,7 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     delMarker.remove()
   }
   // 添加箭头
+  console.log(startPos[0],startPos[1],endX,endY);
   const arrow = d3.select(".arrowG").append('path')
     .attr("id", id)
     .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY}`)

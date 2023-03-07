@@ -9,11 +9,10 @@ import LineChartData from "@/assets/data.json"
 import { LineChart } from '../../js/LineChart';
 import * as d3 from "d3";
 
-
+const colorArrow = "#264653";
 const addArrow = (index, to, text, needDis, chart) => {
   const { svg, svgConfig } = chart;
   // let index = 0;
-  const colorArrow = "#264653";
   const pos = svgConfig.X.map((d, index) => [svgConfig.xScale(d), svgConfig.yScale(svgConfig.Y[index])]);
   const i0 = Math.max(index - 1, 0),
     i2 = Math.min(to ?? (index + 1), pos.length - 1),
@@ -74,14 +73,44 @@ const addArrow = (index, to, text, needDis, chart) => {
     .attr('y2', 0);
 
 }
+const addArrowFree = (startX, startY, endX, endY, needDis, chart, id) => {
+  const { arrowSvg, svgConfig } = chart;
+  // 添加箭头
+  arrowSvg
+    .transition()
+    .duration(2000)
+    .attr("opacity", 1)
+    .attr("stroke", 'rgba(0,0,0,0.5)')
+    .attr("stroke-width", "2")
+    .transition()
+    .duration(2000)
+    .attr("opacity", needDis ? 0 : 1);
+  arrowSvg.append('path')
+    .attr("id", id)
+    .attr("d", `M ${startX},${startY} L ${endX},${endY}`)
+    .attr("style", `marker-end: url(#${id}-marker)`)
+
+  arrowSvg
+    .append("marker")
+    .attr("orient", "auto")
+    .attr("id", `${id}-marker`)
+    .attr("markerUnits", "strokeWidth")
+    .attr("markerWidth", "6")
+    .attr("markerHeight", "4")
+    .attr("refX", 0)
+    .attr("refY", 2)
+    .append("path")
+    .attr("d", "M 0 0 L 5 2 L 0 4 z")
+}
 onMounted(() => {
-  const chart = LineChart(LineChartData.data, "#d3", {
+  const { svg, svgConfig } = LineChart(LineChartData.data, "#d3", {
     x: d => new Date(d.date),
     y: d => d.value,
   });
-  addArrow(5, 7, "30%", true, chart);
-  setTimeout(() => addArrow(8, 10, "80%", false, chart), 2000);
-
+  const arrowSvg = svg.append('g').attr("class", "arrowG");
+  // addArrow(5, 7, "30%", true, { svg, svgConfig });
+  // setTimeout(() => addArrow(8, 10, "80%", false, { svg, svgConfig }), 2000);
+  addArrowFree(174, 198, 287, 192, false, { arrowSvg, svgConfig }, "#demo2-1");
 })
 </script>
 <style scoped></style>
