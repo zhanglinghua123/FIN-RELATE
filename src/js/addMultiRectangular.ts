@@ -20,7 +20,7 @@ type animationData = {
     color : string
 }
 // id 为 rect 元素 对应的id id一定要唯一
-function addMultiRectangularShadow(id :string = "rectAnimation"  ,datas:animationData[],animation:animation) : {
+function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animationData[],animation:animation) : {
     mount : (svgNode:any)=>void
     beginAnimation : ()=>void
     endAnimation : ()=>void
@@ -29,9 +29,9 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  ,datas:animatio
     return {
         // ele 为 需要挂载的 svg元素
         mount : (ele)=>ele
-        .select("g","rect-background")
-        .selectAll("rect")
+        .insert("g",":nth-child(2)")
         .attr("id",`${id}-container`)
+        .selectAll("rect")
         .data(datas)
         .enter()
         .append("rect")

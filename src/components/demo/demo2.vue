@@ -4,7 +4,7 @@
 </template>
 
 <script setup>
-import { reactive, toRefs, onBeforeMount, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import LineChartData from "@/assets/data.json"
 import { LineChart } from '../../js/LineChart';
 import * as d3 from "d3";
@@ -73,17 +73,17 @@ const addArrow = (index, to, text, needDis, chart) => {
     .attr('y2', 0);
 
 }
-const addArrowFree = (startX, startY, endX, endY, needDis, chart, id) => {
+const addArrowFree = (startX, startY, endX, endY, needDis, chart, id, durationTime) => {
   const { arrowSvg, svgConfig } = chart;
   // 添加箭头
   arrowSvg
     .transition()
-    .duration(2000)
+    .duration(durationTime * 1000)
     .attr("opacity", 1)
     .attr("stroke", 'rgba(0,0,0,0.5)')
     .attr("stroke-width", "2")
     .transition()
-    .duration(2000)
+    .duration(durationTime * 1000)
     .attr("opacity", needDis ? 0 : 1);
   arrowSvg.append('path')
     .attr("id", id)

@@ -1,6 +1,10 @@
-import { createApp } from 'vue'
+import { createApp,ref } from 'vue'
 import App from './App.vue'
 
 // import './assets/main.css'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+app.config.globalProperties.$history = ref([])
+app.config.globalProperties.$chart = ref({})
+app.mount('#app')
+

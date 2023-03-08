@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { getCurrentInstance, ref, onMounted } from 'vue'
 import LineChartData from "../../assets/data.json"
 import { LineChart } from '../../js/LineChart';
 import { message } from 'ant-design-vue';
@@ -52,7 +52,9 @@ const tags = [
 let svg = null, svgConfig = {}, isDraw = true, type = "", currentId = 0, selectedWord = '', needReSelect = false;
 const colorArrow = "#264653";
 const startPos = [];
-const history = ref([]);
+// 将 history 修改为 全局变量
+const { proxy } = getCurrentInstance()
+const history = proxy.$history
 const itemRefs = []
 const setItemRef = el => {
   if (el) {
@@ -124,8 +126,8 @@ const labelString = (str) => {
   });
   return str;
 };
-const highlightText = (words,method='ADD') => {
-  if (words.length && (method==='DELETE' || !needReSelect)) {
+const highlightText = (words, method = 'ADD') => {
+  if (words.length && (method === 'DELETE' || !needReSelect)) {
     const textarea = document.getElementById("textarea");
     const inner = textarea.innerHTML.toString();
     let pureInner = labelString(inner);
@@ -180,7 +182,7 @@ const remove = (_, item) => {
   if (index !== -1) {
     history.value.splice(index, 1);
   }
-  highlightText(item.words,'DELETE');
+  highlightText(item.words, 'DELETE');
 }
 const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   const delEl = document.getElementById(id)
@@ -199,7 +201,7 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
     .attr('cy', cy)
     .attr('fill', fill)
     .attr('stroke', stroke);
-  return {cx,cy,r};
+  return { cx, cy, r };
 }
 const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
   const delEl = document.getElementById(id)
@@ -217,6 +219,12 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     .attr('y', endY > startPos[1] ? startPos[1] : endY)
     .attr("fill", fill)
     .attr('stroke', stroke);
+  return {
+    x: endX > startPos[0] ? startPos[0] : endX,
+    y: endY > startPos[1] ? startPos[1] : endY,
+    width,
+    height
+  }
 }
 const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
   const delEl = document.getElementById(id)
@@ -226,7 +234,7 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     delMarker.remove()
   }
   // 添加箭头
-  console.log(startPos[0],startPos[1],endX,endY);
+  console.log(startPos[0], startPos[1], endX, endY);
   const arrow = d3.select(".arrowG").append('path')
     .attr("id", id)
     .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY}`)
@@ -244,6 +252,12 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     .attr("refY", 2)
     .append("path")
     .attr("d", "M 0 0 L 5 2 L 0 4 z")
+  return {
+    startX: startPos[0],
+    startY: startPos[1],
+    endX,
+    endY
+  }
 }
 const refRemoveClass = (ref_info, class_name) => {
   ref_info.forEach((element) => {
@@ -292,7 +306,8 @@ const clickTag = (event) => {
 
 .input-layout {
   display: flex;
-  justify-content: space-evenly;
+  padding-top: 10vh;
+  // justify-content: space-evenly;
   flex-direction: column;
 }
 

@@ -1,7 +1,11 @@
 import { Canvg } from "canvg";
 import { message } from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css'
-// 时间单位均为 秒
+import {addCircle} from  "./addCircle"
+import { addArrowFree  } from "./addArrowFree";
+import {addRect} from "./addRect"
+import addMultiRectangularShadow from "./addMultiRectangular"
+ // 时间单位均为 秒
 interface animationFrame {
     // 暂停多少时间后 再执行该动画 
     stopTime? : number
@@ -11,6 +15,88 @@ interface animationFrame {
     gap? : number
     // 所执行的动画函数
     animation : ()=>void
+}
+interface historyItem{
+    // 用来高光的文字
+    words:string,
+    // 有关的文字信息
+    pos:any,
+    // 有关的时间信息
+    time:string,
+    // type
+    operate : "CIRCLE" | "RECT" | "ARROW"
+    // 对应的图形的 id
+    id:number
+}
+function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,svgConfig : any}){
+    console.log(history,"--history--")
+    let startTime = 0
+    // 一个动画的持续时间
+    let duration = 6
+    let gap = 2
+    let frames:animationFrame[] = []
+    const { svg , svgConfig } = chart
+    for(let item of history){
+        console.log(item,"--item--")
+        if(item.operate === "CIRCLE"){
+            // 绘制对应的圆圈动画
+            const circle = addCircle([{
+                x:item.pos.cx,
+                y:item.pos.cy,
+                innerRadius:item.pos.r-2,
+                outerRadius:item.pos.r+2,
+                textContent:item.words,
+                color: "rgba(239, 217, 111)"
+            }], {
+                enterDuration:duration/2,
+                leaveDuration: duration/2
+              })
+            console.log(item.id,item.operate,item.pos,item.words)
+            {
+                frames.push({
+                    stopTime:0,
+                    gap:gap,
+                    duration:duration,
+                    animation:()=>{
+                        circle.mount(svg)
+                        circle.beginAnimation()
+                        setTimeout(()=>{
+                            circle.endAnimation()
+                        },( duration / 2  * 1000))
+                    }
+                })
+            }
+        }else if(item.operate === "RECT"){
+            const multiRect = addMultiRectangularShadow(`rectGroup-${item.id}`,[{
+                ...item.pos,
+                color : "rgba(239, 217, 111)"
+            }],{})
+            frames.push({
+                stopTime:0,
+                gap:gap,
+                duration:duration,
+                animation:()=>{
+                    multiRect.mount(svg)
+                    multiRect.beginAnimation()
+                    setTimeout(()=>{
+                        multiRect.endAnimation()
+                    },( duration / 2  * 1000))
+                }
+            })
+        }else if(item.operate === "ARROW"){
+            // 绘制对应的箭头动画
+            frames.push({
+                stopTime:startTime,
+                gap:gap,
+                duration:duration,
+                animation:()=>{
+                   addArrowFree(item.pos.startX,item.pos.startY,item.pos.endX
+                    ,item.pos.endY,1,chart,item.id,duration /2)
+                }
+            })
+        }
+    }
+    return animationForm(frames)
 }
 // 执行生成对应的animation
 function animationForm(frames:animationFrame[]){
@@ -42,11 +128,11 @@ let recordStopHandler
 //  用来表达 视频流是否已经停止的变量
 let hasStopRecorder = true
 // 将svg元素的container 作为 节点参数传入即可
-async function animation2Video(animationFrames : animationFrame[], svgNodeContainer){
+async function animation2Video(durationTime, svgNodeContainer){
     const canvas = document.getElementById("video") as HTMLCanvasElement
     const ctx = canvas.getContext("2d");
     // 调用执行动画的函数 并记录将svg渲染到 canvas上面
-    const totalTime = animationForm(animationFrames)
+    const totalTime = durationTime
     let FrameCount = 0
     animationHandler = setInterval(()=>{
         if(FrameCount <= totalTime * 50){
@@ -86,6 +172,7 @@ function downloadVideo(){
 export {
     animationForm,
     animation2Video,
+    animationFormFromHistory,
     interruptSvg2Video,
     downloadVideo
 }
