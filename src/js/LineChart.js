@@ -23,6 +23,7 @@ function LineChart(data, id, {
     strokeLinejoin = "round",
     strokeWidth = 1.5,
     strokeOpacity = 1,
+    backgroundColor = "white"
   } = {}) {
     let svgConfig = {}
     const X = d3.map(data, x);
@@ -58,10 +59,10 @@ function LineChart(data, id, {
     // 添加背景颜色    
     svg.append("g")
       .attr("id","rect-background")
-      .append("rect","white")
+      .append("rect")
       .attr("width",width)
       .attr("height",height)
-      .style("fill","white")
+      .style("fill",backgroundColor)
     svg.append("g")
       .attr("transform", `translate(0,${height - marginBottom})`)
       .call(xAxis);

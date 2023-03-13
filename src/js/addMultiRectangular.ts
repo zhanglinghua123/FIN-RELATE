@@ -18,6 +18,8 @@ type animationData = {
     y : number
     // color
     color : string
+    // text
+    textContent : string
 }
 // id 为 rect 元素 对应的id id一定要唯一
 function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animationData[],animation:animation) : {
@@ -28,20 +30,32 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animati
     const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
     return {
         // ele 为 需要挂载的 svg元素
-        mount : (ele)=>ele
-        .insert("g",":nth-child(2)")
-        .attr("id",`${id}-container`)
-        .selectAll("rect")
-        .data(datas)
-        .enter()
-        .append("rect")
-        .attr("id",id)
-        .attr("x",val=>`${val.x || 0 }px`)
-        .attr("y",val=>`${val.y || 0 }px`)   
-        .attr("width",val=>val.width || 100)
-        .attr("height",val=>val.height || 100)
-        .attr("fill",val=>val.color || "rgba(0,0,0,0.4)")
-        .attr("opacity",0)
+        mount : (ele)=>{
+        const group =  ele.insert("g",":nth-child(2)")
+            .attr("id",`${id}-container`)
+           
+            group.attr("font-size",14)
+            group.selectAll("rect")
+            .data(datas)
+            .enter()
+            .append("rect")
+            .attr("id",id)
+            .attr("x",val=>`${val.x || 0 }px`)
+            .attr("y",val=>`${val.y || 0 }px`)   
+            .attr("width",val=>val.width || 100)
+            .attr("height",val=>val.height || 100)
+            .attr("fill",val=>val.color || "rgba(0,0,0,0.4)")
+            .attr("opacity",0)
+            
+            group.selectAll("text")
+            .data(datas)
+            .enter()
+            .append("text")
+            .attr("x", val=>`${val.x + (val.width / 2) - (val.textContent || 0).length * 7 }px`)
+            .attr("y",  val=>`${val.y - 20 }px`)
+            .text("5% HIGHER THAN JUNE")
+            // debugger
+        }
         ,
         beginAnimation:()=>{
             let count = enterFrame

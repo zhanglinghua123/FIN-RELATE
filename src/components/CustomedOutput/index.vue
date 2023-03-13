@@ -1,9 +1,6 @@
 <!--  -->
 <template>
   <div class="output-layout">
-  <!-- <a-select ref="select" v-model:value="selectedDemo" @change="loadDemo" :options="selectOptions">
-                                                      </a-select> -->
-
     <component class="demo" :is="selectedDemo"></component>
   </div>
 </template>
@@ -26,8 +23,10 @@ let selectedDemo = ref("Demo3");
 </script>
 <style scoped>
 .output-layout {
-  padding-top: 140px;
-  height: 542px;
+  min-height: 60vh;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 20px;
   /* height: 600px; */
   /* display: flex; */
   /* flex-direction: column; */
@@ -36,8 +35,7 @@ let selectedDemo = ref("Demo3");
 }
 
 .demo {
-  width: 640px;
-  height: 402px;
-  border: 1px solid;
+  width: 100%;
+  height: calc(60vh - 40px)
 }
 </style>
