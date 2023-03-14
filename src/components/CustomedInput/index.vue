@@ -226,11 +226,14 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     .attr('y', endY > startPos[1] ? startPos[1] : endY)
     .attr("fill", fill)
     .attr('stroke', stroke);
+  const basicChart = document.getElementById("basicChart")
+
   return {
     x: endX > startPos[0] ? startPos[0] : endX,
     y: 20,
     width,
-    height: 350,
+    height: basicChart.getBoundingClientRect().height - 50,
+    id: id,
   }
 }
 const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
@@ -371,6 +374,5 @@ const clickTag = (event) => {
 
 #basicChart {
   width: 100%;
-  min-height: 400px
 }
 </style>

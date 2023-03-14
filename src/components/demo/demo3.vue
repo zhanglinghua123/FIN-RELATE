@@ -117,6 +117,6 @@ onMounted(() => {
 <style scoped>
 #d3 {
     width: 100%;
-    min-height: calc(60vh - 80px);
+    /* min-height: calc(60vh - 80px); */
 }
 </style>

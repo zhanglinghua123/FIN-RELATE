@@ -8,6 +8,8 @@ type animation = {
     enterFrame?:number
     // 淡出帧数
     leaveFrame?:number
+    // 闪烁时间
+    twinkleTime?:number
 }
 type animationData = {
     // 矩形宽高
@@ -20,21 +22,29 @@ type animationData = {
     color : string
     // text
     textContent : string
+    // strokeColor
+    stroke?:{
+        stroke: string,
+        strokeWidth:string,
+        strokeDashArray:string,
+    }
 }
-// id 为 rect 元素 对应的id id一定要唯一
-function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animationData[],animation:animation) : {
+type animationResult = {
     mount : (svgNode:any)=>void
+    twinkle:()=>void
     beginAnimation : ()=>void
     endAnimation : ()=>void
-} {
-    const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
+}
+// id 为 rect 元素 对应的id id一定要唯一
+function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animationData[],animation:animation) : animationResult {
+    const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 , twinkleTime = 0} = animation
     return {
         // ele 为 需要挂载的 svg元素
         mount : (ele)=>{
         const group =  ele.insert("g",":nth-child(2)")
             .attr("id",`${id}-container`)
-           
-            group.attr("font-size",14)
+
+            group.attr("font-size",16)
             group.selectAll("rect")
             .data(datas)
             .enter()
@@ -46,15 +56,18 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animati
             .attr("height",val=>val.height || 100)
             .attr("fill",val=>val.color || "rgba(0,0,0,0.4)")
             .attr("opacity",0)
-            
+            .attr("stroke",val=> val?.stroke?.stroke)
+            .attr("stroke-width",val=>val?.stroke?.strokeWidth)
+            .attr("stroke-dasharray",val=>val?.stroke?.strokeDashArray)
             group.selectAll("text")
             .data(datas)
             .enter()
             .append("text")
-            .attr("x", val=>`${val.x + (val.width / 2) - (val.textContent || 0).length * 7 }px`)
-            .attr("y",  val=>`${val.y - 20 }px`)
-            .text("5% HIGHER THAN JUNE")
-            // debugger
+            .attr("id",id)
+            .attr("x", val=>`${val.x + (val.width / 2) - (val.textContent || "").length * 4 }px`)
+            .attr("y",  val=>`${val.y - 5}px`)
+            .text(val=>val.textContent || "")
+            console.log(datas)
         }
         ,
         beginAnimation:()=>{
@@ -68,6 +81,18 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animati
                     clearInterval(hander)
                 }
             },enterDuration * 1000 / enterFrame)
+        },
+        twinkle:()=>{
+            let twincleCount = twinkleTime * 1000 / 100
+            let twinCleHandle = setInterval(()=>{
+                if(twincleCount > 0){
+                    d3.selectAll(`#${id}`)
+                    .attr("opacity", twincleCount % 2 )
+                    twincleCount--   
+                }else{
+                    clearInterval(twinCleHandle)
+                }
+            },100)
         },
         endAnimation:()=>{
             let count = leaveFrame
@@ -85,4 +110,9 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animati
     }
 }
 
-export default addMultiRectangularShadow
+export { 
+    addMultiRectangularShadow , 
+    animation,
+    animationData,
+    animationResult
+}

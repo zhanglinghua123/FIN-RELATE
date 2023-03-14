@@ -4,8 +4,9 @@ type ArrowConfig = {
     y1 : number, 
     x2 : number,
     y2 : number,
-    textContent:string,
-    color:string
+    textContent?:string,
+    // 箭头颜色
+    color?:string
 }
 type animation = {
     // 渐进持续时间
@@ -17,12 +18,12 @@ type animation = {
     // 淡出帧数
     leaveFrame?:number
 }
-function addArrow( config:ArrowConfig,animation:animation = {}) : {
+function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") : {
     mount : (svgNode:any)=>void
     beginAnimation : ()=>void
     endAnimation : ()=>void
 } {
-    const {x1 , y1 , x2 , y2} = config
+    const {x1 , y1 , x2 , y2, color = "black"} = config
     const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
     let arrow
     return  {
@@ -34,24 +35,26 @@ function addArrow( config:ArrowConfig,animation:animation = {}) : {
             
             arrow.append("path")
             .attr("d",`M ${x1},${y1} L ${x2},${y2}`)
-            .attr("stroke","black")
+            .attr("stroke",color)
             .attr("stroke-width","2")
-            .attr("style","marker-end: url(#triangle)")
+            .attr("style",`marker-end: url(#triangle-${id})`)
             // add the head of arrow
             arrow.append("marker")
             .attr("orient","auto")
-            .attr("id","triangle")
+            // .attr("stroke",color)
+            .attr("fill",color)
+            .attr("id",`triangle-${id}`)
             .attr("markerUnits","strokeWidth")
-            .attr("markerWidth","5")
+            .attr("markerWidth","6")
             .attr("markerHeight","4")
             .attr("refX",0)
             .attr("refY",2)
             .append("path")
             .attr("d","M 0 0 L 5 2 L 0 4 z")
-            
+
             arrow.append("text")
             .attr("transform",`translate(${(x2+x1)/2 - 30} ${(y2+y1)/2 + 30})`)
-            .attr("color",config.color)
+            .attr("color","black")
             .text(config.textContent || "")
         },
         beginAnimation:()=>{
@@ -60,7 +63,10 @@ function addArrow( config:ArrowConfig,animation:animation = {}) : {
                 if(count > 0){
                     count --
                     arrow.attr("opacity", 1 - count / enterFrame)
-                    .attr("transform",`translate(0 ${(1 - count/enterFrame) * 30})`)
+                    if(count < 15){
+                        debugger
+                    }
+                    // .attr("transform",`translate(0 ${(1 - count/enterFrame) * 30})`)
                 }else{
                     clearInterval(hander)
                 }
@@ -72,7 +78,7 @@ function addArrow( config:ArrowConfig,animation:animation = {}) : {
                 if(count > 0){
                     count--
                     arrow.attr("opacity" ,count / enterFrame)
-                    .attr("transform",`translate(0 ${(count/enterFrame) * 30})`)
+                    // .attr("transform",`translate(0 ${(count/enterFrame) * 30})`)
                 }else{
                     clearInterval(hander)
                     arrow.remove()
@@ -157,5 +163,6 @@ function addSlippyArrow(config:SlipperyArrow,animation:animation = {}){
 }
 export {
     addArrow,
-    addSlippyArrow
+    addSlippyArrow,
+    ArrowConfig
 }
