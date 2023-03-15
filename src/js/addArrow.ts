@@ -41,7 +41,7 @@ function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") :
     twinkle : ()=>void
 } {
     const {x1 , y1 , x2 , y2, color = "black",labelStroke = undefined ,fontSize = 16 , isCurve = false} = config
-    const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60, twinkleTime = 1 } = animation
+    const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60, twinkleTime = 2 } = animation
     let arrow
     let points = [ 
         {x:x1,  y:y1}, 
@@ -167,7 +167,7 @@ function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") :
             arrow.remove()
         },
         twinkle:()=>{
-            let twincleCount = twinkleTime * 1000 / 100
+            let twincleCount = twinkleTime * 1000 / 200
             let twinCleHandle = setInterval(()=>{
                 if(twincleCount > 0){
                     arrow
@@ -176,7 +176,7 @@ function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") :
                 }else{
                     clearInterval(twinCleHandle)
                 }
-            },100)
+            },200)
         },
     }
    

@@ -1,6 +1,8 @@
-const getDirection = (x1,x2,y1,y2)=>{
-    const xDirect = (x2 - x1) / Math.sqrt( (y2 - y1) ** 2 + ( x2 - x1 ) ** 2  )
-    const yDirect = (y2 - y1) / Math.sqrt( (y2 - y1) ** 2 + ( x2 - x1 ) ** 2  )
+import { ArrowConfig } from "./addArrow"
+
+const getDirection = (arrow:ArrowConfig)=>{
+    const xDirect = (arrow.x2 - arrow.x1) / Math.sqrt( (arrow.y2 - arrow.y1) ** 2 + ( arrow.x2 - arrow.x1 ) ** 2  )
+    const yDirect = (arrow.y2 - arrow.y1) / Math.sqrt( (arrow.y2 - arrow.y1) ** 2 + ( arrow.x2 - arrow.x1 ) ** 2  )
     return {xDirect,yDirect}
 }
 export {

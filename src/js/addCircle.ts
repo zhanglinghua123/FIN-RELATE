@@ -24,6 +24,7 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
     mount : (svgNode:any)=>void
     beginAnimation : ()=>void
     endAnimation : ()=>void
+    remove:()=>void
 } {
     const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
     let circle
@@ -31,13 +32,14 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
         // ele 为 需要挂载的 svg元素
         mount:(ele)=>{
             circle = ele.append("g")
+            .attr("font-size",16)
             circle.
             selectAll("text")
             .data(data)
             .enter()
             .append("text")
             .attr("text-anchor","middle")
-            .attr("transform",val=>`translate(${val.x} ${val.y - 30})`)
+            .attr("transform",val=>`translate(${val.x} ${val.y - val.outerRadius - 5})`)
             .attr("color",val=>val.color || "rgba(0,0,0,0.1)")
             .attr("opacity",0)
             .text(val=>val.textContent )
@@ -78,7 +80,7 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
                     oldCircle = newCircle
                     newCircle = []
                 }else{
-                    oldCircle.forEach(val=>(val as any).remove())
+                    // oldCircle.forEach(val=>(val as any).remove())
                     clearInterval(hander)
                 }
             }, enterDuration * 1000 / enterFrame )
@@ -121,7 +123,8 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
                     circle.remove()
                 }
             }, leaveDuration * 1000 / leaveFrame)
-        }
+        },
+        remove:()=>circle.remove()
     }
 }
 export {

@@ -142,7 +142,8 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                 textContent:item.words,
                 color: "#f1a340"
             },`rectGroup-${item.id+100}`,{
-                twinkleTime:1
+                twinkleTime:2,
+                
             })
             )
             frames.push(
@@ -156,7 +157,7 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                     color: "#998e43",
                     textContent:item.words,
                 },`rectGroup-${item.id+100}`,{
-                    twinkleTime:1
+                    twinkleTime : 2
                 })
             )
             frames.push(
@@ -170,7 +171,7 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                     x : item.pos.x + 200,
                     textContent:item.words,
                 },`rectGroup-${item.id+100}`,{
-                    twinkleTime:1
+                    twinkleTime:2
                 })
             )
             frames.push(
@@ -193,24 +194,23 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                         strokeWidth:5,
                     }
                 },`rectGroup-${item.id+100}`,{
-                    twinkleTime:1
                 })
             )
         }else if(item.operate === "ARROW"){
-            // 绘制对应的箭头动画
+          //  绘制对应的箭头动画
             frames.push(
             similiarArrow(svg,{
                 x1:item.pos.startX,
                 y1:item.pos.startY,
                 x2:item.pos.endX,
                 y2:item.pos.endY,
-                textContent:"12121212"
+                textContent:item.words || "1212"
             },{
                 x1:item.pos.startX+100,
                 y1:item.pos.startY,
                 x2:item.pos.endX+100,
                 y2:item.pos.endY,
-                textContent:"12121212"
+                textContent:item.words || "1212"
             },{}))
 
             frames.push(
@@ -219,13 +219,13 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                     y1:item.pos.startY,
                     x2:item.pos.endX,
                     y2:item.pos.endY,
-                    textContent:"12121212"
+                    textContent:item.words || "1212"
                 },{
                     x1:item.pos.startX+100,
                     y1:item.pos.startY,
                     x2:item.pos.endX+100,
                     y2:item.pos.endY,
-                    textContent:"12121212",
+                    textContent:item.words || "1212",
                     color:"#9983c9"
                 },{}))
 
@@ -235,13 +235,13 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                         y1:item.pos.startY,
                         x2:item.pos.endX,
                         y2:item.pos.endY,
-                        textContent:"12121212"
+                        textContent:item.words || "1212"
                     },{
                         x1:item.pos.startX+100,
                         y1:item.pos.startY,
                         x2:item.pos.endX+100,
                         y2:item.pos.endY,
-                        textContent:"12121212",
+                        textContent:item.words || "1212",
                         color:"#9983c9"
                     },{}))
 
@@ -252,21 +252,14 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                             x2:item.pos.endX,
                             y2:item.pos.endY,
                             textContent:item.words || "1212",
-                            labelStroke:{
-                                strokeWidth:2,
-                                strokeDashArray:10,
-                            }
+                          
                         },{
-                            x1:item.pos.startX+100,
-                            y1:item.pos.startY+100,
-                            x2:item.pos.endX+100,
-                            y2:item.pos.endY+100,
+                            x1:item.pos.startX+200,
+                            y1:item.pos.startY,
+                            x2:item.pos.endX+200,
+                            y2:item.pos.endY,
                             textContent:item.words || "1212",
                             color:"#9983c9",
-                            labelStroke:{
-                                strokeWidth:2,
-                                strokeDashArray:10,
-                            }
                         },{}))
                 frames.push(similarTendency(svg,{
                     x1:item.pos.startX,
@@ -487,7 +480,6 @@ function CanvasRecorder(canvas, video_bits_per_sec) {
         a.download = name;
         document.body.appendChild(a);
         a.click();
-        console.log(file_name,"----")
 
         setTimeout(() => {
             document.body.removeChild(a);

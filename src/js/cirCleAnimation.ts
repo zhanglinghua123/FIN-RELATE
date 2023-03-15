@@ -31,7 +31,7 @@ const similarCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCl
     },animation,"arrowTwo")
     return {
         stopTime : 0,
-        duration : enterDuration + leaveDuration,
+        duration : enterDuration + 1,
         gap : 1,
         animation:()=>{
             circleArray.mount(svg),
@@ -41,16 +41,16 @@ const similarCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCl
             arrowOne.beginAnimation()
             arrowTwo.beginAnimation()
             setTimeout(()=>{
-                circleArray.endAnimation()
-                arrowOne.endAnimation()
-                arrowTwo.endAnimation()
-            },enterDuration * 1000)
+                arrowOne.remove()
+                arrowTwo.remove()
+                circleArray.remove()
+            },enterDuration * 1000 + 1000)
         }
     }
 }
 const diffCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleConfigItem,arrowConfigOne,arrowConfigTwo,animation:animation) : animationFrame =>{
  
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 0} = animation
+    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
     const circleArray = addCircle([circleOne,circleTwo],animation)
     const x1 = ( circleOne.x + circleTwo.x ) / 2
     const y1 = ( circleOne.y + circleTwo.y ) / 2    
@@ -77,7 +77,7 @@ const diffCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleCo
     },animation,"arrowTwo")
     return {
         stopTime : 0,
-        duration : enterDuration + leaveDuration,
+        duration : enterDuration + 1 ,
         gap : 1,
         animation:()=>{
             circleArray.mount(svg),
@@ -87,15 +87,15 @@ const diffCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleCo
             arrowOne.beginAnimation()
             arrowTwo.beginAnimation()
             setTimeout(()=>{
-                circleArray.endAnimation()
-                arrowOne.endAnimation()
-                arrowTwo.endAnimation()
-            },enterDuration * 1000)
+                circleArray.remove()
+                arrowOne.remove()
+                arrowTwo.remove()
+            },enterDuration * 1000 + 1000)
         }
     }
 }
 const timeCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleConfigItem,arrowConfigOne,animation:animation) : animationFrame =>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 0} = animation
+    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
     const circleArray = addCircle([circleOne,circleTwo],animation)
   
     const xDirect = (circleTwo.x - circleOne.x) / Math.sqrt( (circleOne.y - circleTwo.y) ** 2 + ( circleOne.x - circleTwo.x ) ** 2  )
@@ -113,7 +113,7 @@ const timeCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleCo
     },animation,"arrowOne")
     return {
         stopTime : 0,
-        duration : enterDuration + leaveDuration,
+        duration : enterDuration + 1 ,
         gap : 1,
         animation:()=>{
             circleArray.mount(svg),
@@ -121,14 +121,14 @@ const timeCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleCo
             circleArray.beginAnimation()
             arrow.beginAnimation()
             setTimeout(()=>{
-                circleArray.endAnimation()
-                arrow.endAnimation()
-            },enterDuration * 1000)
+                circleArray.remove()
+                arrow.remove()
+            },enterDuration * 1000 + 1000)
         }
     }
 }
 const causeCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleConfigItem,arrowConfigOne,animation:animation) : animationFrame=>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 0} = animation
+    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
     const circleArray = addCircle([circleOne,circleTwo],animation)
    
     const xDirect = (circleTwo.x - circleOne.x) / Math.sqrt( (circleOne.y - circleTwo.y) ** 2 + ( circleOne.x - circleTwo.x ) ** 2  )
@@ -146,7 +146,7 @@ const causeCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleC
     },animation,"arrowOne")
     return {
         stopTime : 0,
-        duration : enterDuration + leaveDuration,
+        duration : enterDuration + 1,
         gap : 1,
         animation:()=>{
             circleArray.mount(svg),
@@ -154,9 +154,9 @@ const causeCircle = (svg:SVGElement,circleOne:cirCleConfigItem,circleTwo:cirCleC
             circleArray.beginAnimation()
             arrow.beginAnimation()
             setTimeout(()=>{
-                circleArray.endAnimation()
-                arrow.endAnimation()
-            },enterDuration * 1000)
+                circleArray.remove()
+                arrow.remove()
+            },enterDuration * 1000 + 1000)
         }
     }
 }

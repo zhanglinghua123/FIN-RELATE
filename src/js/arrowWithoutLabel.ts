@@ -6,7 +6,7 @@ const judgeColor = (arrow:ArrowConfig)=>{
     return (arrow.y2 - arrow.y1)  > 0 ? "#FF0000" : "#00FF00"
 }
 const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation):animationFrame=>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 1} = animation
+    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
     const arrow1 = addArrow({
         ...arrowOne,
         textContent:"",
@@ -19,7 +19,7 @@ const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfi
     },animation,"arrowTwo")
     return {
         stopTime:0,
-        duration:enterDuration + leaveDuration,
+        duration:enterDuration + 1 ,
         gap:1,
         animation:()=>{
             arrow1.mount(svg)
@@ -27,9 +27,9 @@ const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfi
             arrow1.beginAnimation()
             arrow2.beginAnimation()
             setTimeout(()=>{
-                arrow1.endAnimation()
-                arrow2.endAnimation()
-            },enterDuration * 1000)
+                arrow1.remove()
+                arrow2.remove()
+            },enterDuration * 1000 + 1000)
         }
     }
 }
@@ -37,7 +37,7 @@ const diffTendency = ()=>{
 
 }
 const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation):animationFrame=>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 1} = animation
+    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
     const arrow1 = addArrow({
         ...arrowOne,
         textContent:"",
@@ -50,7 +50,7 @@ const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,a
     },animation,"arrowTwo")
     return {
         stopTime:0,
-        duration:(enterDuration + leaveDuration + twinkleTime) * 2,
+        duration:(enterDuration + twinkleTime) * 2 + 1,
         gap:1,
         animation:()=>{
             arrow1.mount(svg)
@@ -66,16 +66,14 @@ const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,a
                 arrow2.twinkle()
             },(enterDuration * 2 + twinkleTime )* 1000)
             setTimeout(()=>{
-                arrow1.endAnimation()
-            },(enterDuration * 2 + twinkleTime * 2 )* 1000)
-            setTimeout(()=>{
-                arrow2.endAnimation()
-            },(enterDuration * 2 + twinkleTime * 2 + leaveDuration )* 1000)
+                arrow1.remove()
+                arrow2.remove()
+            },(enterDuration * 2 + twinkleTime * 2 )* 1000 + 1000)
         }
     }
 }
 const causeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation):animationFrame=>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 1} = animation
+    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
     const arrow1 = addArrow({
         ...arrowOne,
         textContent:"",
@@ -89,7 +87,7 @@ const causeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,
     },animation,"arrowTwo")
     return {
         stopTime:0,
-        duration:(enterDuration + leaveDuration) * 2,
+        duration:(enterDuration ) * 2 + 1,
         gap:1,
         animation:()=>{
             arrow1.mount(svg)
@@ -99,11 +97,10 @@ const causeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,
                 arrow2.beginAnimation()
             },enterDuration * 1000)
             setTimeout(()=>{
-                arrow1.endAnimation()
-            },(enterDuration * 2 )* 1000)
-            setTimeout(()=>{
-                arrow2.endAnimation()
-            },(enterDuration * 2 + leaveDuration )* 1000)
+                arrow1.remove()
+                arrow2.remove()
+            },(enterDuration * 2 )* 1000 + 1000)
+           
         }
     }
 }
