@@ -1,20 +1,27 @@
 <template>
-  <section class="overview-layput">
-    <CustomedInput></CustomedInput>
-    <section class="button-layout">
-      <button @click="onClickButton">生成</button>
-    </section>
-    <CustomedOutput></CustomedOutput>
-    <CanvasModal ref="modalButton"></CanvasModal>
-    <!-- <canvas ref="canvas" :style="{ width: `640px`, height: `400px` }"></canvas> -->
-  </section>
+  <div>
+    <div id="app">
+      <div id="title">
+        <span>VisGenerator</span>
+        <button class="generate-button" @click="onClickButton">Generate</button>
+      </div>
+      <div id="content">
+        <div id="input">
+          <CustomedInput @changeText="changeText"></CustomedInput>
+        </div>
+        <div id="output">
+          <CustomedOutput :innerStr="innerStr"></CustomedOutput>
+          <CanvasModal ref="modalButton"></CanvasModal>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import CustomedInput from './components/CustomedInput/index.vue'
 import CustomedOutput from './components/CustomedOutput/index.vue'
 import CanvasModal from "./components/ModalOfCanvas/CanvasModal.vue"
-import addMultiRect from "./js/addMultiRectangular"
 import { animationFormFromHistory, animation2Video } from "./js/animation"
 import * as d3 from "d3"
 import { getCurrentInstance, ref, defineComponent } from "vue"
@@ -32,7 +39,13 @@ export default defineComponent({
       const svgContainer = document.getElementById("d3")
       animation2Video(totalTime, svgContainer)
     }
+    let innerStr = ref('');
+    const changeText = (str) => {
+      innerStr.value = str;
+    }
     return {
+      innerStr,
+      changeText,
       modalButton,
       onClickButton
     }
@@ -43,9 +56,55 @@ export default defineComponent({
 </script>
 
 
-<style scoped>
+<style scoped lang="less">
 #app {
+  background-color: rgba(0, 0, 0, 0.8);
+  min-height: 100vh;
   width: 100vw;
+  box-sizing: border-box;
+  // padding: 40px;
+  padding-top: 10px;
+}
+
+#title {
+  position: relative;
+  margin-bottom: 10px;
+  // display: flex;
+  // justify-content: center;
+
+  span {
+    color: white;
+    font-size: 30px;
+    text-align: center;
+    display: block;
+  }
+
+  button {
+    position: absolute;
+    right: 20px;
+    width: 90px;
+    top: 25%;
+    // border: 1px #ebebea;
+    border-radius: 4px;
+    border: none;
+    font-size: 15px;
+    font-family: PingFang SC;
+    background-color: #a5a3a3;
+  }
+}
+
+#content {
+  display: flex;
+
+}
+
+#input {
+  margin-right: 20px;
+  width: 50%;
+}
+
+#output {
+  width: 50%;
 }
 
 .button-layout {
@@ -58,6 +117,7 @@ export default defineComponent({
   width: 150px;
   height: 40px;
 }
+
 
 .overview-layput {
   display: flex;

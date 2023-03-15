@@ -1,19 +1,24 @@
 
 <template>
-  <div class="input-layout">
-    <!-- <div id="textarea" ref="textarea" contenteditable="true">物品</div> -->
-    <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
-    <!-- <a-textarea id="textarea" ref="textarea" v-model:value="value" placeholder="输入分析语句" :rows="4" /> -->
-    <section class="basic-layout">
-      <div id="basicChart"></div>
+  <div>
+    <div class="input-layout">
+      <!-- <div id="textarea" ref="textarea" contenteditable="true">物品</div> -->
+      <!-- <a-textarea id="textarea" ref="textarea" v-model:value="value" placeholder="输入分析语句" :rows="4" /> -->
+      <section class="basic-layout">
+        <div id="basicChart"></div>
+      </section>
+    </div>
+    <div id="select">
+      <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
       <div class="tag-layout" @click="clickTag">
         <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
           :color="item.color">
           {{ item.name }}
         </a-tag>
       </div>
-    </section>
-    <section class="history-layout">
+    </div>
+    <div id="select-card">
+      <div></div>
       <div class="card" v-for="item in history">
         <a-card :title="item.operate">
           <template #extra><a-button type="link" @click="remove($event, item)">remove</a-button></template>
@@ -21,30 +26,30 @@
           <div>time: {{ item.time }}</div>
         </a-card>
       </div>
-
-    </section>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { getCurrentInstance, ref, onMounted } from 'vue'
-import LineChartData from "../../assets/data.json"
 import { LineChart } from '../../js/LineChart';
+import LineChartData from "../../assets/data.json"
+import { getCurrentInstance, ref, onMounted } from 'vue'
 import { message } from 'ant-design-vue';
 import * as d3 from "d3";
+const emit = defineEmits(['changeText'])
 const tags = [
   {
-    name: "圆",
+    name: "CIRCLE",
     color: "pink",
     key: "CIRCLE"
   },
   {
-    name: "矩形高亮",
+    name: "RECT",
     color: "green",
     key: "RECT"
   },
   {
-    name: "箭头",
+    name: "ARROW",
     color: "yellow",
     key: "ARROW"
   },
@@ -72,9 +77,13 @@ const selectWords = (e) => {
   }
 }
 onMounted(() => {
+  const basicChart = document.getElementById("basicChart")
+  console.log(basicChart.getBoundingClientRect().height, "----")
   const chart = LineChart(LineChartData.data, "#basicChart", {
     x: d => new Date(d.date),
     y: d => d.value,
+    width: basicChart.getBoundingClientRect().width,
+    height: basicChart.getBoundingClientRect().height,
   });
   ({ svg, svgConfig } = chart);
   //把同一种类型放一起，方便管理
@@ -142,6 +151,8 @@ const highlightText = (words, method = 'ADD') => {
     })
     str = str + pureInner;
     textarea.innerHTML = str;
+    emit("changeText",str);
+    this
   }
 }
 const addHistory = (type, id, pos, words = "") => {
@@ -210,7 +221,7 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
   }
   const width = Math.abs(endX - startPos[0]);
   const height = Math.abs(endY - startPos[1]);
-  // const r = Math.sqrt(xr * xr + yr * yr) / 2;
+
   d3.select(".rectG").append('rect')
     .attr('id', id)
     .attr('width', width)
@@ -219,11 +230,14 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     .attr('y', endY > startPos[1] ? startPos[1] : endY)
     .attr("fill", fill)
     .attr('stroke', stroke);
+  const basicChart = document.getElementById("basicChart")
+
   return {
     x: endX > startPos[0] ? startPos[0] : endX,
-    y: endY > startPos[1] ? startPos[1] : endY,
+    y: 20,
     width,
-    height
+    height: basicChart.getBoundingClientRect().height - 50,
+    id: id,
   }
 }
 const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
@@ -287,38 +301,95 @@ const clickTag = (event) => {
 
 </script>
 <style lang="scss" scoped>
-.textarea {
-  width: 400px;
-  min-height: 120px;
-  max-height: 300px;
-  _height: 120px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 3px;
-  outline: 0;
-  border: 1px solid #a0b3d6;
-  font-size: 12px;
-  word-wrap: break-word;
-  overflow-x: hidden;
-  overflow-y: auto;
-  _overflow-y: visible;
+#select {
+  margin-top: 20px;
+  display: flex;
+
+  .textarea {
+    width: calc(100% - 100px);
+    min-height: 120px;
+    max-height: 300px;
+    _height: 120px;
+    margin-left: 20px;
+    padding: 3px;
+    outline: 0;
+    border: 1px solid #a0b3d6;
+    font-size: 12px;
+    color: #fff;
+    word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+    _overflow-y: visible;
+  }
 }
+
+#select-card {
+  margin-top: 20px;
+  margin-left: 20px;
+  width: calc(100vw - 40px);
+  display: flex;
+  /* flex-wrap: wrap; */
+  overflow-x: auto;
+
+  .card {
+    margin: 0 20px 10px 0;
+    flex: none;
+    width: 300px;
+  }
+
+  --sb-track-color: #232e33;
+  --sb-thumb-color: #ecc142;
+  --sb-size: 7px;
+
+  scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+
+  &::-webkit-scrollbar {
+    height: var(--sb-size);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 5px;
+  }
+}
+
 
 .input-layout {
   display: flex;
-  padding-top: 10vh;
   // justify-content: space-evenly;
   flex-direction: column;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  min-height: 60vh;
+  padding: 60px;
+  box-sizing: border-box;
+
+  #basicChart {
+    width: 100%;
+    height: calc(60vh - 40px);
+  }
 }
 
 .basic-layout {
   display: flex;
 }
 
+.card {
+  width: 33%;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .tag-layout {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  width: 80px;
+  margin-left: 20px;
 }
 
 .tag-item {
@@ -330,12 +401,8 @@ const clickTag = (event) => {
   opacity: 1;
 }
 
-.history-layout {
-  display: flex;
-  flex-wrap: wrap;
 
-  .card {
-    width: 33%;
-  }
-}
-</style>
+
+#basicChart {
+  width: 100%;
+}</style>

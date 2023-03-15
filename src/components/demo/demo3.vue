@@ -10,11 +10,12 @@ import LineChartData from "../../assets/data.json"
 
 onMounted(() => {
     // 定义图表
+    const d3 = document.getElementById("d3")
     const chart = LineChart(LineChartData.data, "#d3", {
         x: d => new Date(d.date),
         y: d => d.value,
-        width: 640,
-        height: 400,
+        width: d3.getBoundingClientRect().width,
+        height: d3.getBoundingClientRect().height,
     })
     const { proxy } = getCurrentInstance()
     proxy.$chart.value = chart
@@ -113,4 +114,9 @@ onMounted(() => {
 })
 
 </script>
-<style scoped></style>
+<style scoped>
+#d3 {
+    width: 100%;
+    /* min-height: calc(60vh - 80px); */
+}
+</style>

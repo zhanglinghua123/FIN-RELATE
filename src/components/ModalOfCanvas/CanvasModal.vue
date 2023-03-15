@@ -1,7 +1,7 @@
 <template>
     <div>
-        <a-modal cancelText="取消" okText="确认" @ok="downloadVideo" forceRender width="640px" ref="modalRef"
-            v-model:visible="visible" :wrap-style="{ overflow: 'hidden' }" @cancel="interruptSvg2Video">
+        <a-modal maskClosable="false" cancelText="取消" okText="确认" @ok="downloadVideo" forceRender width="640px"
+            ref="modalRef" v-model:visible="visible" :wrap-style="{ overflow: 'hidden' }" @cancel="interruptSvg2Video">
             <canvas id="video"></canvas>
             <template #title>
                 <div ref="modalTitleRef" style="width: 100%; cursor: move">视频预览</div>
