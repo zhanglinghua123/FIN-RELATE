@@ -6,6 +6,8 @@ import { addArrowFree  } from "./addArrowFree";
  // 时间单位均为 秒
 import { similiarRect , diffRect, timeRect , causeRect } from "./rectAnimation"
 import { similarCircle , diffCircle , timeCircle , causeCircle } from "./cirCleAnimation";
+import { similiarArrow,diffArrow,timeArrow,causeArrow } from "./arrowAnimation";
+import { similarTendency,diffTendency,timeTendency,causeTendency } from "./arrowWithoutLabel";
 interface animationFrame {
     // 暂停多少时间后 再执行该动画 
     stopTime? : number
@@ -194,20 +196,123 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                     twinkleTime:1
                 })
             )
-
-            console.log(frames,"--frames--")
-
         }else if(item.operate === "ARROW"){
             // 绘制对应的箭头动画
-            frames.push({
-                stopTime:startTime,
-                gap:gap,
-                duration:duration,
-                animation:()=>{
-                   addArrowFree(item.pos.startX,item.pos.startY,item.pos.endX
-                    ,item.pos.endY,1,chart,item.id,duration /2)
-                }
-            })
+            frames.push(
+            similiarArrow(svg,{
+                x1:item.pos.startX,
+                y1:item.pos.startY,
+                x2:item.pos.endX,
+                y2:item.pos.endY,
+                textContent:"12121212"
+            },{
+                x1:item.pos.startX+100,
+                y1:item.pos.startY,
+                x2:item.pos.endX+100,
+                y2:item.pos.endY,
+                textContent:"12121212"
+            },{}))
+
+            frames.push(
+                similiarArrow(svg,{
+                    x1:item.pos.startX,
+                    y1:item.pos.startY,
+                    x2:item.pos.endX,
+                    y2:item.pos.endY,
+                    textContent:"12121212"
+                },{
+                    x1:item.pos.startX+100,
+                    y1:item.pos.startY,
+                    x2:item.pos.endX+100,
+                    y2:item.pos.endY,
+                    textContent:"12121212",
+                    color:"#9983c9"
+                },{}))
+
+                frames.push(
+                    timeArrow(svg,{
+                        x1:item.pos.startX,
+                        y1:item.pos.startY,
+                        x2:item.pos.endX,
+                        y2:item.pos.endY,
+                        textContent:"12121212"
+                    },{
+                        x1:item.pos.startX+100,
+                        y1:item.pos.startY,
+                        x2:item.pos.endX+100,
+                        y2:item.pos.endY,
+                        textContent:"12121212",
+                        color:"#9983c9"
+                    },{}))
+
+                frames.push(
+                    causeArrow(svg,{
+                            x1:item.pos.startX,
+                            y1:item.pos.startY,
+                            x2:item.pos.endX,
+                            y2:item.pos.endY,
+                            textContent:item.words || "1212",
+                            labelStroke:{
+                                strokeWidth:2,
+                                strokeDashArray:10,
+                            }
+                        },{
+                            x1:item.pos.startX+100,
+                            y1:item.pos.startY+100,
+                            x2:item.pos.endX+100,
+                            y2:item.pos.endY+100,
+                            textContent:item.words || "1212",
+                            color:"#9983c9",
+                            labelStroke:{
+                                strokeWidth:2,
+                                strokeDashArray:10,
+                            }
+                        },{}))
+                frames.push(similarTendency(svg,{
+                    x1:item.pos.startX,
+                    y1:item.pos.startY,
+                    x2:item.pos.endX,
+                    y2:item.pos.endY,
+                },{
+                    x1:item.pos.startX+100,
+                    y2:item.pos.startY,
+                    x2:item.pos.endX+100,
+                    y1:item.pos.endY,
+                },{}))
+                frames.push(similarTendency(svg,{
+                    x1:item.pos.startX,
+                    y1:item.pos.startY,
+                    x2:item.pos.endX,
+                    y2:item.pos.endY,
+                },{
+                    x1:item.pos.startX+100,
+                    y2:item.pos.startY,
+                    x2:item.pos.endX+100,
+                    y1:item.pos.endY,
+                },{}))
+                frames.push(timeTendency(svg,{
+                    x1:item.pos.startX,
+                    y1:item.pos.startY,
+                    x2:item.pos.endX,
+                    y2:item.pos.endY,
+                },{
+                    x1:item.pos.startX+100,
+                    y2:item.pos.startY,
+                    x2:item.pos.endX+100,
+                    y1:item.pos.endY,
+                },{}))
+                frames.push(causeTendency(svg,{
+                    x1:item.pos.startX,
+                    y1:item.pos.startY,
+                    x2:item.pos.endX,
+                    y2:item.pos.endY,
+                },{
+                    x1:item.pos.startX+100,
+                    y2:item.pos.startY,
+                    x2:item.pos.endX+100,
+                    y1:item.pos.endY,
+                },{}))
+
         }
     }
     return animationForm(frames)
@@ -277,7 +382,7 @@ function interruptSvg2Video(){
 function downloadVideo(){
     if(canDownload){
         recorder.save()
-        canDownload = false
+        // canDownload = false
     }
     else{
         message.error("视频还未播放完毕,不能进行导出")
@@ -372,6 +477,7 @@ function CanvasRecorder(canvas, video_bits_per_sec) {
     }
 
     function download(file_name) {
+        console.log(file_name,"----")
         const name = file_name || 'recording.webm';
         const blob = new Blob(recordedBlobs, { type: supportedType as string });
         const url = window.URL.createObjectURL(blob);
@@ -381,6 +487,8 @@ function CanvasRecorder(canvas, video_bits_per_sec) {
         a.download = name;
         document.body.appendChild(a);
         a.click();
+        console.log(file_name,"----")
+
         setTimeout(() => {
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
