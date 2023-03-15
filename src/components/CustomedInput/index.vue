@@ -18,6 +18,7 @@
       </div>
     </div>
     <div id="select-card">
+      <div></div>
       <div class="card" v-for="item in history">
         <a-card :title="item.operate">
           <template #extra><a-button type="link" @click="remove($event, item)">remove</a-button></template>
@@ -35,19 +36,20 @@ import LineChartData from "../../assets/data.json"
 import { getCurrentInstance, ref, onMounted } from 'vue'
 import { message } from 'ant-design-vue';
 import * as d3 from "d3";
+const emit = defineEmits(['changeText'])
 const tags = [
   {
-    name: "圆",
+    name: "CIRCLE",
     color: "pink",
     key: "CIRCLE"
   },
   {
-    name: "矩形高亮",
+    name: "RECT",
     color: "green",
     key: "RECT"
   },
   {
-    name: "箭头",
+    name: "ARROW",
     color: "yellow",
     key: "ARROW"
   },
@@ -149,6 +151,8 @@ const highlightText = (words, method = 'ADD') => {
     })
     str = str + pureInner;
     textarea.innerHTML = str;
+    emit("changeText",str);
+    this
   }
 }
 const addHistory = (type, id, pos, words = "") => {
@@ -306,10 +310,12 @@ const clickTag = (event) => {
     min-height: 120px;
     max-height: 300px;
     _height: 120px;
+    margin-left: 20px;
     padding: 3px;
     outline: 0;
     border: 1px solid #a0b3d6;
     font-size: 12px;
+    color: #fff;
     word-wrap: break-word;
     overflow-x: hidden;
     overflow-y: auto;
@@ -319,14 +325,39 @@ const clickTag = (event) => {
 
 #select-card {
   margin-top: 20px;
-  width: 100%;
+  margin-left: 20px;
+  width: calc(100vw - 40px);
   display: flex;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
+  overflow-x: auto;
 
   .card {
-    width: 33%;
+    margin: 0 20px 10px 0;
+    flex: none;
+    width: 300px;
+  }
+
+  --sb-track-color: #232e33;
+  --sb-thumb-color: #ecc142;
+  --sb-size: 7px;
+
+  scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+
+  &::-webkit-scrollbar {
+    height: var(--sb-size);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 5px;
   }
 }
+
 
 .input-layout {
   display: flex;
@@ -335,7 +366,7 @@ const clickTag = (event) => {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.1);
   min-height: 60vh;
-  padding: 20px;
+  padding: 60px;
   box-sizing: border-box;
 
   #basicChart {
@@ -374,5 +405,4 @@ const clickTag = (event) => {
 
 #basicChart {
   width: 100%;
-}
-</style>
+}</style>
