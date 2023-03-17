@@ -2,7 +2,10 @@
 <template>
   <div>
     <div class="output-layout">
-      <component class="demo" :is="selectedDemo"></component>
+      <div style="display: flex;margin-left: 50px;">
+        <component class="demo" :is="selectedDemo"></component>
+      </div>
+      
     </div>
     <div id="textareaOut" contenteditable="false" class="textarea"></div>
   </div>
@@ -31,11 +34,14 @@ onUpdated(() => {
 </script>
 <style scoped>
 .output-layout {
+  /* display: flex;
+  flex-direction: column; */
   min-height: 60vh;
   height: 50vh;
-  width: 100%;
+  /* width: 100%; */
   background-color: rgba(0, 0, 0, 0.1);
   padding: 60px;
+  box-sizing: border-box;
   /* height: 600px; */
   /* display: flex; */
   /* flex-direction: column; */
@@ -61,8 +67,8 @@ onUpdated(() => {
 }
 
 .demo {
-  width: 100%;
-  height: calc(60vh - 40px);
-  margin-left: 50px;
+  margin:auto;
+  /* width: 690px;
+  height: calc(60vh - 40px); */
 }
 </style>

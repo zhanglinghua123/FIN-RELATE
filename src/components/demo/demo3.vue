@@ -15,7 +15,7 @@ onMounted(() => {
         x: d => new Date(d.date),
         y: d => d.value,
         width: 690,//d3.getBoundingClientRect().width-100,
-        height: d3.getBoundingClientRect().height-100,
+        height: 400,//d3.getBoundingClientRect().height-100,
     })
     const { proxy } = getCurrentInstance()
     proxy.$chart.value = chart
@@ -116,7 +116,8 @@ onMounted(() => {
 </script>
 <style scoped>
 #d3 {
-    width: 100%;
+    /* margin-right: 80px; */
+    /* width: 690px; */
     /* min-height: calc(60vh - 80px); */
 }
 </style>
