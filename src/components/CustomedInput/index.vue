@@ -2,29 +2,36 @@
 <template>
   <div>
     <div class="input-layout">
-      <!-- <div id="textarea" ref="textarea" contenteditable="true">物品</div> -->
-      <!-- <a-textarea id="textarea" ref="textarea" v-model:value="value" placeholder="输入分析语句" :rows="4" /> -->
       <section class="basic-layout">
         <div id="basicChart"></div>
+        <div class="tag-layout" @click="clickTag">
+          <svg width="25" height="25" v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item"
+            :ref="setItemRef" :color="item.color">
+            <use :xlink:href="item.svgId" fill="#fff"></use>
+          </svg>
+        <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
+            :color="item.color">
+            {{ item.name }}
+                  </a-tag> -->
+        </div>
       </section>
     </div>
     <div id="select">
       <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
-      <div class="tag-layout" @click="clickTag">
-        <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
-          :color="item.color">
-          {{ item.name }}
-        </a-tag>
-      </div>
     </div>
     <div id="select-card">
       <div></div>
-      <div class="card" v-for="item in history">
-        <a-card :title="item.operate">
-          <template #extra><a-button type="link" @click="remove($event, item)">remove</a-button></template>
-          <div>words: {{ item.words }}</div>
+      <div class="card" v-for="(item, index) in history">
+        <a-card :bodyStyle="cardBodyStyle">
+          <!-- <template #extra><a-button type="link" @click="remove($event, item)">remove</a-button></template> -->
+          <div>visual type: {{ item.operate }}</div>
+          <div v-if="item.operate !== 'TEXT'">selected words: {{ item.words }}</div>
+          <div v-else>text: {{ item.words }}</div>
           <div>time: {{ item.time }}</div>
         </a-card>
+        <svg width="25" height="25" class="nextframe" :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
+          <use xlink:href="#icon-nextframe"  fill="#ecc142"></use>
+        </svg>
       </div>
     </div>
   </div>
@@ -40,23 +47,37 @@ const emit = defineEmits(['changeText'])
 const tags = [
   {
     name: "CIRCLE",
-    color: "pink",
-    key: "CIRCLE"
+    color: "#d7191c",
+    key: "CIRCLE",
+    svgId: "#icon-circle",
   },
   {
     name: "RECT",
-    color: "green",
-    key: "RECT"
+    color: "#fdae61",
+    key: "RECT",
+    svgId: "#icon-rect",
   },
   {
     name: "ARROW",
-    color: "yellow",
-    key: "ARROW"
+    color: "#ffffbf",
+    key: "ARROW",
+    svgId: "#icon-arrow",
+  },
+  {
+    name: "TEXT",
+    color: "#abd9e9",
+    key: "TEXT",
+    svgId: "#icon-text",
+  },
+  {
+    name: "REMOVE",
+    color: "#2c7bb6",
+    key: "REMOVE",
+    svgId: "#icon-delete",
   },
 ];
 let svg = null, svgConfig = {}, isDraw = true, type = "", currentId = 0, selectedWord = '', needReSelect = false;
-const colorArrow = "#264653";
-const startPos = [];
+const startPos = [], cardBodyStyle = { backgroundColor: "#cccccc" };
 // 将 history 修改为 全局变量
 const { proxy } = getCurrentInstance()
 const history = proxy.$history
@@ -71,19 +92,19 @@ const selectWords = (e) => {
   if (["CIRCLE", "RECT", "ARROW"].includes(type)) {
     needReSelect = false;
     selectedWord = tmp;
-  } else {
+  } else if (!["TEXT", "REMOVE"].includes(type)) {
     selectedWord = "";
     message.error("请先选择可视化类型再选中！")
   }
 }
 onMounted(() => {
   const basicChart = document.getElementById("basicChart")
-  console.log(basicChart.getBoundingClientRect().height, "----")
+  console.log(basicChart.getBoundingClientRect().width, "----")
   const chart = LineChart(LineChartData.data, "#basicChart", {
     x: d => new Date(d.date),
     y: d => d.value,
-    width: basicChart.getBoundingClientRect().width,
-    height: basicChart.getBoundingClientRect().height,
+    width: 690,//basicChart.getBoundingClientRect().width - 100,
+    height: basicChart.getBoundingClientRect().height - 100,
   });
   ({ svg, svgConfig } = chart);
   //把同一种类型放一起，方便管理
@@ -109,6 +130,8 @@ onMounted(() => {
         addCircle(x1, y1, currentId);
       } else if (type === 'ARROW') {
         addArrow(x1, y1, currentId);
+      } else if (type === "TEXT") {
+        //TODO
       }
     }
   })
@@ -123,6 +146,9 @@ onMounted(() => {
       addHistory(type, currentId, pos, selectedWord);
     } else if (type === 'ARROW') {
       const pos = addArrow(x1, y1, currentId);
+      addHistory(type, currentId, pos, selectedWord);
+    } else if (type === "TEXT") {
+      //TODO addText & type为text时，增加历史时的words为addText的words
       addHistory(type, currentId, pos, selectedWord);
     }
     isDraw = true;
@@ -151,8 +177,7 @@ const highlightText = (words, method = 'ADD') => {
     })
     str = str + pureInner;
     textarea.innerHTML = str;
-    emit("changeText",str);
-    this
+    emit("changeText", str);
   }
 }
 const addHistory = (type, id, pos, words = "") => {
@@ -163,8 +188,10 @@ const addHistory = (type, id, pos, words = "") => {
     id,
     pos,
   })
-  highlightText(words);
-  needReSelect = true;
+  if (["CIRCLE", "RECT", "ARROW"].includes(type)) {
+    highlightText(words);
+    needReSelect = true;
+  }
 }
 function getFieldSelection(select_field) {
   let word = '';
@@ -184,7 +211,11 @@ function getFieldSelection(select_field) {
   return word;
 }
 const remove = (_, item) => {
-  console.log(item);
+  // 在remove的状态下可以选择svg上的相应图标删除，同时更新history
+  if (type !== "REMOVE") {
+    return;
+  }
+  //TODO 点击svg时获取svg上的id 把下面的相应id替换
   const delEl = document.getElementById(item.id);
   if (delEl) {
     delEl.remove();
@@ -275,28 +306,26 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
 }
 const refRemoveClass = (ref_info, class_name) => {
   ref_info.forEach((element) => {
-    // 区分是否为组件内，使用需要用 $el
-    let class_name_arr = element.$el
-      ? element.$el.className.split(" ")
-      : element.className.split(" ");
-    let index = class_name_arr.findIndex((item) => {
-      return item == class_name;
-    });
-    if (index !== -1) class_name_arr.splice(index, 1);
-    if (element.$el) {
-      element.$el.className = class_name_arr.join(" ");
-    } else {
-      element.className = class_name_arr.join(" ");
-    }
+    element.classList.remove(class_name)
+    // let class_name_arr = element.$el
+    //   ? element.$el.className.split(" ")
+    //   : element.className.split(" ")
+    // let index = class_name_arr.findIndex((item) => {
+    //   return item == class_name;
+    // });
+    // if (index !== -1) class_name_arr.splice(index, 1);
+    // if (element.$el) {
+    //   element.$el.className = class_name_arr.join(" ");
+    // } else {
+    //   element.className = class_name_arr.join(" ");
+    // }
   });
 }
 const clickTag = (event) => {
-  console.log(document.getElementById("textarea").innerHTML)
   const classList = event.target.classList;
   type = event.target.dataset.key;
   refRemoveClass(itemRefs, "no-opacity")
   classList.add("no-opacity");
-
 }
 
 </script>
@@ -310,7 +339,7 @@ const clickTag = (event) => {
     min-height: 120px;
     max-height: 300px;
     _height: 120px;
-    margin-left: 20px;
+    margin: 0 auto;
     padding: 3px;
     outline: 0;
     border: 1px solid #a0b3d6;
@@ -328,13 +357,18 @@ const clickTag = (event) => {
   margin-left: 20px;
   width: calc(100vw - 40px);
   display: flex;
-  /* flex-wrap: wrap; */
   overflow-x: auto;
+  background-color: #000;
 
   .card {
-    margin: 0 20px 10px 0;
+    margin: 10px 0px 10px 10px;
     flex: none;
-    width: 300px;
+    width: 250px;
+    display: flex;
+
+    .nextframe {
+      margin: auto;
+    }
   }
 
   --sb-track-color: #232e33;
@@ -366,6 +400,7 @@ const clickTag = (event) => {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.1);
   min-height: 60vh;
+  height: 50vh;
   padding: 60px;
   box-sizing: border-box;
 
@@ -377,6 +412,7 @@ const clickTag = (event) => {
 
 .basic-layout {
   display: flex;
+  margin-left: 50px;
 }
 
 .card {
@@ -387,14 +423,18 @@ const clickTag = (event) => {
 .tag-layout {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-evenly;
   width: 80px;
+  height: 150px;
   margin-left: 20px;
+  border: 1px solid #fff;
 }
 
 .tag-item {
   cursor: pointer;
   opacity: 0.4;
+  color: #000;
+  margin: 0 auto;
 }
 
 .no-opacity {
@@ -405,4 +445,5 @@ const clickTag = (event) => {
 
 #basicChart {
   width: 100%;
-}</style>
+}
+</style>

@@ -24,7 +24,6 @@ const selectOptions = ref([
 ]);
 let selectedDemo = ref("Demo3");
 onUpdated(() => {
-  console.log(props.innerStr)
   let textarea = document.getElementById("textareaOut");
   textarea.innerHTML = props.innerStr;
   textarea = null;
@@ -33,6 +32,7 @@ onUpdated(() => {
 <style scoped>
 .output-layout {
   min-height: 60vh;
+  height: 50vh;
   width: 100%;
   background-color: rgba(0, 0, 0, 0.1);
   padding: 60px;
@@ -48,8 +48,7 @@ onUpdated(() => {
   min-height: 120px;
   max-height: 300px;
   _height: 120px;
-  margin-top: 20px;
-  margin-left: 20px;
+  margin: 20px auto 0;
   padding: 3px;
   outline: 0;
   border: 1px solid #a0b3d6;
@@ -63,6 +62,7 @@ onUpdated(() => {
 
 .demo {
   width: 100%;
-  height: calc(60vh - 40px)
+  height: calc(60vh - 40px);
+  margin-left: 50px;
 }
 </style>
