@@ -4,17 +4,17 @@
     <div class="input-layout">
       <section class="basic-layout">
         <div id="basicChart"></div>
-        <div class="tag-layout" @click="clickTag">
-          <svg width="25" height="25" v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item"
-            :ref="setItemRef" :color="item.color">
-            <use :xlink:href="item.svgId" fill="#fff"></use>
-          </svg>
-        <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
+      </section>
+      <div class="tag-layout" @click="clickTag">
+        <svg width="25" height="25" v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item"
+          :ref="setItemRef" :color="item.color">
+          <use :xlink:href="item.svgId" fill="#fff"></use>
+        </svg>
+      <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
             :color="item.color">
             {{ item.name }}
-                  </a-tag> -->
-        </div>
-      </section>
+                      </a-tag> -->
+      </div>
     </div>
     <div id="select">
       <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
@@ -29,8 +29,9 @@
           <div v-else>text: {{ item.words }}</div>
           <div>time: {{ item.time }}</div>
         </a-card>
-        <svg width="25" height="25" class="nextframe" :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
-          <use xlink:href="#icon-nextframe"  fill="#ecc142"></use>
+        <svg width="25" height="25" class="nextframe"
+          :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
+          <use xlink:href="#icon-nextframe" fill="#ecc142"></use>
         </svg>
       </div>
     </div>
@@ -104,7 +105,7 @@ onMounted(() => {
     x: d => new Date(d.date),
     y: d => d.value,
     width: 690,//basicChart.getBoundingClientRect().width - 100,
-    height: basicChart.getBoundingClientRect().height - 100,
+    height: 400,//basicChart.getBoundingClientRect().height - 100,
   });
   ({ svg, svgConfig } = chart);
   //把同一种类型放一起，方便管理
@@ -396,18 +397,14 @@ const clickTag = (event) => {
 .input-layout {
   display: flex;
   // justify-content: space-evenly;
-  flex-direction: column;
-  width: 100%;
+  /* flex-direction: column; */
+  /* width: 100%; */
+  position: relative;
   background-color: rgba(0, 0, 0, 0.1);
   min-height: 60vh;
   height: 50vh;
   padding: 60px;
   box-sizing: border-box;
-
-  #basicChart {
-    width: 100%;
-    height: calc(60vh - 40px);
-  }
 }
 
 .basic-layout {
@@ -424,10 +421,12 @@ const clickTag = (event) => {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  width: 80px;
+  /* width: 80px; */
   height: 150px;
   margin-left: 20px;
   border: 1px solid #fff;
+  position: absolute;
+  /* right: 60px; */
 }
 
 .tag-item {
@@ -444,6 +443,8 @@ const clickTag = (event) => {
 
 
 #basicChart {
-  width: 100%;
+  margin:0 auto;
+  /* width: 690px;
+  height: calc(60vh - 40px); */
 }
 </style>

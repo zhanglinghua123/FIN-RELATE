@@ -100,11 +100,11 @@ export default defineComponent({
 
 #input {
   margin-right: 20px;
-  width: 50%;
+  width: calc(50% - 10px);
 }
 
 #output {
-  width: 50%;
+  width: calc(50% - 10px);
 }
 
 .button-layout {
