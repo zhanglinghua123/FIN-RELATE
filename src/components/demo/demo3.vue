@@ -14,8 +14,8 @@ onMounted(() => {
     const chart = LineChart(LineChartData.data, "#d3", {
         x: d => new Date(d.date),
         y: d => d.value,
-        width: d3.getBoundingClientRect().width,
-        height: d3.getBoundingClientRect().height,
+        width: 690,//d3.getBoundingClientRect().width-100,
+        height: d3.getBoundingClientRect().height-100,
     })
     const { proxy } = getCurrentInstance()
     proxy.$chart.value = chart
