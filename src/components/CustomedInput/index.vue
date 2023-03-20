@@ -79,14 +79,14 @@
 <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
             :color="item.color">
             {{ item.name }}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </a-tag> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </a-tag> -->
 <!-- <div class="tag-layout" @click="clickTag">
         <svg width="25" height="25" v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item"
           :ref="setItemRef" :color="item.color">
           <use :xlink:href="item.svgId" fill="#fff"></use>
         </svg>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div> -->
 
 <!--
     <div id="select-card">
@@ -107,7 +107,7 @@
     </div>
   </div>   
       
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -->
 </template>
 
 <script setup>
@@ -116,7 +116,7 @@ import LineChartData from "../../assets/data.json"
 import { getCurrentInstance, ref, onMounted, defineComponent } from 'vue'
 import { message } from 'ant-design-vue';
 import * as d3 from "d3";
-import { file } from '@babel/types';
+import { addMutation, removeMutation } from "../../js/mutation"
 const emit = defineEmits(['changeText'])
 const tags = [
   {
@@ -205,6 +205,7 @@ onMounted(() => {
   // 插入到白色背景元素的前面
   // svg.insert("g", ":nth-child(2)").attr("class", "rectG");
   svg.append("g").attr("class", "arrowG");
+  // svg.append("g").attr("class", "textG")
 
   svg.on("mousedown", e => {
     const x0 = e.offsetX;
@@ -242,7 +243,8 @@ onMounted(() => {
       addHistory(type, currentId, pos, selectedWord);
     } else if (type === "TEXT") {
       //TODO addText & type为text时，增加历史时的words为addText的words
-      addHistory(type, currentId, pos, selectedWord);
+      const { pos, words } = addText(x1, y1, "", currentId, history.value.length)
+      addHistory(type, currentId, pos, words)
     }
     isDraw = true;
     currentId += 1;
@@ -303,6 +305,14 @@ function getFieldSelection(select_field) {
   }
   return word;
 }
+// 根据id 删除对应的history item
+const removeHistory = (removeId) => {
+  const removeIndex = history.value.findIndex(e => e.id === removeId)
+  history.value.splice(removeIndex, 1)
+}
+
+
+
 const remove = (_, item) => {
   // 在remove的状态下可以选择svg上的相应图标删除，同时更新history
   if (type !== "REMOVE") {
@@ -329,16 +339,24 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   const r = Math.sqrt(xr * xr + yr * yr) / 2;
   const cx = xr / 2 + endX > startPos[0] ? startPos[0] : endX;
   const cy = yr / 2 + endY > startPos[1] ? startPos[1] : endY;
-  d3.select(".circleG").append('circle')
-    .attr('id', id)
+  const circle = d3.select(".circleG").append('circle')
+
+  circle.attr('id', id)
     .attr('r', r)
     .attr('cx', cx)
     .attr('cy', cy)
     .attr('fill', fill)
-    .attr('stroke', stroke);
+    .attr('stroke', stroke)
+    .on("click", () => {
+      if (type === "REMOVE") {
+        removeHistory(id)
+        circle.remove()
+      }
+    })
   return { cx, cy, r };
 }
 const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
+  const svg = document.querySelector("#d3 svg")
   const delEl = document.getElementById(id)
   if (delEl) {
     delEl.remove()
@@ -346,25 +364,33 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
   const width = Math.abs(endX - startPos[0]);
   const height = Math.abs(endY - startPos[1]);
 
-  d3.select(".rectG").append('rect')
-    .attr('id', id)
+  const rect = d3.select(".rectG").append('rect')
+
+  rect.attr('id', id)
     .attr('width', width)
     .attr('height', height)
     .attr('x', endX > startPos[0] ? startPos[0] : endX)
     .attr('y', endY > startPos[1] ? startPos[1] : endY)
     .attr("fill", fill)
-    .attr('stroke', stroke);
-  const basicChart = document.getElementById("basicChart")
+    .attr('stroke', stroke)
+    .on("click", () => {
+      console.log("click", id, type)
+      if (type === "REMOVE") {
+        removeHistory(currentId)
+        rect.remove()
+      }
+    })
 
   return {
     x: endX > startPos[0] ? startPos[0] : endX,
     y: 20,
     width,
-    height: basicChart.getBoundingClientRect().height - 50,
+    height: svg.getBoundingClientRect().height - 50,
     id: id,
   }
 }
 const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
+
   const delEl = document.getElementById(id)
   const delMarker = document.getElementById(`${id}-marker`)
   if (delEl) {
@@ -379,9 +405,15 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     .attr("stroke", stroke)
     .attr("stroke-width", "2")
     .attr("style", `marker-end: url(#${id}-marker)`)
-
-  d3.select(".arrowG").append("marker")
-    .attr("orient", "auto")
+    .on("click", () => {
+      if (type === "REMOVE") {
+        removeHistory(id)
+        arrow.remove();
+        marker.remove()
+      }
+    })
+  const marker = d3.select(".arrowG").append("marker")
+  marker.attr("orient", "auto")
     .attr("id", `${id}-marker`)
     .attr("markerUnits", "strokeWidth")
     .attr("markerWidth", "5")
@@ -390,6 +422,13 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     .attr("refY", 2)
     .append("path")
     .attr("d", "M 0 0 L 5 2 L 0 4 z")
+    .on("click", () => {
+      if (type === "REMOVE") {
+        removeHistory(id)
+        arrow.remove();
+        marker.remove()
+      }
+    })
   return {
     startX: startPos[0],
     startY: startPos[1],
@@ -397,6 +436,44 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     endY
   }
 }
+// 使用外部标签 来进行 更改svg
+const addText = (x1, y1, text, id, length) => {
+  const svg = document.querySelector("#basicChart svg")
+  let myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+  myforeign.setAttribute("width", "100%");
+  myforeign.setAttribute("height", "100%");
+  myforeign.setAttribute("transform", `translate(${x1} ${y1})`)
+  myforeign.style.textAlign = "left"
+  myforeign.style.fontSize = "16px"
+  let textdiv = document.createElement("div");
+  let textnode = document.createTextNode(text || "Click to edit");
+  textdiv.appendChild(textnode);
+  textdiv.setAttribute("contentEditable", "true");
+  textdiv.setAttribute("width", "auto");
+  textdiv.setAttribute("id", id)
+  textdiv.style.display = "inline-block"
+  textdiv.addEventListener("click", () => {
+    console.log("click--text")
+    if (type === "REMOVE") {
+      removeHistory(id)
+      myforeign.parentNode.removeChild(myforeign);
+    }
+  })
+  svg.appendChild(myforeign)
+  myforeign.appendChild(textdiv);
+  myforeign.setAttribute("width", textdiv.offsetWidth);
+  myforeign.setAttribute("height", textdiv.offsetHeight);
+  const onChange = () => {
+    const findIndex = history.value.findIndex((e) => e.id === id)
+    history.value[findIndex].words = textdiv.innerText
+    myforeign.setAttribute("width", textdiv.offsetWidth);
+    myforeign.setAttribute("height", textdiv.offsetHeight);
+  }
+  addMutation(id, onChange, textdiv)
+
+  return { pos: {}, words: textdiv.innerText }
+}
+
 const refRemoveClass = (ref_info, class_name) => {
   ref_info.forEach((element) => {
     element.classList.remove(class_name)
