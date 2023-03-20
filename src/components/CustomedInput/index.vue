@@ -79,35 +79,40 @@
 <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
             :color="item.color">
             {{ item.name }}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </a-tag> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </a-tag> -->
 <!-- <div class="tag-layout" @click="clickTag">
         <svg width="25" height="25" v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item"
           :ref="setItemRef" :color="item.color">
           <use :xlink:href="item.svgId" fill="#fff"></use>
         </svg>
+      <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
+            :color="item.color">
+            {{ item.name }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                              </a-tag> -->
+  </div>
+  </div>
+  <div id="select">
+    <div id="textarea" class="textarea" @mouseup="selectWords"></div>
+  </div>
+  <div id="select-card">
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div> -->
+    <div class="card" v-for="(item, index) in history">
+      <a-card :bodyStyle="cardBodyStyle">
 
-<!--
-    <div id="select-card">
-
-      <div class="card" v-for="(item, index) in history">
-        <a-card :bodyStyle="cardBodyStyle">
-
-          <div>visual type: {{ item.operate }}</div>
-          <div v-if="item.operate !== 'TEXT'">selected words: {{ item.words }}</div>
-          <div v-else>text: {{ item.words }}</div>
-          <div>time: {{ item.time }}</div>
-        </a-card>
-        <svg width="25" height="25" class="nextframe"
-          :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
-          <use xlink:href="#icon-nextframe" fill="#ecc142"></use>
-        </svg>
-      </div>
+        <div>visual type: {{ item.operate }}</div>
+        <div v-if="item.operate !== 'TEXT'">selected words: {{ item.words }}</div>
+        <div v-else>text: {{ item.words }}</div>
+        <div>time: {{ item.time }}</div>
+      </a-card>
+      <svg width="25" height="25" class="nextframe"
+        :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
+        <use xlink:href="#icon-nextframe" fill="#ecc142"></use>
+      </svg>
     </div>
-  </div>   
-      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -->
+  </div>
+  </div>
+
+  -->
 </template>
 
 <script setup>
