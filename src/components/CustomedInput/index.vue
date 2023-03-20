@@ -87,6 +87,7 @@
         </svg>
       <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
             :color="item.color">
+<<<<<<< HEAD
             {{ item.name }}
                                                                                                                                                                                                                                                                                                                                                                                                                                               </a-tag> -->
   </div>
@@ -108,6 +109,30 @@
         :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
         <use xlink:href="#icon-nextframe" fill="#ecc142"></use>
       </svg>
+=======
+            {{ item.name }}        
+          </a-tag>                                                                                                                                                                                                                                                                                                                                                                        </a-tag> -->
+      </div>
+    </div>
+    <div id="select">
+      <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
+    </div>
+    <div id="select-card">
+      <!-- <div></div> -->
+      <div class="card" v-for="(item, index) in history">
+        <a-card :bodyStyle="cardBodyStyle">
+          <!-- <template #extra><a-button type="link" @click="remove($event, item)">remove</a-button></template> -->
+          <div>visual type: {{ item.operate }}</div>
+          <div v-if="item.operate !== 'TEXT'">selected words: {{ item.words }}</div>
+          <div v-else>text: {{ item.words }}</div>
+          <div>time: {{ item.time }}</div>
+        </a-card>
+        <svg width="25" height="25" class="nextframe"
+          :style="{ visibility: index === history.length - 1 ? 'hidden' : 'visible' }">
+          <use xlink:href="#icon-nextframe" fill="#ecc142"></use>
+        </svg>
+      </div>
+>>>>>>> 1717dcb (修改样式问题)
     </div>
   </div>
   </div>
@@ -313,7 +338,11 @@ function getFieldSelection(select_field) {
 // 根据id 删除对应的history item
 const removeHistory = (removeId) => {
   const removeIndex = history.value.findIndex(e => e.id === removeId)
-  history.value.splice(removeIndex, 1)
+  //history.value.splice(removeIndex, 1)
+  if(removeIndex!==-1){
+    const deleteHis = history.value.splice(removeIndex, 1)[0];
+    highlightText(deleteHis.words, 'DELETE');
+  }
 }
 
 
@@ -748,6 +777,7 @@ const ChangeSvgBack = (file, svgImage) => {
 //   box-sizing: border-box;
 // }
 
+<<<<<<< HEAD
 // .basic-layout {
 //   display: flex;
 //   margin-left: 50px;
@@ -780,4 +810,16 @@ const ChangeSvgBack = (file, svgImage) => {
 // .no-opacity {
 //   opacity: 1;
 // }
+=======
+#basicChart {
+  margin: 0 auto;
+  /* width: 690px;
+  height: calc(60vh - 40px); */
+}
+</style>
+<style>
+.ant-card{
+  background-color: #cccccc;
+}
+>>>>>>> 1717dcb (修改样式问题)
 </style>
