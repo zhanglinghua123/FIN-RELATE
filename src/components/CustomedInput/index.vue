@@ -1,29 +1,99 @@
 
 <template>
-  <div>
-    <div class="input-layout">
-      <section class="basic-layout">
-        <div id="basicChart"></div>
-      </section>
-      <div class="tag-layout" @click="clickTag">
+  <div class="input-container">
+    <div id="select">
+      <p class="title">CopyWriting</p>
+      <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
+    </div>
+    <div id="edit">
+      <div id="title">
+        <p>Visualizations</p>
+        <input id="file-input" multiple="multiple" accept="image/*" type="file" @change="onFileChange"
+          style="display: none;" />
+        <button @click="upload">Input</button>
+        <button>Generation</button>
+      </div>
+      <div id="basicChart">
+        <div id="content">
+          <div id="spanArray">
+            <!-- 可以动态绑定class 但是不能动态计算样式 -->
+            <span v-for="(file, index) in selectedFiles" :class="{
+              isActive: selectImage === index
+            }" @click="onChangeSelectedImage(index)"></span>
+          </div>
+          <svg id="graph"></svg>
+        </div>
+        <div id="tool">
+          <p>Annotation</p>
+          <div id="category">
+            <svg width="25" height="25" view-box="0 0 25 25">
+              <circle cx="50%" cy="50%" r="10" fill="white" stroke="black" stroke-width="4">
+              </circle>
+            </svg>
+            <svg width="25" height="25" view-box="0 0 25 25">
+              <rect x="0" y="0" width="25" height="25" stroke="black" stroke-width="8" fill="gray"></rect>
+            </svg>
+            <svg width="25" height="25" view-box="0 0 25 25">
+              <defs>
+                <marker id="triangle" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" refX="0" refY="2"
+                  orient="auto">
+                  <path d="M 0 0 L 5 2 L 0 4 z" />
+                </marker>
+              </defs>
+              <text x="12" y="12">A</text>
+              <path d="M 2,2 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
+            </svg>
+            <svg width="25" height="25" view-box="0 0 25 25">
+              <defs>
+                <marker id="triangle" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" refX="0" refY="2"
+                  orient="auto">
+                  <path d="M 0 0 L 5 2 L 0 4 z" />
+                </marker>
+              </defs>
+              <path d="M 2,2 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
+            </svg>
+          </div>
+          <div id="edit-choice">
+            <p>Styles</p>
+            <div id="style">
+              <svg width="25" height="25">
+                <path d="M 12.5 25 A 12.5 12.5 0 0 1 12.5 0" fill="red" stroke="transparent" />
+                <path d="M 12.5 25 A 12.5 12.5 0 0 0 12.5 0" fill="green" stroke="transparent" />
+              </svg>
+
+              <svg width="25" height="25" view-box="0 0 25 25">
+                <line x1="0" y1="2" x2="25" y2="2" stroke="black" stroke-width="1"></line>
+                <line x1="0" y1="6" x2="25" y2="6" stroke="black" stroke-width="2"></line>
+                <line x1="0" y1="10" x2="25" y2="10" stroke="black" stroke-width="3"></line>
+                <line x1="0" y1="16" x2="25" y2="16" stroke="black" stroke-width="4"></line>
+                <line x1="0" y1="22" x2="25" y2="22" stroke="black" stroke-width="5"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
+            :color="item.color">
+            {{ item.name }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </a-tag> -->
+<!-- <div class="tag-layout" @click="clickTag">
         <svg width="25" height="25" v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item"
           :ref="setItemRef" :color="item.color">
           <use :xlink:href="item.svgId" fill="#fff"></use>
         </svg>
-      <!-- <a-tag v-for="item in tags" :key="item.name" :data-key="item.key" class="tag-item" :ref="setItemRef"
-            :color="item.color">
-            {{ item.name }}
-                      </a-tag> -->
-      </div>
-    </div>
-    <div id="select">
-      <div id="textarea" contenteditable="true" class="textarea" @mouseup="selectWords"></div>
-    </div>
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div> -->
+
+<!--
     <div id="select-card">
-      <div></div>
+
       <div class="card" v-for="(item, index) in history">
         <a-card :bodyStyle="cardBodyStyle">
-          <!-- <template #extra><a-button type="link" @click="remove($event, item)">remove</a-button></template> -->
+
           <div>visual type: {{ item.operate }}</div>
           <div v-if="item.operate !== 'TEXT'">selected words: {{ item.words }}</div>
           <div v-else>text: {{ item.words }}</div>
@@ -35,15 +105,18 @@
         </svg>
       </div>
     </div>
-  </div>
+  </div>   
+      
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -->
 </template>
 
 <script setup>
 import { LineChart } from '../../js/LineChart';
 import LineChartData from "../../assets/data.json"
-import { getCurrentInstance, ref, onMounted } from 'vue'
+import { getCurrentInstance, ref, onMounted, defineComponent } from 'vue'
 import { message } from 'ant-design-vue';
 import * as d3 from "d3";
+import { file } from '@babel/types';
 const emit = defineEmits(['changeText'])
 const tags = [
   {
@@ -75,7 +148,7 @@ const tags = [
     color: "#2c7bb6",
     key: "REMOVE",
     svgId: "#icon-delete",
-  },
+  }
 ];
 let svg = null, svgConfig = {}, isDraw = true, type = "", currentId = 0, selectedWord = '', needReSelect = false;
 const startPos = [], cardBodyStyle = { backgroundColor: "#cccccc" };
@@ -99,19 +172,38 @@ const selectWords = (e) => {
   }
 }
 onMounted(() => {
-  const basicChart = document.getElementById("basicChart")
-  console.log(basicChart.getBoundingClientRect().width, "----")
-  const chart = LineChart(LineChartData.data, "#basicChart", {
-    x: d => new Date(d.date),
-    y: d => d.value,
-    width: 690,//basicChart.getBoundingClientRect().width - 100,
-    height: 400,//basicChart.getBoundingClientRect().height - 100,
-  });
-  ({ svg, svgConfig } = chart);
+  // 新建背景图片
+  const svg = d3.select("#graph")
+  svg.attr("width", document.getElementById("graph").getBoundingClientRect().width)
+    .attr("height", document.getElementById("graph").getBoundingClientRect().height)
+  console.log(document.getElementById("graph").getClientRects().width)
+  // 注意不是同一种 image 元素 -> img
+  svg
+    .append("defs")
+    .append("pattern")
+    .attr("patternUnits", "userSpaceOnUse")
+    .attr("id", "bg-pattern")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .append("image")
+    .attr("width", document.getElementById("graph").getBoundingClientRect().width)
+    .attr("height", document.getElementById("graph").getBoundingClientRect().height)
+    .attr("x", "0")
+    .attr("y", "0")
+    .attr("href", "")
+    .attr("id", "image")
+
+  svg.append("g")
+    .append("rect")
+    .attr("width", document.getElementById("graph").getBoundingClientRect().width)
+    .attr("height", document.getElementById("graph").getBoundingClientRect().height)
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("fill", "url(#bg-pattern)")
   //把同一种类型放一起，方便管理
   svg.append("g").attr("class", "circleG");
   // 插入到白色背景元素的前面
-  svg.insert("g", ":nth-child(2)").attr("class", "rectG");
+  // svg.insert("g", ":nth-child(2)").attr("class", "rectG");
   svg.append("g").attr("class", "arrowG");
 
   svg.on("mousedown", e => {
@@ -329,122 +421,281 @@ const clickTag = (event) => {
   classList.add("no-opacity");
 }
 
+// 文件上传逻辑
+const upload = () => {
+  const file = document.getElementById("file-input")
+  file.click();
+}
+const selectedFiles = ref([])
+const onFileChange = (event) => {
+  selectedFiles.value.push(...event.target.files)
+  console.log(selectedFiles, "文件上传成功")
+  // 清空已经选中的文件
+  const fileInput = document.getElementById("file-input")
+  fileInput.value = ""
+  ChangeSvgBack(selectedFiles.value[selectImage.value], document.querySelector('#graph #image'))
+}
+// 背景图片切换逻辑
+let selectImage = ref(0)
+const onChangeSelectedImage = (index) => {
+  selectImage.value = index
+  // 更新背景图片
+  ChangeSvgBack(selectedFiles.value[selectImage.value], document.querySelector('#graph #image'))
+}
+
+const ChangeSvgBack = (file, svgImage) => {
+  const reader = new FileReader();
+  reader.addEventListener('load', function () {
+    const imageData = reader.result;
+    console.log(imageData, "--image--")
+    svgImage.setAttribute('href', imageData);
+  });
+
+  reader.readAsDataURL(file);
+}
+
 </script>
 <style lang="scss" scoped>
+.input-container {
+  height: 100%;
+  width: 100%;
+  padding-top: 2vh;
+  padding-left: 3vw;
+  padding-right: 3vw;
+
+}
+
 #select {
-  margin-top: 20px;
-  display: flex;
+  height: 50%;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+
+  .title {
+    color: white !important;
+    height: 10%;
+    font-weight: 500;
+    font-size: 3vh;
+    margin-bottom: 5px;
+
+  }
+
+
 
   .textarea {
-    width: calc(100% - 100px);
-    min-height: 120px;
-    max-height: 300px;
-    _height: 120px;
+    width: 100%;
+    height: 90%;
     margin: 0 auto;
     padding: 3px;
     outline: 0;
-    border: 1px solid #a0b3d6;
+    // border: 1px solid gray;
     font-size: 12px;
     color: #fff;
     word-wrap: break-word;
     overflow-x: hidden;
     overflow-y: auto;
+    background-color: #303030;
     _overflow-y: visible;
   }
 }
 
-#select-card {
-  margin-top: 20px;
-  margin-left: 20px;
-  width: calc(100vw - 40px);
-  display: flex;
-  overflow-x: auto;
-  background-color: #000;
+#edit {
+  width: 100%;
+  height: 50%;
+  box-sizing: border-box;
+  padding-bottom: 20px;
 
-  .card {
-    margin: 10px 0px 10px 10px;
-    flex: none;
-    width: 250px;
+  #title {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white !important;
+    height: 10%;
+    font-weight: 500;
+    font-size: 3vh;
+    display: flex;
+    padding-bottom: 2px;
 
-    .nextframe {
-      margin: auto;
+    p {
+      margin-bottom: 5px;
+      flex: 1;
+    }
+
+    button {
+      font-size: 2vh;
+      background-color: black;
+      max-height: 80%;
+      margin-left: 2%;
+      border-color: aquamarine;
+      cursor: pointer;
     }
   }
 
-  --sb-track-color: #232e33;
-  --sb-thumb-color: #ecc142;
-  --sb-size: 7px;
+  #basicChart {
+    width: 100%;
+    height: 90%;
+    border: 1px solid gray;
+    display: flex;
+    background-color: white;
+    padding: 10px;
 
-  scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    #content {
+      width: 85%;
+      height: 100%;
 
-  &::-webkit-scrollbar {
-    height: var(--sb-size);
+      #spanArray {
+        display: flex;
+        width: 100%;
+        height: 10%;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
+
+
+        .isActive {
+          opacity: 0.5;
+        }
+
+        span {
+          width: 20px;
+          height: 4px;
+          margin-left: 4px;
+          margin-right: 4px;
+          background-color: gray;
+          cursor: pointer;
+        }
+      }
+
+      #graph {
+        width: 100%;
+        height: 90%;
+
+      }
+    }
+
+    #tool {
+      width: 15%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+
+      p {
+        text-align: center;
+        font-size: 16px;
+        margin-bottom: 0;
+        width: 100%;
+      }
+
+      #category {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        border: 2px solid black;
+
+        svg {
+          margin: 12px 6px 12px 6px;
+        }
+      }
+
+      #style {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        border: 2px solid black;
+
+        svg {
+          margin: 12px 6px 12px 6px;
+        }
+      }
+    }
   }
-
-  &::-webkit-scrollbar-track {
-    background: var(--sb-track-color);
-    border-radius: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--sb-thumb-color);
-    border-radius: 5px;
-  }
 }
 
 
-.input-layout {
-  display: flex;
-  // justify-content: space-evenly;
-  /* flex-direction: column; */
-  /* width: 100%; */
-  position: relative;
-  background-color: rgba(0, 0, 0, 0.1);
-  min-height: 60vh;
-  height: 50vh;
-  padding: 60px;
-  box-sizing: border-box;
-}
+// #select-card {
+//   margin-top: 20px;
+//   margin-left: 20px;
+//   width: calc(100vw - 40px);
+//   display: flex;
+//   overflow-x: auto;
+//   background-color: #000;
 
-.basic-layout {
-  display: flex;
-  margin-left: 50px;
-}
+//   .card {
+//     margin: 10px 0px 10px 10px;
+//     flex: none;
+//     width: 250px;
+//     display: flex;
 
-.card {
-  width: 33%;
-  background-color: rgba(0, 0, 0, 0.1);
-}
+//     .nextframe {
+//       margin: auto;
+//     }
+//   }
 
-.tag-layout {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  /* width: 80px; */
-  height: 150px;
-  margin-left: 20px;
-  border: 1px solid #fff;
-  position: absolute;
-  /* right: 60px; */
-}
+//   --sb-track-color: #232e33;
+//   --sb-thumb-color: #ecc142;
+//   --sb-size: 7px;
 
-.tag-item {
-  cursor: pointer;
-  opacity: 0.4;
-  color: #000;
-  margin: 0 auto;
-}
+//   scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
 
-.no-opacity {
-  opacity: 1;
-}
+//   &::-webkit-scrollbar {
+//     height: var(--sb-size);
+//   }
+
+//   &::-webkit-scrollbar-track {
+//     background: var(--sb-track-color);
+//     border-radius: 5px;
+//   }
+
+//   &::-webkit-scrollbar-thumb {
+//     background: var(--sb-thumb-color);
+//     border-radius: 5px;
+//   }
+// }
 
 
+// .input-layout {
+//   display: flex;
+//   // justify-content: space-evenly;
+//   /* flex-direction: column; */
+//   /* width: 100%; */
+//   position: relative;
+//   background-color: rgba(0, 0, 0, 0.1);
+//   min-height: 60vh;
+//   height: 50vh;
+//   padding: 60px;
+//   box-sizing: border-box;
+// }
 
-#basicChart {
-  margin:0 auto;
-  /* width: 690px;
-  height: calc(60vh - 40px); */
-}
+// .basic-layout {
+//   display: flex;
+//   margin-left: 50px;
+// }
+
+// .card {
+//   width: 33%;
+//   background-color: rgba(0, 0, 0, 0.1);
+// }
+
+// .tag-layout {
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-evenly;
+//   /* width: 80px; */
+//   height: 150px;
+//   margin-left: 20px;
+//   border: 1px solid #fff;
+//   position: absolute;
+//   /* right: 60px; */
+// }
+
+// .tag-item {
+//   cursor: pointer;
+//   opacity: 0.4;
+//   color: #000;
+//   margin: 0 auto;
+// }
+
+// .no-opacity {
+//   opacity: 1;
+// }
 </style>
