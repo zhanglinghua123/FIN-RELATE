@@ -7,10 +7,10 @@
       </div>
       <div id="content">
         <div id="input">
-          <CustomedInput @changeText="changeText"></CustomedInput>
+          <CustomedInput @changeBackGround="onChangeBackGround" @changeText="changeText"></CustomedInput>
         </div>
         <div id="output">
-          <CustomedOutput :innerStr="innerStr"></CustomedOutput>
+          <CustomedOutput ref="modalButton" :innerStr="innerStr"></CustomedOutput>
           <!-- <CanvasModal ref="modalButton"></CanvasModal> -->
         </div>
       </div>
@@ -28,26 +28,19 @@ import { getCurrentInstance, ref, defineComponent } from "vue"
 export default defineComponent({
   components: { CustomedInput, CustomedOutput, CanvasModal },
   setup() {
-    const { proxy } = getCurrentInstance()
-    const history = proxy.$history.value
     const modalButton = ref()
-    // 需要添加动画的svgNode
-    const onClickButton = () => {
-      modalButton.value.showModal()
-      const totalTime = animationFormFromHistory(history, proxy.$chart.value)
-      const lastSvg = d3.select("#d3 svg")
-      const svgContainer = document.getElementById("d3")
-      animation2Video(totalTime, svgContainer)
-    }
     let innerStr = ref('');
     const changeText = (str) => {
       innerStr.value = str;
+    }
+    const onChangeBackGround = (url) => {
+      modalButton.value.onChangeBackGround(url)
     }
     return {
       innerStr,
       changeText,
       modalButton,
-      onClickButton
+      onChangeBackGround
     }
   }
 })

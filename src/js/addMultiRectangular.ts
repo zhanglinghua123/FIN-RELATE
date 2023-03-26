@@ -43,10 +43,10 @@ function addMultiRectangularShadow(id :string = "rectAnimation"  , datas:animati
     return {
         // ele 为 需要挂载的 svg元素
         mount : (ele)=>{
-            group =  ele.insert("g",":nth-child(2)")
+            group =  ele.insert("g",":nth-child(3)")
             .attr("id",`${id}-container`)
             .attr("opacity",0)
-
+            debugger
             group.attr("font-size",16)
             group.selectAll("rect")
             .data(datas)

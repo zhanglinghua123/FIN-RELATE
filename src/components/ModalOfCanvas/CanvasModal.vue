@@ -1,6 +1,6 @@
 <template>
     <div>
-        <a-modal maskClosable="false" cancelText="取消" okText="确认" @ok="downloadVideo" forceRender width="640px"
+        <a-modal maskClosable="false" cancelText="取消" width="47vw" okText="确认" @ok="downloadVideo" forceRender
             ref="modalRef" v-model:visible="visible" :wrap-style="{ overflow: 'hidden' }" @cancel="interruptSvg2Video">
             <canvas id="video"></canvas>
             <template #title>

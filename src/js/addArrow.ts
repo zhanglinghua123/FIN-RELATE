@@ -99,7 +99,7 @@ function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") :
             const yDirect = (y2 - y1) / Math.sqrt( (y2 - y1) ** 2 + ( x2 - x1 ) ** 2  )
             
             arrow.append("text")
-            .attr("transform",`translate(${x1 - 10 * xDirect} ${y1 - 10 * yDirect})`)
+            .attr("transform",`translate(${x1 - 10 * xDirect} ${y1 - 10 * yDirect + 20})`)
             .attr("text-anchor","middle")
             .attr("color","black")
             .text(config.textContent || "")

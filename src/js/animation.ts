@@ -8,6 +8,7 @@ import { similiarRect , diffRect, timeRect , causeRect } from "./rectAnimation"
 import { similarCircle , diffCircle , timeCircle , causeCircle } from "./cirCleAnimation";
 import { similiarArrow,diffArrow,timeArrow,causeArrow } from "./arrowAnimation";
 import { similarTendency,diffTendency,timeTendency,causeTendency } from "./arrowWithoutLabel";
+import { pascalCase } from "unplugin-vue-components";
 interface animationFrame {
     // 暂停多少时间后 再执行该动画 
     stopTime? : number
@@ -26,211 +27,182 @@ interface historyItem{
     // 有关的时间信息
     time:string,
     // type
-    operate : "CIRCLE" | "RECT" | "ARROW"
+    operate : "CIRCLE" | "RECT" | "ARROW" | "TEXT",
     // 对应的图形的 id
-    id:number
+    id:number,
+    color:string,
 }
-function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,svgConfig : any}){
-    console.log(history,"--history--")
+function animationFormFromHistory(history:historyItem[],chart:SVGElement){
     let startTime = 0
     // 一个动画的持续时间
     let duration = 6
     let gap = 2
     let frames:animationFrame[] = []
-    const { svg , svgConfig } = chart
+    const svg  = chart
     for(let item of history){
-        console.log(item,"--item--")
-        if(item.operate === "CIRCLE"){
-            // 绘制对应的圆圈动画
-            frames.push(similarCircle(svg,{
-                x:item.pos.cx,
-                y:item.pos.cy,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                x:item.pos.cx + 100,
-                y:item.pos.cy + 100,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                enterDuration:duration/2,
-                leaveDuration: duration/2
-            }))
-
-            frames.push(diffCircle(svg,{
-                x:item.pos.cx,
-                y:item.pos.cy,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                x:item.pos.cx + 100,
-                y:item.pos.cy - 100,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                color:"#f1a340"
-            },{
-                color:"#998ec3"
-            },
-            {
-                enterDuration:duration/2,
-                leaveDuration: duration/2
-            }))
-            frames.push(timeCircle(svg,{
-                x:item.pos.cx,
-                y:item.pos.cy,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                x:item.pos.cx - 100,
-                y:item.pos.cy - 100,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                color:"#f1a340"
-            },
-            {
-                enterDuration:duration/2,
-                leaveDuration: duration/2
-            }))
-
-            frames.push(causeCircle(svg,{
-                x:item.pos.cx,
-                y:item.pos.cy,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)",
-                strokeDashArray:10,
-            },{
-                x:item.pos.cx - 100,
-                y:item.pos.cy + 100,
-                innerRadius:item.pos.r-2,
-                outerRadius:item.pos.r+2,
-                textContent:item.words,
-                color: "rgba(239, 217, 111)"
-            },{
-                color:"#f1a340"
-            },
-            {
-                enterDuration:duration/2,
-                leaveDuration: duration/2
-            }))
-
-        }else if(item.operate === "RECT"){
-            console.log(svg, item.pos , item.operate,item,"---")
-            frames.push(
-                similiarRect(svg,{
-                ...item.pos,
-                textContent:item.words,
-                color: "#f1a340"
-            },`rectGroup-${item.id}`,{
-                ...item.pos,
-                x : item.pos.x + 200,
-                textContent:item.words,
-                color: "#f1a340"
-            },`rectGroup-${item.id+100}`,{
-                twinkleTime:2,
-                
-            })
-            )
-            frames.push(
-                similiarRect(svg,{
-                    ...item.pos,
-                    color: "#f1a340",
+        switch(item.operate){
+            case "CIRCLE":{
+                frames.push(similarCircle(svg,{
+                    x:item.pos.cx,
+                    y:item.pos.cy,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
                     textContent:item.words,
-                },`rectGroup-${item.id}`,{
-                    ...item.pos,
-                    x : item.pos.x + 200,
-                    color: "#998e43",
-                    textContent:item.words,
-                },`rectGroup-${item.id+100}`,{
-                    twinkleTime : 2
-                })
-            )
-            frames.push(
-                timeRect(svg,{
-                    ...item.pos,
-                    color: "#f1a340",
-                    textContent:item.words,
-                },`rectGroup-${item.id}`,{
-                    ...item.pos,
-                    color: "#f1a340",
-                    x : item.pos.x + 200,
-                    textContent:item.words,
-                },`rectGroup-${item.id+100}`,{
-                    twinkleTime:2
-                })
-            )
-            frames.push(
-                causeRect(svg,{
-                    ...item.pos,
-                    color: "#f1a340",
-                    textContent:item.words,
-                    stroke : {
-                        stroke:"rgba(0,0,0,0.3)",
-                        strokeWidth:5,
-                        strokeDashArray:10
-                    }
-                },`rectGroup-${item.id}`,{
-                    ...item.pos,
-                    color: "#f1a340",
-                    x : item.pos.x + 200,
-                    textContent:item.words,
-                    stroke : {
-                        stroke:"rgba(0,0,0,0.3)",
-                        strokeWidth:5,
-                    }
-                },`rectGroup-${item.id+100}`,{
-                })
-            )
-        }else if(item.operate === "ARROW"){
-          //  绘制对应的箭头动画
-            frames.push(
-            similiarArrow(svg,{
-                x1:item.pos.startX,
-                y1:item.pos.startY,
-                x2:item.pos.endX,
-                y2:item.pos.endY,
-                textContent:item.words || "1212"
-            },{
-                x1:item.pos.startX+100,
-                y1:item.pos.startY,
-                x2:item.pos.endX+100,
-                y2:item.pos.endY,
-                textContent:item.words || "1212"
-            },{}))
-
-            frames.push(
-                similiarArrow(svg,{
-                    x1:item.pos.startX,
-                    y1:item.pos.startY,
-                    x2:item.pos.endX,
-                    y2:item.pos.endY,
-                    textContent:item.words || "1212"
+                    color: item.color|| "rgba(239, 217, 111)"
                 },{
-                    x1:item.pos.startX+100,
-                    y1:item.pos.startY,
-                    x2:item.pos.endX+100,
-                    y2:item.pos.endY,
-                    textContent:item.words || "1212",
-                    color:"#9983c9"
-                },{}))
-
-                frames.push(
-                    timeArrow(svg,{
+                    x:item.pos.cx + 100,
+                    y:item.pos.cy + 100,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color: item.color|| "rgba(239, 217, 111)"
+                },{
+                    enterDuration:duration/2,
+                    leaveDuration: duration/2
+                }))
+    
+                frames.push(diffCircle(svg,{
+                    x:item.pos.cx,
+                    y:item.pos.cy,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color: item.color|| "rgba(239, 217, 111)"
+                },{
+                    x:item.pos.cx + 100,
+                    y:item.pos.cy - 100,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color: item.color|| "rgba(239, 217, 111)"
+                },{
+                    color:"#f1a340"
+                },{
+                    color:"#998ec3"
+                },
+                {
+                    enterDuration:duration/2,
+                    leaveDuration: duration/2
+                }))
+                frames.push(timeCircle(svg,{
+                    x:item.pos.cx,
+                    y:item.pos.cy,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color: item.color|| "rgba(239, 217, 111)"
+                },{
+                    x:item.pos.cx - 100,
+                    y:item.pos.cy - 100,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color: item.color|| "rgba(239, 217, 111)"
+                },{
+                    color:"#f1a340"
+                },
+                {
+                    enterDuration:duration/2,
+                    leaveDuration: duration/2
+                }))
+    
+                frames.push(causeCircle(svg,{
+                    x:item.pos.cx,
+                    y:item.pos.cy,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color: item.color|| "rgba(239, 217, 111)",
+                    strokeDashArray:10,
+                },{
+                    x:item.pos.cx - 100,
+                    y:item.pos.cy + 100,
+                    innerRadius:item.pos.r-2,
+                    outerRadius:item.pos.r+2,
+                    textContent:item.words,
+                    color:item.color|| "rgba(239, 217, 111)"
+                },{
+                    color:"#f1a340"
+                },
+                {
+                    enterDuration:duration/2,
+                    leaveDuration: duration/2
+                }))
+                continue
+            }
+            case "RECT":{
+                    frames.push(
+                        similiarRect(svg,{
+                        ...item.pos,
+                        textContent:item.words,
+                        color: item.color|| "#f1a340"
+                    },`rectGroup-${item.id}`,{
+                        ...item.pos,
+                        x : item.pos.x + 200,
+                        textContent:item.words,
+                        color:  item.color|| "#f1a340"
+                    },`rectGroup-${item.id+100}`,{
+                        twinkleTime:2,
+                        
+                    })
+                    )
+                    frames.push(
+                        similiarRect(svg,{
+                            ...item.pos,
+                            color:  item.color|| "#f1a340",
+                            textContent:item.words,
+                        },`rectGroup-${item.id}`,{
+                            ...item.pos,
+                            x : item.pos.x + 200,
+                            color:  item.color|| "#f1a340",
+                            textContent:item.words,
+                        },`rectGroup-${item.id+100}`,{
+                            twinkleTime : 2
+                        })
+                    )
+                    frames.push(
+                        timeRect(svg,{
+                            ...item.pos,
+                            color: item.color|| "#f1a340",
+                            textContent:item.words,
+                        },`rectGroup-${item.id}`,{
+                            ...item.pos,
+                            color:  item.color|| "#f1a340",
+                            x : item.pos.x + 200,
+                            textContent:item.words,
+                        },`rectGroup-${item.id+100}`,{
+                            twinkleTime:2
+                        })
+                    )
+                    frames.push(
+                        causeRect(svg,{
+                            ...item.pos,
+                            color:  item.color|| "#f1a340",
+                            textContent:item.words,
+                            stroke : {
+                                stroke:"rgba(0,0,0,0.3)",
+                                strokeWidth:5,
+                                strokeDashArray:10
+                            }
+                        },`rectGroup-${item.id}`,{
+                            ...item.pos,
+                            color:  item.color|| "#f1a340",
+                            x : item.pos.x + 200,
+                            textContent:item.words,
+                            stroke : {
+                                stroke:"rgba(0,0,0,0.3)",
+                                strokeWidth:5,
+                            }
+                        },`rectGroup-${item.id+100}`,{
+                        })
+                    )
+                    continue
+                }
+        
+            case "TEXT":{
+                  //  绘制对应的箭头动画
+                  frames.push(
+                    similiarArrow(svg,{
                         x1:item.pos.startX,
                         y1:item.pos.startY,
                         x2:item.pos.endX,
@@ -241,19 +213,49 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                         y1:item.pos.startY,
                         x2:item.pos.endX+100,
                         y2:item.pos.endY,
-                        textContent:item.words || "1212",
-                        color:"#9983c9"
+                        textContent:item.words || "1212"
                     },{}))
-
-                frames.push(
-                    causeArrow(svg,{
+        
+                    frames.push(
+                        similiarArrow(svg,{
+                            x1:item.pos.startX,
+                            y1:item.pos.startY,
+                            x2:item.pos.endX,
+                            y2:item.pos.endY,
+                            textContent:item.words || "1212"
+                        },{
+                            x1:item.pos.startX+100,
+                            y1:item.pos.startY,
+                            x2:item.pos.endX+100,
+                            y2:item.pos.endY,
+                            textContent:item.words || "1212",
+                            color:"#9983c9"
+                        },{}))
+        
+                        frames.push(
+                            timeArrow(svg,{
+                                x1:item.pos.startX,
+                                y1:item.pos.startY,
+                                x2:item.pos.endX,
+                                y2:item.pos.endY,
+                                textContent:item.words || "1212"
+                            },{
+                                x1:item.pos.startX+100,
+                                y1:item.pos.startY,
+                                x2:item.pos.endX+100,
+                                y2:item.pos.endY,
+                                textContent:item.words || "1212",
+                                color:"#9983c9"
+                            },{}))
+        
+                    frames.push(
+                        causeArrow(svg,{
                             x1:item.pos.startX,
                             y1:item.pos.startY,
                             x2:item.pos.endX,
                             y2:item.pos.endY,
                             textContent:item.words || "1212",
-                          
-                        },{
+                            },{
                             x1:item.pos.startX+200,
                             y1:item.pos.startY,
                             x2:item.pos.endX+200,
@@ -261,6 +263,11 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                             textContent:item.words || "1212",
                             color:"#9983c9",
                         },{}))
+                    continue
+                    }
+               
+            case "ARROW":{
+                console.log(item,"--TEXT--")
                 frames.push(similarTendency(svg,{
                     x1:item.pos.startX,
                     y1:item.pos.startY,
@@ -305,6 +312,10 @@ function animationFormFromHistory(history:historyItem[],chart:{svg:SVGElement,sv
                     x2:item.pos.endX+100,
                     y1:item.pos.endY,
                 },{}))
+            }
+                
+            default:
+                                
 
         }
     }
@@ -321,13 +332,14 @@ function animationForm(frames:animationFrame[]){
     }
     return startTime
 }
-async function svg2Canvas(svgNode,ctx){
+async function svg2Canvas(svgNode:HTMLElement,ctx){
     
     const v = await Canvg.fromString(
         ctx as any,
         svgNode.innerHTML
       );
-    v.resize(600,400)
+    const size =   svgNode.getBoundingClientRect()
+    v.resize(size.width,size.height)
     v.start(); 
 }
 let canDownload = false
@@ -340,7 +352,7 @@ let recordStopHandler
 //  用来表达 视频流是否已经停止的变量
 let hasStopRecorder = true
 // 将svg元素的container 作为 节点参数传入即可
-async function animation2Video(durationTime, svgNodeContainer){
+async function animation2Video(durationTime, svgNode){
     const canvas = document.getElementById("video") as HTMLCanvasElement
     const ctx = canvas.getContext("2d");
     // 调用执行动画的函数 并记录将svg渲染到 canvas上面
@@ -348,7 +360,7 @@ async function animation2Video(durationTime, svgNodeContainer){
     let FrameCount = 0
     animationHandler = setInterval(()=>{
         if(FrameCount <= totalTime * 50){
-            svg2Canvas(svgNodeContainer,ctx)
+            svg2Canvas(svgNode,ctx)
             FrameCount++
         }else{
             clearInterval(animationHandler)
