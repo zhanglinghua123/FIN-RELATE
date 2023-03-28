@@ -4,31 +4,30 @@
     <div id="select">
       <div id="title">
         <p>Relationships</p>
-        <button @click="onClick">Checked</button>
+        <!-- <button @click="onClick">Checked</button> -->
       </div>
       <div id="content">
+        <div id="content-example">
+          <ListItem svgWidth="80%" class="content-example-item" type="SC"></ListItem>
+          <ListItem svgWidth="80%" class="content-example-item" type="DC"></ListItem>
+          <ListItem svgWidth="80%" class="content-example-item" type="TS"></ListItem>
+          <ListItem svgWidth="80%" class="content-example-item" type="CE"></ListItem>
+          <ListItem svgWidth="80%" class="content-example-item" type="WR"></ListItem>
+        </div>
         <div id="content-title">
-          <span>SC : Similarity Comparison</span>
-          <span>TS : Time Sequence</span>
-          <span>DC : Difference Comparison</span>
-          <span>CB : Cause and Effect</span>
-          <span>NR : No Relationships</span>
+          <span>Similarity/Comparison</span>
+          <span>Difference/Contrast</span>
+          <span>Time/Sequence</span>
+          <span>Cause and Effect</span>
+          <span>Without Relationship</span>
         </div>
         <div id="content-relation">
           <div id="content-list">
             <div v-for=" (item, index) in history" :key="index">
-              <div v-if="index > 0" class="content-listItem">
-                <div class="itemOne">One</div>
-                <div class="transition">
-                  <p>{{ item.words || "SC" }}</p>
-                  <svg xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
-                    <path d="M10,50 L80,50" stroke="white" stroke-width="3" />
-                    <path d="M90,50 L80,46 L80,54 L90,50" fill="white" />
-                  </svg>
-                </div>
-                <div class="itemTwo">Two</div>
-              </div>
-
+              <ListItem v-if="index > 0" :id="history[index - 1].id" :itemOneWords="history[index - 1].words"
+                :itemTwoWords="history[index].words" :type="item.type" :operate="history[index - 1].operate"
+                :itemOneHighLight="history[index - 1].highLight" class="content-listItem">
+              </ListItem>
             </div>
           </div>
           <div id="content-explanation">
@@ -40,20 +39,26 @@
     <div id="edit">
       <div id="title">
         <p>Video</p>
-        <button @click="onGenerate">Export</button>
+        <button @click="onGenerate">Generate</button>
+        <button @click="downloadVideo">Export</button>
       </div>
-      <div id="svg-container">
-        <svg id="output-graph"></svg>
+      <div id="svg-contain">
+        <div id="svg-container" :style="{
+          width: '100%',
+          height: '100%',
+        }">
+          <svg id="output-graph"></svg>
+        </div>
+        <canvas id="video"></canvas>
       </div>
 
     </div>
-    <CanvasModal ref="Modal"></CanvasModal>
   </div>
 </template>
 <script setup>
 import { getCurrentInstance, onMounted, ref } from 'vue'
-import { animation2Video, animationFormFromHistory } from '../../js/animation';
-import CanvasModal from '../ModalOfCanvas/CanvasModal.vue';
+import ListItem from "../OutputListItem/ListItem.vue"
+import { animation2Video, animationFormFromHistory, downloadVideo } from '../../js/animation';
 import * as d3 from "d3";
 
 const props = defineProps(['innerStr'])
@@ -61,7 +66,6 @@ const props = defineProps(['innerStr'])
 const { proxy } = getCurrentInstance()
 const history = proxy.$history.value
 // Modal的引用
-const Modal = ref()
 onMounted(() => {
   // 新建背景图片
   const svg = d3.select("#output-graph")
@@ -115,11 +119,11 @@ const onChangeBackGround = (file) => {
 // 需要添加动画的svgNode
 const onGenerate = () => {
   // 调用子组件函数
-  Modal.value.showModal()
   const svgContainer = d3.select("#output-graph")
   const totalTime = animationFormFromHistory(history, svgContainer)
   const svgNode = document.getElementById("svg-container")
-  animation2Video(totalTime, svgNode)
+  const canvas = document.getElementById("video")
+  animation2Video(totalTime, svgNode, canvas)
 }
 // 必须定义这个才能进行调用
 defineExpose({
@@ -134,6 +138,7 @@ defineExpose({
   padding-left: 3vw;
   padding-right: 3vw;
 }
+
 
 #select {
   height: 50%;
@@ -175,22 +180,40 @@ defineExpose({
     border: 3px solid gray;
     color: white;
 
+    #content-example {
+      display: flex;
+      height: 10%;
+      justify-content: space-around;
+      padding-top: 4px;
+
+      .content-example-item {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 20%;
+      }
+    }
+
     #content-title {
       margin-top: 4px;
       display: flex;
       height: 10%;
+      display: flex;
+      justify-content: space-between;
 
       span {
+        display: block;
+        width: 20%;
+        text-align: center;
         font-size: 0.7vw;
         margin-left: 10px;
-        width: auto;
+        // width: auto;
         color: white;
       }
     }
 
     #content-relation {
       width: 100%;
-      height: calc(90% - 6px);
+      height: calc(80% - 6px);
       // padding-top: 5%;
       padding-left: 20px;
       padding-right: 20px;
@@ -205,8 +228,8 @@ defineExpose({
         width: 70%;
         height: 100%;
         overflow: scroll !important;
-
-
+        padding-left: 20px;
+        padding-right: 20px;
 
         .content-listItem {
           display: flex;
@@ -214,53 +237,6 @@ defineExpose({
           width: 100%;
           margin-bottom: 2vh;
           margin-top: 2vh;
-
-
-          .itemOne {
-            width: 40%;
-            height: 100%;
-            background-color: white;
-            border-radius: 5%;
-            border: 4px salmon solid;
-            color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-
-          .transition {
-            width: 30%;
-            height: 100%;
-            position: relative;
-
-            p {
-              text-align: center;
-              margin-bottom: 0;
-            }
-
-            svg {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              display: block;
-              max-width: 100%;
-              // height: 30%;
-            }
-          }
-
-          .itemTwo {
-            width: 40%;
-            height: 100%;
-            background-color: white;
-            background-color: white;
-            border-radius: 5%;
-            border: 4px skyblue solid;
-            color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
         }
 
       }
@@ -310,12 +286,23 @@ defineExpose({
     }
   }
 
-  #svg-container {
+  #svg-contain {
     width: 100%;
     height: 90%;
     border: 1px solid gray;
+    position: relative;
 
     #output-graph {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 1px solid gray;
+    }
+
+    #video {
+      position: absolute;
+      top: 0;
+      z-index: -1;
       display: block;
       width: 100%;
       height: 100%;

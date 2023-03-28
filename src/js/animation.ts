@@ -337,6 +337,7 @@ async function svg2Canvas(svgNode:HTMLElement,ctx){
     const v = await Canvg.fromString(
         ctx as any,
         svgNode.innerHTML
+        // svgNode.innerHTML
       );
     const size =   svgNode.getBoundingClientRect()
     v.resize(size.width,size.height)
@@ -352,9 +353,9 @@ let recordStopHandler
 //  用来表达 视频流是否已经停止的变量
 let hasStopRecorder = true
 // 将svg元素的container 作为 节点参数传入即可
-async function animation2Video(durationTime, svgNode){
-    const canvas = document.getElementById("video") as HTMLCanvasElement
-    const ctx = canvas.getContext("2d");
+async function animation2Video(durationTime, svgNode,canvasNode:HTMLCanvasElement){
+    const ctx = canvasNode.getContext("2d");
+    console.log(ctx,"----")
     // 调用执行动画的函数 并记录将svg渲染到 canvas上面
     const totalTime = durationTime
     let FrameCount = 0
@@ -366,7 +367,7 @@ async function animation2Video(durationTime, svgNode){
             clearInterval(animationHandler)
         }
     },20)
-    recorder = new CanvasRecorder(canvas,4500000);
+    recorder = new CanvasRecorder(canvasNode,4500000);
     recorder.start()
     hasStopRecorder = false
     recordStopHandler = setTimeout(()=>{

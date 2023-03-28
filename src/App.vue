@@ -22,9 +22,8 @@
 import CustomedInput from './components/CustomedInput/index.vue'
 import CustomedOutput from './components/CustomedOutput/index.vue'
 import CanvasModal from "./components/ModalOfCanvas/CanvasModal.vue"
-import { animationFormFromHistory, animation2Video } from "./js/animation"
+import { defineComponent, ref } from "vue"
 import * as d3 from "d3"
-import { getCurrentInstance, ref, defineComponent } from "vue"
 export default defineComponent({
   components: { CustomedInput, CustomedOutput, CanvasModal },
   setup() {

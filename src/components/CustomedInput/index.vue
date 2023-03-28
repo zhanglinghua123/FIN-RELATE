@@ -10,8 +10,7 @@
         <p>Visualizations</p>
         <input id="file-input" multiple="multiple" accept="image/*" type="file" @change="onFileChange"
           style="display: none;" />
-        <button @click="upload">Input</button>
-        <button>Generation</button>
+        <button @click="upload">Import</button>
       </div>
       <div id="basicChart">
         <div id="content">
@@ -21,7 +20,9 @@
               isActive: selectImage === index
             }" @click="onChangeSelectedImage(index)"></span>
           </div>
-          <svg id="graph"></svg>
+          <svg id="graph">
+
+          </svg>
         </div>
         <div id="tool">
           <p>Annotation</p>
@@ -35,7 +36,7 @@
             <svg @click='e => onChangeType("RECT")' :class="{
               isSelect: type === 'RECT'
             }" width="25" height="25" view-box="0 0 25 25">
-              <rect x="0" y="0" width="25" height="25" stroke="black" stroke-width="8" fill="gray"></rect>
+              <rect x="2" y="2" width="20" height="20" stroke="black" stroke-width="4" fill="gray"></rect>
             </svg>
             <svg @click='e => onChangeType("TEXT")' :class="{
               isSelect: type === 'TEXT'
@@ -47,7 +48,7 @@
                 </marker>
               </defs>
               <text x="12" y="12">A</text>
-              <path d="M 2,2 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
+              <path d="M 4,4 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
             </svg>
             <svg @click='e => onChangeType("ARROW")' :class="{
               isSelect: type === 'ARROW'
@@ -60,8 +61,14 @@
               </defs>
               <path d="M 2,2 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
             </svg>
+            <svg @click='e => onChangeType("DELETE")' :class="{
+              isSelect: type === 'DELETE'
+            }" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 100 100">
+              <path d="M20,30 L30,20 L80,70 L70,80 M20,30" fill="black" stroke="black"></path>
+              <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="black" stroke="black" />
+            </svg>
           </div>
-          <div id="edit-choice">
+        <!-- <div id="edit-choice">
             <p>Styles</p>
             <div id="style" :style="{
               position: 'relative',
@@ -79,7 +86,7 @@
                 <line x1="0" y1="22" x2="25" y2="22" stroke="black" stroke-width="5"></line>
               </svg>
             </div>
-          </div>
+                                                                                                                                                                                                                                                                                                        </div> -->
         </div>
       </div>
     </div>
@@ -92,14 +99,13 @@
 import { getCurrentInstance, ref, onMounted, defineComponent } from 'vue'
 import { message } from 'ant-design-vue';
 import * as d3 from "d3";
-import { addMutation, removeMutation } from "../../js/mutation"
 import { getDirection } from '../../js/getDirection';
 const emit = defineEmits(['changeText', "changeBackGround"])
 
 
 // 在 setup形势下面 只有setup才能实时的获取变量的值
 let svg = null, configPosition = { left: 0, top: 0 }, isDraw = true, type = ref(""),
-  currentId = 0, selectedWord = '', needReSelect = false, selectColor = "black", colorPicker = ref();
+  currentId = 0, selectedWord = '', needReSelect = false, selectColor = "rgba(45,145,225,1)", colorPicker = ref();
 
 const startPos = [], cardBodyStyle = { backgroundColor: "#cccccc" };
 // 将 history 修改为 全局变量
@@ -218,17 +224,47 @@ const highlightText = (words, method = 'ADD') => {
     const inner = textarea.innerHTML.toString();
     let pureInner = labelString(inner);
     let str = '';
-    let colorCnt = 0;
     history.value.forEach((his) => {
       if (his.words.length) {
         const index = pureInner.indexOf(his.words);
-        str = `${str}${pureInner.slice(0, index)}<Font color="${d3.schemeCategory10[colorCnt++]}">${his.words}</Font>`;
+        str = `${str}${pureInner.slice(0, index)}<Font id="font-${his.id}" style="border-bottom: 1px solid red;" color="${d3.schemeCategory10[0]}">${his.words}</Font>`;
         pureInner = pureInner.slice(index + his.words.length);
       }
     })
     str = str + pureInner;
     textarea.innerHTML = str;
     emit("changeText", str);
+  }
+}
+// 为font元素添加高亮效果
+const fontAddHighLightEvent = function (id, type) {
+  const font = document.getElementById(`font-${id}`)
+  console.log(font, "---")
+  if (font && type === "CIRCLE") {
+    font.addEventListener("mouseenter", () => highLightCircle(id))
+    font.addEventListener("mouseleave", () => disHighLightCircle(id))
+    font.addEventListener("focus", () => highLightCircle(id))
+  } else if (font && type === "RECT") {
+    font.addEventListener("mouseenter", () => highLightRect(id))
+    font.addEventListener("mouseleave", () => disHighLightRect(id))
+    font.addEventListener("focus", () => highLightRect(id))
+  } else if (font && (type === "ARROW" || type === "TEXT")) {
+    font.addEventListener("mouseenter", () => highLightArrow(id))
+    font.addEventListener("mouseleave", () => disHighLightArrow(id))
+    font.addEventListener("focus", () => highLightArrow(id))
+  }
+
+}
+const highLightItem = (textId, graphId, historyItem) => {
+  let isHightLight = false
+  return () => {
+    if (isHightLight) {
+      isHightLight = false
+      const textNode = document.getElementById(textId)
+
+    } else {
+
+    }
   }
 }
 const addHistory = (type, id, pos, words = "", color = "black") => {
@@ -238,12 +274,23 @@ const addHistory = (type, id, pos, words = "", color = "black") => {
     time: new Date().toLocaleString(),
     id,
     pos,
-    color
+    color,
+    // 来一个随机类型
+    type: Math.random() > 0.5 ? "SC" : "WR",
+    highLight: false,
   })
+  console.log(history, '--history--')
   if (["CIRCLE", "RECT", "ARROW"].includes(type)) {
-    highlightText(words);
+    highlightText(words, "ADD", id);
     needReSelect = true;
   }
+  // 由于每次添加的时候 都会导致 font标签的更新 因而需要重新挂载事件
+  history.value.forEach((val) => {
+    console.log(val.id, val.operate, "-----refresh")
+    // 给文字注册高亮事件
+    fontAddHighLightEvent(val.id, val.operate)
+  }
+  )
 }
 // 更新type
 function onChangeType(t) {
@@ -280,6 +327,7 @@ const removeHistory = (removeId) => {
     const deleteHis = history.value.splice(removeIndex, 1)[0];
     highlightText(deleteHis.words, 'DELETE');
   }
+  console.log(history, "--remove--")
 }
 
 
@@ -302,14 +350,25 @@ const remove = (_, item) => {
 }
 const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   const delEl = document.getElementById(id)
+  const delElBack = document.getElementById(`circleBack-${id}`)
   if (delEl) {
     delEl.remove()
+    delElBack.remove()
   }
   const xr = Math.abs(endX - startPos[0]);
   const yr = Math.abs(endY - startPos[1]);
   const r = Math.sqrt(xr * xr + yr * yr) / 2;
   const cx = xr / 2 + endX > startPos[0] ? startPos[0] : endX;
   const cy = yr / 2 + endY > startPos[1] ? startPos[1] : endY;
+  const circleHighLight = d3.select(".circleG").append("circle")
+  circleHighLight
+    .attr('r', r + 10)
+    .attr("id", `circleBack-${id}`)
+    .attr('cx', cx)
+    .attr('cy', cy)
+    .attr("opacity", 0)
+    .attr("fill", 'rgba(255,247,0,0.3)')
+
   const circle = d3.select(".circleG").append('circle')
 
   circle.attr('id', id)
@@ -318,24 +377,76 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
     .attr('cy', cy)
     .attr('fill', fill)
     .attr('stroke', stroke)
-    .on("contextmenu", (event) => {
-      removeHistory(id)
-      circle.remove()
-      event.preventDefault(); // 防止默认的上下文菜单弹出
+    .attr("stroke-width", 3)
+    .on("click", (event) => {
+      if (type.value === "DELETE") {
+        removeHistory(id)
+        circle.remove()
+        circleHighLight.remove()
+      }
     })
+    .on("mouseover", () => {
+      // 显示提示框
+      highLightCircle(id)
+    })
+    .on("mouseout", () => {
+      // 隐藏提示框
+      disHighLightCircle(id)
+    });
+  // 适应对应的图形
   const [xScale, yScale] = resize("graph", "output-graph")
+  // 高亮的回调函数
+  d3.select("[id='0']").insert("circle", ":first-child")
   return { cx: cx * xScale, cy: cy * yScale, r: r * xScale };
 }
+const highLightCircle = function (id) {
+  const textId = `font-${id}`
+  const graphId = `circleBack-${id}`
+  const font = document.getElementById(textId)
+  console.log(font, "hight-light")
+  if (font)
+    font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+  const circleBack = document.getElementById(graphId)
+  circleBack.setAttribute("opacity", 1)
+  const index = history.value.findIndex(e => e.id === id)
+  if (index >= 0)
+    history.value[index].highLight = true
+}
+
+const disHighLightCircle = function (id) {
+  const textId = `font-${id}`
+  const graphId = `circleBack-${id}`
+
+  const font = document.getElementById(textId)
+  if (font)
+    font.style.backgroundColor = ''
+  const circleBack = document.getElementById(graphId)
+  circleBack.setAttribute("opacity", 0)
+  const index = history.value.findIndex(e => e.id === id)
+  if (index >= 0)
+    history.value[index].highLight = false
+}
+
 const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
   const svg = document.querySelector("#graph")
   const delEl = document.getElementById(id)
+  const delElBack = document.getElementById(`rectBack-${id}`)
   if (delEl) {
     delEl.remove()
+    delElBack.remove()
   }
   const width = Math.abs(endX - startPos[0]);
   const height = Math.abs(endY - startPos[1]);
 
+  const rectBack = d3.select(".rectG").append("rect")
   const rect = d3.select(".rectG").append('rect')
+  rectBack.attr("id", `rectBack-${id}`)
+    .attr('width', width + 20)
+    .attr('height', height + 20)
+    .attr('x', endX > startPos[0] ? startPos[0] - 10 : endX - 10)
+    .attr('y', endY > startPos[1] ? startPos[1] - 10 : endY - 10)
+    .attr("opacity", 1)
+    .attr("fill", "rgba(247,255,0,0.3)")
 
   rect.attr('id', id)
     .attr('width', width)
@@ -344,11 +455,21 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     .attr('y', endY > startPos[1] ? startPos[1] : endY)
     .attr("fill", fill)
     .attr('stroke', stroke)
-    .on("contextmenu", (event) => {
-      event.preventDefault(); // 防止默认的上下文菜单弹出
-      removeHistory(currentId)
-      rect.remove()
+    .on("click", (event) => {
+      if (type.value === "DELETE") {
+        removeHistory(id)
+        rect.remove()
+        rectBack.remove()
+      }
     })
+    .on("mouseover", () => {
+      // 显示提示框
+      highLightRect(id)
+    })
+    .on("mouseout", () => {
+      // 隐藏提示框
+      disHighLightRect(id)
+    });
   const [xScale, yScale] = resize("graph", "output-graph")
   return {
     x: (endX > startPos[0] ? startPos[0] : endX) * xScale,
@@ -358,14 +479,54 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     id: id,
   }
 }
+const highLightRect = function (id) {
+  const textId = `font-${id}`
+  const graphId = `rectBack-${id}`
+  const font = document.getElementById(textId)
+
+  if (font)
+    font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+  const circleBack = document.getElementById(graphId)
+  circleBack.setAttribute("opacity", 1)
+  const index = history.value.findIndex(e => e.id === id)
+  if (index >= 0)
+    history.value[index].highLight = true
+}
+
+const disHighLightRect = function (id) {
+  const textId = `font-${id}`
+  const graphId = `rectBack-${id}`
+
+  const font = document.getElementById(textId)
+  if (font)
+    font.style.backgroundColor = ''
+  const circleBack = document.getElementById(graphId)
+  circleBack.setAttribute("opacity", 0)
+  const index = history.value.findIndex(e => e.id === id)
+  if (index >= 0)
+    history.value[index].highLight = false
+}
+
+
 const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
 
   const delEl = document.getElementById(id)
   const delMarker = document.getElementById(`${id}-marker`)
+  const delElBack = document.getElementById(`arrowBack-${id}`)
   if (delEl) {
     delEl.remove()
     delMarker.remove()
+    delElBack.remove()
   }
+  // 添加箭头背景
+  const arrowBack = d3.select(".arrowG").append("path")
+    .attr("id", `arrowBack-${id}`)
+    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY}`)
+    .attr("fill", "rgba(247,255,0,0.3)")
+    .attr("stroke", "rgba(247,255,0,0.3)")
+    .attr("opacity", 0)
+    .attr("stroke-width", 20)
+
   // 添加箭头
   const arrow = d3.select(".arrowG").append('path')
     .attr("id", id)
@@ -373,13 +534,23 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     .attr("stroke", stroke)
     .attr("stroke-width", "2")
     .attr("style", `marker-end: url(#${id}-marker)`)
-    .on("contextmenu", (event) => {
-      removeHistory(id)
-      arrow.remove();
-      marker.remove()
-      document.getElementById(id).remove()
-      event.preventDefault(); // 防止默认的上下文菜单弹出
+    .on("click", (event) => {
+      if (type.value === "DELETE") {
+        removeHistory(id)
+        arrowBack.remove()
+        arrow.remove();
+        marker.remove()
+        document.getElementById(id).remove()
+      }
     })
+    .on("mouseover", () => {
+      // 显示提示框
+      highLightArrow(id)
+    })
+    .on("mouseout", () => {
+      // 隐藏提示框
+      disHighLightArrow(id)
+    });
   const marker = d3.select(".arrowG").append("marker")
   marker.attr("orient", "auto")
     .attr("id", `${id}-marker`)
@@ -402,6 +573,33 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
     endY: endY * yScale
   }
 }
+const highLightArrow = function (id) {
+  const textId = `font-${id}`
+  const graphId = `arrowBack-${id}`
+  const font = document.getElementById(textId)
+
+  if (font)
+    font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+  const circleBack = document.getElementById(graphId)
+  circleBack.setAttribute("opacity", 1)
+  const index = history.value.findIndex(e => e.id === id)
+  if (index >= 0)
+    history.value[index].highLight = true
+}
+
+const disHighLightArrow = function (id) {
+  const textId = `font-${id}`
+  const graphId = `arrowBack-${id}`
+
+  const font = document.getElementById(textId)
+  if (font)
+    font.style.backgroundColor = ''
+  const circleBack = document.getElementById(graphId)
+  circleBack.setAttribute("opacity", 0)
+  const index = history.value.findIndex(e => e.id === id)
+  if (index >= 0)
+    history.value[index].highLight = false
+}
 // 使用外部标签 来进行 更改svg
 const addText = (x1, y1, text, id, length) => {
   const svg = document.querySelector("#basicChart svg")
@@ -418,11 +616,13 @@ const addText = (x1, y1, text, id, length) => {
   textdiv.setAttribute("width", "auto");
   textdiv.setAttribute("id", id)
   textdiv.style.display = "inline-block"
-  textdiv.addEventListener("contextmenu", (event) => {
+  textdiv.addEventListener("click", (event) => {
+    if (type.value === "DELETE") {
+      removeHistory(id)
+      myforeign.parentNode.removeChild(myforeign);
+      document.getElementById(id).remove()
+    }
     event.preventDefault()
-    removeHistory(id)
-    myforeign.parentNode.removeChild(myforeign);
-    document.getElementById(id).remove()
   })
   svg.appendChild(myforeign)
   myforeign.appendChild(textdiv);
@@ -662,12 +862,12 @@ let resize = (pastId, nowId) => {
       #category {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: center;
         border: 2px solid black;
 
         svg {
           margin: 12px 6px 12px 6px;
-          // width: 50%;
+          // width: 40%;
           box-sizing: border-box;
           cursor: pointer;
         }
