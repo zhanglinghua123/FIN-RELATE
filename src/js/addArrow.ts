@@ -128,7 +128,7 @@ function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") :
                         .attr("d",`M ${x1},${y1} L ${ x1 +( x1 - x2 ) * (count - enterFrame) / enterFrame },${ y1 +( y1 - y2 ) * (count - enterFrame) / enterFrame}`)
                     }else{
                         points[2] = {x :x1 +( x1 - x2 ) * (count - enterFrame) / enterFrame  , y :y1 +( y1 - y2 ) * (count - enterFrame) / enterFrame }
-                        points[1] = {x : (x1 + points[2].x ) / 2 , y:(y1 + points[2].y)/2 + 10 }
+                        points[1] = {x : (x1 + points[2].x ) / 2 , y:(y1 + points[2].y)/2 - (20 * (enterFrame - count) / enterFrame) }
                         arrow
                         .select("path")
                         .attr("d",Gen(points))

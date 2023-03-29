@@ -13,21 +13,23 @@ const similiarRect = (svg:SVGElement ,rectItem1:animationData,idOne = "one",rect
     const rect2 = addMultiRectangularShadow(idTwo,[rectItem2],animation)
     return {
         stopTime:0,
-        duration:enterDuration + twinkleTime + 1,
+        duration:enterDuration * 2 + twinkleTime + 1,
         gap:1,
         animation:()=>{
             rect1.mount(svg)
-            rect2.mount(svg)
             rect1.beginAnimation()
-            rect2.beginAnimation()
+            setTimeout(()=>{
+                rect2.mount(svg)
+                rect2.beginAnimation()
+            },enterDuration * 1000)
             setTimeout(()=>{
                 rect1.twinkle()
                 rect2.twinkle()
-            },( enterDuration  * 1000))
+            },( enterDuration * 2  * 1000))
             setTimeout(()=>{
                 rect1.remove()
                 rect2.remove()
-            }, ((enterDuration + twinkleTime) * 1000) + 1000 )
+            }, ((enterDuration * 2 + twinkleTime) * 1000) + 1000 )
         }
     }
 }

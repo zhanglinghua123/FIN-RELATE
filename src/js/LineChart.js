@@ -1,4 +1,5 @@
 import * as d3 from "d3"
+import { withDefaults } from "vue";
 function LineChart(data, id, {
     x = ([x]) => x,
     y = ([, y]) => y,
@@ -33,7 +34,6 @@ function LineChart(data, id, {
     const I = d3.range(X.length);
     if (defined === undefined) defined = (d, i) => !isNaN(X[i]) && !isNaN(Y[i]);
     const D = d3.map(data, defined);
-  
     if (xDomain === undefined) xDomain = d3.extent(X);
     if (yDomain === undefined) yDomain = [0, d3.max(Y)];
   
@@ -41,6 +41,7 @@ function LineChart(data, id, {
     svgConfig.xScale = xScale;
     const yScale = yType(yDomain, yRange);
     svgConfig.yScale = yScale;
+    console.log(yScale(300),svgConfig,data,yDomain, yRange,width,height,xScale,yScale, "LineChart--")
     const xAxis = d3.axisBottom(xScale).ticks(width / 80).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).ticks(height / 40, yFormat);
   

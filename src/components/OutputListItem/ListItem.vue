@@ -1,57 +1,122 @@
 <template>
-    <div class="item">
+    <div :style="{
+        width: width,
+        height: height
+    }" v-if="isMulti === false" class="item">
         <div :class="{
             itemOne: true,
-            isHighLight: itemOneHighLight
-        }" @mouseenter="highLight" @mouseleave="dishighLight" :style="generateStyle(type, 1)">
-            {{
-                itemOneWords }}</div>
-        <div class="transition">
-            <!-- <p>{{ item.words || "SC" }}</p> -->
+            isHighLight: itemOneArray && itemOneArray[0]?.highLight
+        }" @mouseenter="itemOneArray && highLight(itemOneArray[0])"
+            @mouseleave="itemOneArray && dishighLight(itemOneArray[0])" :style="generateStyle(type, 1)">
+            {{ itemOneArray && itemOneArray[0]?.words }}
+        </div>
+        <div class="transition" :class="{
+            notShow: itemTwoArray && itemTwoArray[0] === undefined
+        }">
             <svg :style="{
-                width: svgWidth
-            }" v-if="type === 'SC' || type === 'DC'" xmlns="http://www.w3.org/2000/svg" stroke="white"
-                viewBox="0 0 100 100">
+                width: svgWidth,
+            }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
+                @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'SC' || type === 'DC'"
+                xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
+                <path d="M0,50 L100,50" stroke='rgba(245, 247, 0, 0.3)'
+                    :opacity="
+                        (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 1 : 0" stroke-width="40"></path>
                 <path d="M20,50 L80,50" stroke="white" stroke-width="20" />
                 <path d="M100,50 L80,30 L80,70 M100,50" fill="white" stroke="white" />
                 <path d="M0,50 L20,30 L20,70 L0,50" fill="white" stroke="white" />
             </svg>
             <svg :style="{
                 width: svgWidth
-            }" v-if="type === 'TS' || type === 'CE'" xmlns="http://www.w3.org/2000/svg" stroke="white"
-                viewBox="0 0 100 100">
+            }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
+                @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'TS' || type === 'CE'"
+                xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
+                <path d="M0,50 L100,50" stroke='rgba(245, 247, 0, 0.3)'
+                    :opacity="
+                        (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 1 : 0" stroke-width="40"></path>
                 <path d="M10,50 L80,50" stroke="white" stroke-width="20" />
                 <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" />
             </svg>
             <svg :style="{
                 width: svgWidth
-            }" v-if="type === 'WR'" xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
+            }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
+                @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'WR'"
+                xmlns="http://www.w3.org/2000/svg"
+                :opacity="itemOneArray?.reduce((pre, current) => pre.highLight || current.highLight)" stroke="white"
+                viewBox="0 0 100 100">
                 <path d="M20,30 L30,20 L80,70 L70,80 M20,30" fill="white" stroke="white"></path>
                 <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="white" stroke="white" />
             </svg>
         </div>
         <div :class="{
             itemTwo: true,
-            isHighLight: itemTwoHighLight
-        }" :style="generateStyle(type, 2)">{{ itemTwoWords }}</div>
+            isHighLight: itemTwoArray && itemTwoArray[0]?.highLight,
+            notShow: itemTwoArray && itemTwoArray[0] === undefined
+        }" :style="generateStyle(type, 2)" @mouseenter="itemTwoArray && highLight(itemTwoArray[0])"
+            @mouseleave="itemTwoArray && dishighLight(itemTwoArray[0])">
+            {{ itemTwoArray && itemTwoArray[0]?.words }}
+        </div>
+    </div>
+    <div :style="{
+        width: width,
+        height: multiHeight
+    }" v-if="isMulti === true" class="item-multi">
+        <div class="content-list-multi">
+            <div class="content-list-multi-item" v-for="item in itemOneArray" :class="{
+                itemOne: true,
+                isHighLight: item && item.highLight
+            }" @mouseenter="highLight(item)" @mouseleave="dishighLight(item)" :style="generateStyle(type, 1)">
+                {{ item && item.words }}
+            </div>
+        </div>
+        <div class="transition">
+            <svg :style="{
+                width: svgWidth
+            }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
+                @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'TS' || type === 'CE'"
+                xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
+                <path d="M0,10 L100,10 L100,90 L0,90 M0,10" :opacity="
+                    (itemTwoArray[0].highLight) || (itemOneArray && itemOneArray?.reduce((pre, current) => pre.highLight || current.highLight))
+                        ? 1 : 0
+                " fill="rgba(245,247,0,0.3)" stroke="transparent">
+                </path>
+                <path d="M10,20 L10,30 L35,30 L35,50 L50,50 L50,20 L10,20" fill="white" stroke="white"></path>
+                <path d="M10,80 L10,70 L35,70 L35,50 L50,50 L50,80 L10,80" fill="white" stroke="white"></path>
+                <path d="M50,50 L80,50" stroke="white" stroke-width="20" />
+                <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" />
+            </svg>
+        </div>
+
+        <div :class="{
+            itemTwo: true,
+            isHighLight: itemTwoArray && itemTwoArray[0].highLight
+        }" :style="generateStyle(type, 2)" @mouseenter="itemTwoArray && highLight(itemTwoArray[0])"
+            @mouseleave="itemTwoArray && dishighLight(itemTwoArray[0])" class="content-list-multi-item2">
+            {{ itemTwoArray && itemTwoArray[0]?.words }}
+        </div>
     </div>
 </template>
 <script setup>
-import { defineProps, toRefs, getCurrentInstance } from 'vue';
+import { toRefs, getCurrentInstance, effect } from 'vue';
 import { number } from 'vue-types';
 const props = defineProps({
     type: String,
-    itemOneWords: String,
-    itemTwoWords: String,
-    itemOneHighLight: Boolean,
-    itemTwoHighLight: Boolean,
+    itemOneArray: Array,
+    itemTwoArray: Array,
+    isMulti: Boolean,
     svgWidth: String,
-    id: number,
-    operate: String,
+    height: String,
+    width: String,
+    multiHeight: String,
+    explain: String,
+    isLast: Boolean,
 })
+const emit = defineEmits(["changeExplain", "changeExplainContent"])
 // 获取出来props属性
-const { type, itemOneWords, itemTwoWords, itemOneHighLight, itemTwoHighLight, svgWidth, id, operate } = toRefs(props)
-console.log(type, "---")
+const { type, itemOneArray, itemTwoArray, isMulti, svgWidth, height, width, multiHeight, explain, isLast } = toRefs(props)
+
+// 表达鼠标正在上面
+let onHover = false
+
 const generateStyle = (type, number) => {
     if (number === 1)
         switch (type) {
@@ -105,25 +170,27 @@ const generateStyle = (type, number) => {
 // highLight
 const { proxy } = getCurrentInstance()
 const history = proxy.$history
-const highLight = () => {
-
-    let textId = `font-${id.value}`
+const highLight = (item) => {
+    // 避免item为undefined
+    if (!item) return
+    const id = item.id
+    const operate = item.operate
+    let textId = `font-${id}`
     let backId
-    switch (operate.value) {
+    switch (operate) {
         case "CIRCLE":
-            backId = `circleBack-${id.value}`
+            backId = `circleBack-${id}`
             break
         case "RECT":
-            backId = `rectBack-${id.value}`
+            backId = `rectBack-${id}`
             break
         case "ARROW":
-            backId = `arrowBack-${id.value}`
+            backId = `arrowBack-${id}`
             break
         case "TEXT":
-            backId = `arrowBack-${id.value}`
+            backId = `arrowBack-${id}`
             break
     }
-
     const font = document.getElementById(textId)
     if (font)
         font.style.backgroundColor = 'rgba(245,255,0,0.3)'
@@ -131,25 +198,44 @@ const highLight = () => {
     if (BackItem) {
         BackItem.setAttribute("opacity", 1)
     }
-    const index = history.value.findIndex(e => e.id === id.value)
-    console.log(textId, backId, index, operate.value)
+    console.log(itemTwoArray.value && itemTwoArray.value[0] !== undefined, itemTwoArray.value, BackItem, "--ItemTwo--")
+    if (itemTwoArray.value && itemTwoArray.value[0] !== undefined) {
+        BackItem.setAttribute("display", "unset")
+        // BackItem.removeAttribute("display")
+        let graphItem = document.getElementById(id)
+        graphItem.setAttribute("display", "unset")
+        // BackItem.removeAttribute("display")
+        if (item.operate === "TEXT") {
+            let textItem = document.getElementById(`text-${id}`)
+            textItem.setAttribute("display", "unset")
+        }
+    }
+    const index = history.value.findIndex(e => e.id === id)
     history.value[index].highLight = true
+    emit("changeExplain", true)
+    emit("changeExplainContent", explain.value)
+    onHover = true
 }
-const dishighLight = () => {
-    let textId = `font-${id.value}`
+const dishighLight = (item) => {
+    // 避免item为undefined
+    if (!item) return
+
+    const id = item.id
+    const operate = item.operate
+    let textId = `font-${id}`
     let backId
-    switch (operate.value) {
+    switch (operate) {
         case "CIRCLE":
-            backId = `circleBack-${id.value}`
+            backId = `circleBack-${id}`
             break
         case "RECT":
-            backId = `rectBack-${id.value}`
+            backId = `rectBack-${id}`
             break
         case "ARROW":
-            backId = `arrowBack-${id.value}`
+            backId = `arrowBack-${id}`
             break
         case "TEXT":
-            backId = `arrowBack-${id.value}`
+            backId = `arrowBack-${id}`
             break
     }
     const font = document.getElementById(textId)
@@ -159,16 +245,98 @@ const dishighLight = () => {
     if (BackItem) {
         BackItem.setAttribute("opacity", 0)
     }
-    const index = history.value.findIndex(e => e.id === id.value)
-    console.log(textId, backId, index, operate.value)
-    history.value[index].highLight = false
+    if (itemTwoArray.value && itemTwoArray.value[0] !== undefined) {
+        // BackItem.setAttribute("display", "none")
+        // let graphItem = document.getElementById(id)
+        // graphItem.setAttribute("display", "none")
+    }
+    const index = history.value.findIndex(e => e.id === id)
+    if (index >= 0)
+        history.value[index].highLight = false
+    emit("changeExplain", false)
+    emit("changeExplainContent", "")
+    onHover = false
 }
+const highArrowLight = (itemOneArray, itemTwoArray) => {
+    itemOneArray?.forEach((item) => {
+        highLight(item)
+    })
+    itemTwoArray?.forEach((item) => {
+        highLight(item)
+    })
+    onHover = true
+}
+const dishighMultiLight = (itemOneArray, itemTwoArray) => {
+    itemOneArray?.forEach((item) => {
+        dishighLight(item)
+    })
+    itemTwoArray?.forEach((item) => {
+        dishighLight(item)
+    })
+    onHover = false
+}
+// 移除对应的标注对象
+const removeItems = (item, value) => {
+    // 避免item为undefined
+    if (!item) return
+    const id = item.id
+    const operate = item.operate
+    // let textId = `font-${id}`
+    let backId
+    let graphId = id
+    let plusId
+    switch (operate) {
+        case "CIRCLE":
+            backId = `circleBack-${id}`
+            break
+        case "RECT":
+            backId = `rectBack-${id}`
+            break
+        case "ARROW":
+            backId = `arrowBack-${id}`
+            break
+        case "TEXT":
+            backId = `arrowBack-${id}`
+            plusId = `text-${id}`
+            break
+    }
 
+    // const font = document.getElementById(textId)
+    // if (font)
+    // font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+    let BackItem = document.getElementById(backId)
+    if (BackItem) {
+        BackItem.setAttribute("display", value)
+    }
+    let GraphItem = document.getElementById(graphId)
+    if (GraphItem) {
+        GraphItem.setAttribute("display", value)
+    }
+    if (plusId) {
+        let PlusItem = document.getElementById(plusId)
+        if (PlusItem) {
+            PlusItem.setAttribute("display", value)
+        }
+    }
+}
+// 当所有数据都完备的时候 并且下一个history开始标注的时候 则remove掉所有的标注
+effect(() => {
+    if (itemTwoArray.value && itemTwoArray.value[0] !== undefined && !onHover && !(isLast.value)) {
+        itemOneArray.value.forEach(item => removeItems(item, "none"))
+        itemTwoArray.value.forEach(item => removeItems(item, "none"))
+    }
+    // else {
+    //     itemOneArray?.value?.forEach(item => removeItems(item, ""))
+    //     itemTwoArray?.value?.forEach(item => removeItems(item, ""))
+    // }
+    console.log(itemTwoArray.value, itemTwoArray.value && itemTwoArray.value[0] !== undefined, "--effect--")
+})
 </script>
 <style lang="scss">
 .item {
     display: flex;
     min-width: 100px;
+    margin-bottom: 20px;
 }
 
 .isHighLight {
@@ -177,7 +345,7 @@ const dishighLight = () => {
 
 
 .itemOne {
-    width: 40%;
+    width: 35%;
     height: 100%;
     background-color: white;
     border-radius: 5%;
@@ -211,7 +379,7 @@ const dishighLight = () => {
 }
 
 .itemTwo {
-    width: 40%;
+    width: 35%;
     height: 100%;
     background-color: white;
     background-color: white;
@@ -221,5 +389,56 @@ const dishighLight = () => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.item-multi {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+
+    .content-list-multi {
+        display: flex;
+        height: 100%;
+        width: 35%;
+        flex-direction: column;
+        justify-content: space-around;
+
+        .content-list-multi-item {
+            width: 100%;
+            height: 40%;
+        }
+
+        .transition {
+            width: 30%;
+            height: 100%;
+            position: relative;
+
+            p {
+                text-align: center;
+                margin-bottom: 0;
+            }
+
+            svg {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: block;
+                max-width: 100%;
+                width: 50%;
+                // height: 30%;
+            }
+        }
+
+        .content-list-multi-item2 {
+            width: 100%;
+            height: 50%;
+        }
+
+    }
+}
+
+.notShow {
+    opacity: 0;
 }
 </style>

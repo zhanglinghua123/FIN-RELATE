@@ -18,6 +18,8 @@ type animation = {
     enterFrame?:number
     // 淡出帧数
     leaveFrame?:number
+    // 闪烁时间
+    twinkleTime?:number
 }
 import * as d3 from "d3"
 function addCircle(data:cirCleConfigItem[],animation:animation) : {
@@ -25,8 +27,9 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
     beginAnimation : ()=>void
     endAnimation : ()=>void
     remove:()=>void
+    twinkle:()=>void
 } {
-    const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60 } = animation
+    const { enterDuration = 3,leaveDuration = 3 , enterFrame = 60 ,leaveFrame = 60,twinkleTime=2 } = animation
     let circle
     return {
         // ele 为 需要挂载的 svg元素
@@ -64,7 +67,7 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
                             .endAngle(Math.PI * 2 * ( 1 - count / enterFrame ));
                         const newg =  circle.
                         append("g")
-
+                        
                         newg.attr("stroke",val.color || "rgba(0,0,0,0.1)")
                         .attr("stroke-width",val.outerRadius - val.innerRadius)
                         .append("path")
@@ -124,7 +127,19 @@ function addCircle(data:cirCleConfigItem[],animation:animation) : {
                 }
             }, leaveDuration * 1000 / leaveFrame)
         },
-        remove:()=>circle.remove()
+        remove:()=>circle.remove(),
+        twinkle:()=>{
+            let twincleCount = twinkleTime * 1000 / 200
+            let twinCleHandle = setInterval(()=>{
+                if(twincleCount > 0){
+                    circle
+                    .attr("opacity", twincleCount % 2 )
+                    twincleCount--   
+                }else{
+                    clearInterval(twinCleHandle)
+                }
+            },200)
+        }
     }
 }
 export {

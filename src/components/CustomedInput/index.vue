@@ -86,7 +86,7 @@
                 <line x1="0" y1="22" x2="25" y2="22" stroke="black" stroke-width="5"></line>
               </svg>
             </div>
-                                                                                                                                                                                                                                                                                                        </div> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div> -->
         </div>
       </div>
     </div>
@@ -100,7 +100,8 @@ import { getCurrentInstance, ref, onMounted, defineComponent } from 'vue'
 import { message } from 'ant-design-vue';
 import * as d3 from "d3";
 import { getDirection } from '../../js/getDirection';
-const emit = defineEmits(['changeText', "changeBackGround"])
+import { LineChart } from '../../js/LineChart';
+const emit = defineEmits(["changeBackGround"])
 
 
 // 在 setup形势下面 只有setup才能实时的获取变量的值
@@ -122,9 +123,23 @@ const selectWords = (e) => {
     message.error("请先选择可视化类型再选中！")
   }
 }
-onMounted(() => {
+onMounted(async () => {
   // 新建背景图片
   const svg = d3.select("#graph")
+  // let datas = []
+  // // 路径是从 main.js开始算的 图形如果显示的是错误的时候 查看数据源对不对
+  // await d3.csv("./caseData.csv", function (data) {
+  //   datas.push(data)
+  // });
+  // console.log(datas)
+  // datas = datas.slice(2500, 2700)
+  // LineChart(datas, "#graph", {
+  //   x: (data) => data.timestamp * 1000,
+  //   y: (data) => parseFloat(data.open),
+  //   width: document.getElementById("graph").getBoundingClientRect().width,
+  //   height: document.getElementById("graph").getBoundingClientRect().height,
+  //   color: "#398bff",
+  // })
   svg.attr("width", document.getElementById("graph").getBoundingClientRect().width)
     .attr("height", document.getElementById("graph").getBoundingClientRect().height)
   // 注意不是同一种 image 元素 -> img
@@ -178,7 +193,7 @@ onMounted(() => {
       } else if (type.value === 'ARROW') {
         addArrow(x1, y1, currentId, selectColor);
       } else if (type.value === "TEXT") {
-        addArrow(x1, y1, currentId, selectColor);
+        addArrow(x1, y1, currentId, selectColor, true);
       } else {
 
       }
@@ -196,12 +211,12 @@ onMounted(() => {
         const pos = addCircle(x1, y1, currentId, "transparent", selectColor);
         addHistory(type.value, currentId, pos, selectedWord, selectColor);
       } else if (type.value === 'ARROW') {
-        const pos = addArrow(x1, y1, currentId, selectColor);
+        const pos = addArrow(x1, y1, currentId, selectColor, false, true);
         addHistory(type.value, currentId, pos, selectedWord, selectColor);
       } else if (type.value === "TEXT") {
-        const pos = addArrow(x1, y1, currentId, selectColor)
-        const direction = getDirection({ x1: startPos[0], y1: startPos[1], x2: x1, y2: y1 })
-        const { _, words } = addText(startPos[0] - 5 * direction.xDirect, startPos[1] - 5 * direction.yDirect, "", currentId, history.value.length)
+        const pos = addArrow(x1, y1, currentId, selectColor, true, true)
+        // const direction = getDirection({ x1: startPos[0], y1: startPos[1], x2: x1, y2: y1 })
+        const { _, words } = addText(x1, y1, "", currentId, history.value.length)
         addHistory(type.value, currentId, pos, words, selectColor)
       } else {
 
@@ -219,27 +234,35 @@ const labelString = (str) => {
   return str;
 };
 const highlightText = (words, method = 'ADD') => {
-  if (words.length && (method === 'DELETE' || !needReSelect)) {
+  if (!needReSelect) {
+
     const textarea = document.getElementById("textarea");
     const inner = textarea.innerHTML.toString();
     let pureInner = labelString(inner);
     let str = '';
+    let repalceArray = []
     history.value.forEach((his) => {
       if (his.words.length) {
-        const index = pureInner.indexOf(his.words);
-        str = `${str}${pureInner.slice(0, index)}<Font id="font-${his.id}" style="border-bottom: 1px solid red;" color="${d3.schemeCategory10[0]}">${his.words}</Font>`;
-        pureInner = pureInner.slice(index + his.words.length);
+        const beginIndex = pureInner.indexOf(his.words);
+        const endIndex = beginIndex + his.words.length
+        repalceArray.push([beginIndex, endIndex, his.id, his.words])
       }
     })
-    str = str + pureInner;
+    repalceArray.sort((a, b) => a[0] - b[0])
+    if (repalceArray.length >= 1)
+      str += pureInner.slice(0, repalceArray[0][0])
+    for (let i = 0; i < repalceArray.length; i++) {
+      str += `<Font id="font-${repalceArray[i][2]}" style="border-bottom: 1px solid red;" color="${d3.schemeCategory10[0]}">${repalceArray[i][3]}</Font>`
+      str += pureInner.slice(repalceArray[i][1], repalceArray[i + 1] ? repalceArray[i + 1][0] : pureInner.length + 1)
+    }
     textarea.innerHTML = str;
-    emit("changeText", str);
+
   }
 }
 // 为font元素添加高亮效果
 const fontAddHighLightEvent = function (id, type) {
   const font = document.getElementById(`font-${id}`)
-  console.log(font, "---")
+  // console.log(font, "---")
   if (font && type === "CIRCLE") {
     font.addEventListener("mouseenter", () => highLightCircle(id))
     font.addEventListener("mouseleave", () => disHighLightCircle(id))
@@ -274,19 +297,20 @@ const addHistory = (type, id, pos, words = "", color = "black") => {
     time: new Date().toLocaleString(),
     id,
     pos,
-    color,
+    color: type === "RECT" ? "rgba(45,145,225,0.4)" : selectColor,
     // 来一个随机类型
     type: Math.random() > 0.5 ? "SC" : "WR",
     highLight: false,
   })
-  console.log(history, '--history--')
+  // console.log(history, '--history--')
   if (["CIRCLE", "RECT", "ARROW"].includes(type)) {
     highlightText(words, "ADD", id);
     needReSelect = true;
   }
+  console.log(history, type, "--type--")
   // 由于每次添加的时候 都会导致 font标签的更新 因而需要重新挂载事件
   history.value.forEach((val) => {
-    console.log(val.id, val.operate, "-----refresh")
+    // console.log(val.id, val.operate, "-----refresh")
     // 给文字注册高亮事件
     fontAddHighLightEvent(val.id, val.operate)
   }
@@ -327,7 +351,7 @@ const removeHistory = (removeId) => {
     const deleteHis = history.value.splice(removeIndex, 1)[0];
     highlightText(deleteHis.words, 'DELETE');
   }
-  console.log(history, "--remove--")
+  // console.log(history, "--remove--")
 }
 
 
@@ -383,6 +407,7 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
         removeHistory(id)
         circle.remove()
         circleHighLight.remove()
+        changeExplainationHighLight(false)
       }
     })
     .on("mouseover", () => {
@@ -403,14 +428,15 @@ const highLightCircle = function (id) {
   const textId = `font-${id}`
   const graphId = `circleBack-${id}`
   const font = document.getElementById(textId)
-  console.log(font, "hight-light")
   if (font)
     font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+  console.log(textId, graphId, "--")
   const circleBack = document.getElementById(graphId)
   circleBack.setAttribute("opacity", 1)
   const index = history.value.findIndex(e => e.id === id)
   if (index >= 0)
     history.value[index].highLight = true
+  changeExplainationHighLight(true)
 }
 
 const disHighLightCircle = function (id) {
@@ -420,11 +446,14 @@ const disHighLightCircle = function (id) {
   const font = document.getElementById(textId)
   if (font)
     font.style.backgroundColor = ''
+  console.log(textId, graphId, "--")
   const circleBack = document.getElementById(graphId)
   circleBack.setAttribute("opacity", 0)
   const index = history.value.findIndex(e => e.id === id)
   if (index >= 0)
     history.value[index].highLight = false
+  changeExplainationHighLight(false)
+
 }
 
 const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
@@ -460,6 +489,7 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
         removeHistory(id)
         rect.remove()
         rectBack.remove()
+        changeExplainationHighLight(false)
       }
     })
     .on("mouseover", () => {
@@ -491,6 +521,8 @@ const highLightRect = function (id) {
   const index = history.value.findIndex(e => e.id === id)
   if (index >= 0)
     history.value[index].highLight = true
+  changeExplainationHighLight(true)
+
 }
 
 const disHighLightRect = function (id) {
@@ -505,14 +537,20 @@ const disHighLightRect = function (id) {
   const index = history.value.findIndex(e => e.id === id)
   if (index >= 0)
     history.value[index].highLight = false
+  changeExplainationHighLight(false)
+
 }
 
 
-const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
+const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)", isSilppery, isOnHover) => {
 
   const delEl = document.getElementById(id)
   const delMarker = document.getElementById(`${id}-marker`)
   const delElBack = document.getElementById(`arrowBack-${id}`)
+  const line = d3
+    .line()
+    .curve(d3.curveBasis)
+    .context(null);
   if (delEl) {
     delEl.remove()
     delMarker.remove()
@@ -521,36 +559,54 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)") => {
   // 添加箭头背景
   const arrowBack = d3.select(".arrowG").append("path")
     .attr("id", `arrowBack-${id}`)
-    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY}`)
+    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY} `)
     .attr("fill", "rgba(247,255,0,0.3)")
     .attr("stroke", "rgba(247,255,0,0.3)")
     .attr("opacity", 0)
     .attr("stroke-width", 20)
 
+
   // 添加箭头
   const arrow = d3.select(".arrowG").append('path')
     .attr("id", id)
-    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY}`)
+    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY} `)
     .attr("stroke", stroke)
     .attr("stroke-width", "2")
     .attr("style", `marker-end: url(#${id}-marker)`)
-    .on("click", (event) => {
-      if (type.value === "DELETE") {
-        removeHistory(id)
-        arrowBack.remove()
-        arrow.remove();
-        marker.remove()
-        document.getElementById(id).remove()
-      }
-    })
-    .on("mouseover", () => {
-      // 显示提示框
-      highLightArrow(id)
-    })
-    .on("mouseout", () => {
-      // 隐藏提示框
-      disHighLightArrow(id)
-    });
+
+  if (isOnHover)
+    arrow
+      .on("click", (event) => {
+        if (type.value === "DELETE") {
+          removeHistory(id)
+          arrowBack.remove()
+          arrow.remove();
+          marker.remove()
+          document.getElementById(`text-${id}`)?.remove()
+          changeExplainationHighLight(false)
+        }
+      })
+      .on("mouseover", () => {
+        // 显示提示框
+        highLightArrow(id)
+      })
+      .on("mouseout", () => {
+        // 隐藏提示框
+        disHighLightArrow(id)
+      });
+  //  是否为曲线
+  if (isSilppery) {
+    const data = [startPos, [(startPos[0] * 3 + endX) / 4, (startPos[1] * 3 + endY) / 4 - 20],
+      // [(startPos[0] * 7 + endX) / 8, (startPos[1] * 7 + endY) / 8 - 10],
+      [(startPos[0] + endX) / 2, (startPos[1] + endY) / 2 - 20], [(startPos[0] + endX * 3) / 4, (startPos[1] + endY * 3) / 4 - 20],
+      // [(startPos[0] + endX * 7) / 8, (startPos[1] + endY * 7) / 8 - 20],
+      [endX, endY]
+    ]
+    arrow.attr("d", line(data))
+      .attr("fill", "transparent")
+    arrowBack.attr("d", line(data))
+      .attr("fill", "transparent")
+  }
   const marker = d3.select(".arrowG").append("marker")
   marker.attr("orient", "auto")
     .attr("id", `${id}-marker`)
@@ -585,6 +641,8 @@ const highLightArrow = function (id) {
   const index = history.value.findIndex(e => e.id === id)
   if (index >= 0)
     history.value[index].highLight = true
+  changeExplainationHighLight(true)
+
 }
 
 const disHighLightArrow = function (id) {
@@ -599,14 +657,18 @@ const disHighLightArrow = function (id) {
   const index = history.value.findIndex(e => e.id === id)
   if (index >= 0)
     history.value[index].highLight = false
+  changeExplainationHighLight(false)
 }
+
 // 使用外部标签 来进行 更改svg
 const addText = (x1, y1, text, id, length) => {
+  console.log(x1, y1, startPos, `translate(${(startPos[0] + x1) / 2} ${(startPos[1] + y1) / 2 - 20})`)
   const svg = document.querySelector("#basicChart svg")
   let myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
   myforeign.setAttribute("width", "100%");
   myforeign.setAttribute("height", "100%");
-  myforeign.setAttribute("transform", `translate(${x1} ${y1})`)
+  myforeign.setAttribute("transform", `translate(${(startPos[0] + x1) / 2} ${(startPos[1] + y1) / 2 - 40})`)
+  myforeign.setAttribute("id", `text-${id}`)
   myforeign.style.textAlign = "left"
   myforeign.style.fontSize = "16px"
   let textdiv = document.createElement("div");
@@ -621,6 +683,7 @@ const addText = (x1, y1, text, id, length) => {
       removeHistory(id)
       myforeign.parentNode.removeChild(myforeign);
       document.getElementById(id).remove()
+      changeExplainationHighLight(false)
     }
     event.preventDefault()
   })
@@ -628,14 +691,19 @@ const addText = (x1, y1, text, id, length) => {
   myforeign.appendChild(textdiv);
   myforeign.setAttribute("width", textdiv.offsetWidth);
   myforeign.setAttribute("height", textdiv.offsetHeight);
-  myforeign.setAttribute("transform", `translate(${x1 - 0.5 * textdiv.offsetWidth} ${y1})`)
+  // 适应曲线的位置移动偏移量
+  myforeign.setAttribute("transform", `translate(${(startPos[0] + x1) / 2 - 0.5 * textdiv.offsetWidth
+    + (startPos[1] > y1 ? - 40 : 40)
+    } ${(startPos[1] + y1) / 2 - 40})`)
+  // myforeign.setAttribute("transform", `translate(${x1 - 0.5 * textdiv.offsetWidth} ${y1})`)
 
-  const onChange = () => {
-    const findIndex = history.value.findIndex((e) => e.id === id)
-    history.value[findIndex].words = textdiv.innerText
-    myforeign.setAttribute("width", textdiv.offsetWidth);
-    myforeign.setAttribute("height", textdiv.offsetHeight);
-  }
+  // const onChange = () => {
+  //   const findIndex = history.value.findIndex((e) => e.id === id)
+  //   history.value[findIndex].words = textdiv.innerText
+  //   myforeign.setAttribute("width", textdiv.offsetWidth);
+  //   myforeign.setAttribute("height", textdiv.offsetHeight);
+  // }
+
   // addMutation(id, onChange, textdiv)
 
   return { pos: {}, words: textdiv.innerText }
@@ -708,6 +776,14 @@ let resize = (pastId, nowId) => {
   const past = document.getElementById(pastId).getBoundingClientRect()
   const now = document.getElementById(nowId).getBoundingClientRect()
   return [now.width / past.width, now.height / past.height]
+}
+const changeExplainationHighLight = (val) => {
+  const ele = document.getElementById("content-explanation")
+  if (val) {
+    ele.classList.add("isHighLight")
+  } else {
+    ele.classList.remove("isHighLight")
+  }
 }
 </script>
 <style lang="scss" scoped>

@@ -19,17 +19,25 @@ const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfi
     },animation,"arrowTwo")
     return {
         stopTime:0,
-        duration:enterDuration + 1 ,
+        duration:enterDuration * 2 + twinkleTime + 1 ,
         gap:1,
         animation:()=>{
             arrow1.mount(svg)
-            arrow2.mount(svg)
             arrow1.beginAnimation()
-            arrow2.beginAnimation()
+
+            setTimeout(()=>{
+                arrow2.mount(svg)
+                arrow2.beginAnimation()
+            },enterDuration * 1000)
+            
+            setTimeout(()=>{
+                arrow1.twinkle()
+                arrow2.twinkle()
+            },(enterDuration * 2) * 1000 )
             setTimeout(()=>{
                 arrow1.remove()
                 arrow2.remove()
-            },enterDuration * 1000 + 1000)
+            },(enterDuration * 2 + twinkleTime + 1 ) * 1000 )
         }
     }
 }
@@ -108,5 +116,6 @@ export {
     similarTendency,
     diffTendency,
     timeTendency,
-    causeTendency
+    causeTendency,
+    judgeColor
 }

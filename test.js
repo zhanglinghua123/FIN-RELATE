@@ -1,5 +1,5 @@
 const fetchData = async ()=>{
-    await fetch("https://query1.finance.yahoo.com/v8/finance/chart/TSLA?symbol=TSLA&period1=1618243200&period2=1679920646&useYfid=true&interval=1d&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=undefined&corsDomain=finance.yahoo.com")
+    await fetch("https://query1.finance.yahoo.com/v8/finance/chart/TSLA?symbol=TSLA&period1=1180368000&period2=1679986769&useYfid=true&interval=1d&includePrePost=true&events=div%7Csplit%7Cearn&lang=en-US&region=US&crumb=undefined&corsDomain=finance.yahoo.com")
     .then(val=>val.json())
     .then(val=>{
         // console.log(val.chart.result[0].timestamp)

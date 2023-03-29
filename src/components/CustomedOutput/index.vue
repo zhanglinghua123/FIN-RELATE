@@ -8,11 +8,11 @@
       </div>
       <div id="content">
         <div id="content-example">
-          <ListItem svgWidth="80%" class="content-example-item" type="SC"></ListItem>
-          <ListItem svgWidth="80%" class="content-example-item" type="DC"></ListItem>
-          <ListItem svgWidth="80%" class="content-example-item" type="TS"></ListItem>
-          <ListItem svgWidth="80%" class="content-example-item" type="CE"></ListItem>
-          <ListItem svgWidth="80%" class="content-example-item" type="WR"></ListItem>
+          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="SC"></ListItem>
+          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="DC"></ListItem>
+          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="TS"></ListItem>
+          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="CE"></ListItem>
+          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="WR"></ListItem>
         </div>
         <div id="content-title">
           <span>Similarity/Comparison</span>
@@ -23,15 +23,18 @@
         </div>
         <div id="content-relation">
           <div id="content-list">
-            <div v-for=" (item, index) in history" :key="index">
-              <ListItem v-if="index > 0" :id="history[index - 1].id" :itemOneWords="history[index - 1].words"
-                :itemTwoWords="history[index].words" :type="item.type" :operate="history[index - 1].operate"
-                :itemOneHighLight="history[index - 1].highLight" class="content-listItem">
+            <div v-for=" (item, index) in transformer(history)" :key="index">
+              <ListItem :isLast="(index + 1) === transformer(history).length" :explain="item.explanation"
+                @changeExplainContent="changeExplainationContent" @changeExplain="changeExplainationHighLight"
+                multiHeight="12vh" height="6vh" class="content-list-item" svgWidth="80%" :itemOneArray="item.itemOneArray"
+                :itemTwoArray="item.itemTwoArray" :isMulti="item.isMulti" :type="item.type">
               </ListItem>
             </div>
           </div>
-          <div id="content-explanation">
-            Explanation
+          <div :class="{
+            isHighLight: explanationHighLight
+          }" id="content-explanation">
+
           </div>
         </div>
       </div>
@@ -60,18 +63,22 @@ import { getCurrentInstance, onMounted, ref } from 'vue'
 import ListItem from "../OutputListItem/ListItem.vue"
 import { animation2Video, animationFormFromHistory, downloadVideo } from '../../js/animation';
 import * as d3 from "d3";
+import { transformer } from "../../js/transformerHistory"
+import { LineChart } from "../../js/LineChart"
+import { animationText } from "../../js/animationText"
 
 const props = defineProps(['innerStr'])
+
+let explanationHighLight = ref(false)
 
 const { proxy } = getCurrentInstance()
 const history = proxy.$history.value
 // Modal的引用
-onMounted(() => {
+onMounted(async () => {
   // 新建背景图片
   const svg = d3.select("#output-graph")
   svg.attr("width", document.getElementById("output-graph").getBoundingClientRect().width)
     .attr("height", document.getElementById("output-graph").getBoundingClientRect().height)
-  console.log(document.getElementById("output-graph").getClientRects().width)
   // 注意不是同一种 image 元素 -> img
   svg
     .append("defs")
@@ -98,6 +105,7 @@ onMounted(() => {
     .attr("x", 0)
     .attr("y", 0)
     .attr("fill", "white")
+    .attr("id", "whiteBackGround")
   back
     .append("rect")
     .attr("width", document.getElementById("output-graph").getBoundingClientRect().width)
@@ -105,6 +113,25 @@ onMounted(() => {
     .attr("x", 0)
     .attr("y", 0)
     .attr("fill", "url(#outbg-pattern)")
+
+
+  // // 插入背景的线型图
+  // let datas = []
+  // // 路径是从 main.js开始算的 图形如果显示的是错误的时候 查看数据源对不对
+  // await d3.csv("./caseData.csv", function (data) {
+  //   datas.push(data)
+  // });
+  // console.log(datas)
+  // datas = datas.slice(2500, 2730)
+  // LineChart(datas, "#output-graph", {
+  //   x: (data) => data.timestamp * 1000,
+  //   y: (data) => parseFloat(data.open),
+  //   width: document.getElementById("output-graph").getBoundingClientRect().width,
+  //   height: document.getElementById("output-graph").getBoundingClientRect().height,
+  //   color: "#398bff",
+  // })
+
+
 })
 const onChangeBackGround = (file) => {
   const reader = new FileReader();
@@ -118,12 +145,20 @@ const onChangeBackGround = (file) => {
 }
 // 需要添加动画的svgNode
 const onGenerate = () => {
-  // 调用子组件函数
-  const svgContainer = d3.select("#output-graph")
-  const totalTime = animationFormFromHistory(history, svgContainer)
-  const svgNode = document.getElementById("svg-container")
-  const canvas = document.getElementById("video")
-  animation2Video(totalTime, svgNode, canvas)
+  // 调用子组件函数 来生成对应的动画
+  // const svgContainer = d3.select("#output-graph")
+  // const totalTime = animationFormFromHistory(transformer(history), svgContainer)
+  // const svgNode = document.getElementById("svg-container")
+  // const canvas = document.getElementById("video")
+  // animation2Video(totalTime, svgNode, canvas)
+  animationText("textarea")
+}
+const changeExplainationContent = (text) => {
+  console.log(text, "--text--")
+  document.getElementById("content-explanation").textContent = text
+}
+const changeExplainationHighLight = (val) => {
+  explanationHighLight.value = val
 }
 // 必须定义这个才能进行调用
 defineExpose({
@@ -231,7 +266,7 @@ defineExpose({
         padding-left: 20px;
         padding-right: 20px;
 
-        .content-listItem {
+        .content-list-item {
           display: flex;
           height: 6vh;
           width: 100%;
@@ -242,6 +277,7 @@ defineExpose({
       }
 
       #content-explanation {
+        padding: 5%;
         width: 25%;
         height: 90%;
         margin-left: 5%;
@@ -310,5 +346,9 @@ defineExpose({
     }
   }
 
+}
+
+.isHighLight {
+  box-shadow: 0 0 40px yellow;
 }
 </style>

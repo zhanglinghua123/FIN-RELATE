@@ -11,7 +11,6 @@
         </div>
         <div id="output">
           <CustomedOutput ref="modalButton" :innerStr="innerStr"></CustomedOutput>
-          <!-- <CanvasModal ref="modalButton"></CanvasModal> -->
         </div>
       </div>
     </div>
@@ -21,23 +20,22 @@
 <script>
 import CustomedInput from './components/CustomedInput/index.vue'
 import CustomedOutput from './components/CustomedOutput/index.vue'
-import CanvasModal from "./components/ModalOfCanvas/CanvasModal.vue"
 import { defineComponent, ref } from "vue"
 import * as d3 from "d3"
 export default defineComponent({
-  components: { CustomedInput, CustomedOutput, CanvasModal },
+  components: { CustomedInput, CustomedOutput },
   setup() {
     const modalButton = ref()
     let innerStr = ref('');
-    const changeText = (str) => {
-      innerStr.value = str;
-    }
+    // const changeText = (str) => {
+    //   innerStr.value = str;
+    // }
     const onChangeBackGround = (url) => {
       modalButton.value.onChangeBackGround(url)
     }
     return {
       innerStr,
-      changeText,
+      // changeText,
       modalButton,
       onChangeBackGround
     }

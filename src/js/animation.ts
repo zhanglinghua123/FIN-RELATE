@@ -9,6 +9,7 @@ import { similarCircle , diffCircle , timeCircle , causeCircle } from "./cirCleA
 import { similiarArrow,diffArrow,timeArrow,causeArrow } from "./arrowAnimation";
 import { similarTendency,diffTendency,timeTendency,causeTendency } from "./arrowWithoutLabel";
 import { pascalCase } from "unplugin-vue-components";
+import { MutliCauseEffect } from "./multiAnimation";
 interface animationFrame {
     // 暂停多少时间后 再执行该动画 
     stopTime? : number
@@ -32,292 +33,373 @@ interface historyItem{
     id:number,
     color:string,
 }
-function animationFormFromHistory(history:historyItem[],chart:SVGElement){
+interface transHistoryItem{
+    type: "SC"| "TS" | "CE" | "DC" | "WR",
+    itemOneArray: any[],
+    itemTwoArray: any[],
+    isMulti: boolean,
+    svgWidth?: string,
+    explanation:string,
+}
+function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
+    
     let startTime = 0
     // 一个动画的持续时间
     let duration = 6
     let gap = 2
     let frames:animationFrame[] = []
     const svg  = chart
-    for(let item of history){
-        switch(item.operate){
-            case "CIRCLE":{
-                frames.push(similarCircle(svg,{
-                    x:item.pos.cx,
-                    y:item.pos.cy,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)"
-                },{
-                    x:item.pos.cx + 100,
-                    y:item.pos.cy + 100,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)"
-                },{
-                    enterDuration:duration/2,
-                    leaveDuration: duration/2
-                }))
-    
-                frames.push(diffCircle(svg,{
-                    x:item.pos.cx,
-                    y:item.pos.cy,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)"
-                },{
-                    x:item.pos.cx + 100,
-                    y:item.pos.cy - 100,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)"
-                },{
-                    color:"#f1a340"
-                },{
-                    color:"#998ec3"
-                },
-                {
-                    enterDuration:duration/2,
-                    leaveDuration: duration/2
-                }))
-                frames.push(timeCircle(svg,{
-                    x:item.pos.cx,
-                    y:item.pos.cy,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)"
-                },{
-                    x:item.pos.cx - 100,
-                    y:item.pos.cy - 100,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)"
-                },{
-                    color:"#f1a340"
-                },
-                {
-                    enterDuration:duration/2,
-                    leaveDuration: duration/2
-                }))
-    
-                frames.push(causeCircle(svg,{
-                    x:item.pos.cx,
-                    y:item.pos.cy,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color: item.color|| "rgba(239, 217, 111)",
-                    strokeDashArray:10,
-                },{
-                    x:item.pos.cx - 100,
-                    y:item.pos.cy + 100,
-                    innerRadius:item.pos.r-2,
-                    outerRadius:item.pos.r+2,
-                    textContent:item.words,
-                    color:item.color|| "rgba(239, 217, 111)"
-                },{
-                    color:"#f1a340"
-                },
-                {
-                    enterDuration:duration/2,
-                    leaveDuration: duration/2
-                }))
+    console.log(history,"---history---")
+    for(let item of  history){
+        switch(item.type){
+            case "SC":{
+                switch(item.itemOneArray[0].operate){
+                    case "RECT":
+                        const itemOne = item.itemOneArray[0]
+                        const itemTwo = item.itemTwoArray[0]
+                        frames.push(
+                            similiarRect(svg,{
+                            ...itemOne.pos,
+                            textContent:itemOne.words,
+                            color: itemOne.color|| "#f1a340"
+                        },`rectGroup-${itemOne.id}`,{
+                            ...itemTwo.pos,
+                            x : itemTwo.pos.x ,
+                            textContent:itemTwo.words,
+                            color:  itemTwo.color|| "#f1a340"
+                        },`rectGroup-${itemTwo.id}`,{
+                            twinkleTime:2,
+                            
+                        })
+                        )
+                }
                 continue
             }
-            case "RECT":{
+            case "TS":{       
+                switch(item.itemOneArray[0].operate){
+                    case "ARROW":{
+                    const itemOne = item.itemOneArray[0]
+                    const itemTwo = item.itemTwoArray[0]
                     frames.push(
-                        similiarRect(svg,{
-                        ...item.pos,
-                        textContent:item.words,
-                        color: item.color|| "#f1a340"
-                    },`rectGroup-${item.id}`,{
-                        ...item.pos,
-                        x : item.pos.x + 200,
-                        textContent:item.words,
-                        color:  item.color|| "#f1a340"
-                    },`rectGroup-${item.id+100}`,{
-                        twinkleTime:2,
-                        
-                    })
-                    )
-                    frames.push(
-                        similiarRect(svg,{
-                            ...item.pos,
-                            color:  item.color|| "#f1a340",
-                            textContent:item.words,
-                        },`rectGroup-${item.id}`,{
-                            ...item.pos,
-                            x : item.pos.x + 200,
-                            color:  item.color|| "#f1a340",
-                            textContent:item.words,
-                        },`rectGroup-${item.id+100}`,{
-                            twinkleTime : 2
-                        })
-                    )
-                    frames.push(
-                        timeRect(svg,{
-                            ...item.pos,
-                            color: item.color|| "#f1a340",
-                            textContent:item.words,
-                        },`rectGroup-${item.id}`,{
-                            ...item.pos,
-                            color:  item.color|| "#f1a340",
-                            x : item.pos.x + 200,
-                            textContent:item.words,
-                        },`rectGroup-${item.id+100}`,{
-                            twinkleTime:2
-                        })
-                    )
-                    frames.push(
-                        causeRect(svg,{
-                            ...item.pos,
-                            color:  item.color|| "#f1a340",
-                            textContent:item.words,
-                            stroke : {
-                                stroke:"rgba(0,0,0,0.3)",
-                                strokeWidth:5,
-                                strokeDashArray:10
-                            }
-                        },`rectGroup-${item.id}`,{
-                            ...item.pos,
-                            color:  item.color|| "#f1a340",
-                            x : item.pos.x + 200,
-                            textContent:item.words,
-                            stroke : {
-                                stroke:"rgba(0,0,0,0.3)",
-                                strokeWidth:5,
-                            }
-                        },`rectGroup-${item.id+100}`,{
-                        })
-                    )
-                    continue
-                }
-        
-            case "TEXT":{
-                  //  绘制对应的箭头动画
-                  frames.push(
-                    similiarArrow(svg,{
-                        x1:item.pos.startX,
-                        y1:item.pos.startY,
-                        x2:item.pos.endX,
-                        y2:item.pos.endY,
-                        textContent:item.words || "1212"
-                    },{
-                        x1:item.pos.startX+100,
-                        y1:item.pos.startY,
-                        x2:item.pos.endX+100,
-                        y2:item.pos.endY,
-                        textContent:item.words || "1212"
-                    },{}))
-        
-                    frames.push(
-                        similiarArrow(svg,{
-                            x1:item.pos.startX,
-                            y1:item.pos.startY,
-                            x2:item.pos.endX,
-                            y2:item.pos.endY,
-                            textContent:item.words || "1212"
+                        timeTendency(svg,{
+                            x1:itemOne.pos.startX,
+                            y1:itemOne.pos.startY,
+                            x2:itemOne.pos.endX,
+                            y2:itemOne.pos.endY,
+                            textContent:itemOne.words || "",
+                            // isCurve:true,
                         },{
-                            x1:item.pos.startX+100,
-                            y1:item.pos.startY,
-                            x2:item.pos.endX+100,
-                            y2:item.pos.endY,
-                            textContent:item.words || "1212",
-                            color:"#9983c9"
+                            x1:itemTwo.pos.startX,
+                            y1:itemTwo.pos.startY,
+                            x2:itemTwo.pos.endX,
+                            y2:itemTwo.pos.endY,
+                            textContent:itemTwo.words || "",
+                            // color:"#9983c9",
+                            // isCurve:true,
                         },{}))
-        
-                        frames.push(
-                            timeArrow(svg,{
-                                x1:item.pos.startX,
-                                y1:item.pos.startY,
-                                x2:item.pos.endX,
-                                y2:item.pos.endY,
-                                textContent:item.words || "1212"
-                            },{
-                                x1:item.pos.startX+100,
-                                y1:item.pos.startY,
-                                x2:item.pos.endX+100,
-                                y2:item.pos.endY,
-                                textContent:item.words || "1212",
-                                color:"#9983c9"
-                            },{}))
-        
-                    frames.push(
-                        causeArrow(svg,{
-                            x1:item.pos.startX,
-                            y1:item.pos.startY,
-                            x2:item.pos.endX,
-                            y2:item.pos.endY,
-                            textContent:item.words || "1212",
-                            },{
-                            x1:item.pos.startX+200,
-                            y1:item.pos.startY,
-                            x2:item.pos.endX+200,
-                            y2:item.pos.endY,
-                            textContent:item.words || "1212",
-                            color:"#9983c9",
-                        },{}))
-                    continue
                     }
-               
-            case "ARROW":{
-                console.log(item,"--TEXT--")
-                frames.push(similarTendency(svg,{
-                    x1:item.pos.startX,
-                    y1:item.pos.startY,
-                    x2:item.pos.endX,
-                    y2:item.pos.endY,
-                },{
-                    x1:item.pos.startX+100,
-                    y2:item.pos.startY,
-                    x2:item.pos.endX+100,
-                    y1:item.pos.endY,
-                },{}))
-                frames.push(similarTendency(svg,{
-                    x1:item.pos.startX,
-                    y1:item.pos.startY,
-                    x2:item.pos.endX,
-                    y2:item.pos.endY,
-                },{
-                    x1:item.pos.startX+100,
-                    y2:item.pos.startY,
-                    x2:item.pos.endX+100,
-                    y1:item.pos.endY,
-                },{}))
-                frames.push(timeTendency(svg,{
-                    x1:item.pos.startX,
-                    y1:item.pos.startY,
-                    x2:item.pos.endX,
-                    y2:item.pos.endY,
-                },{
-                    x1:item.pos.startX+100,
-                    y2:item.pos.startY,
-                    x2:item.pos.endX+100,
-                    y1:item.pos.endY,
-                },{}))
-                frames.push(causeTendency(svg,{
-                    x1:item.pos.startX,
-                    y1:item.pos.startY,
-                    x2:item.pos.endX,
-                    y2:item.pos.endY,
-                },{
-                    x1:item.pos.startX+100,
-                    y2:item.pos.startY,
-                    x2:item.pos.endX+100,
-                    y1:item.pos.endY,
-                },{}))
+                }    
+                continue
             }
-                
+            case "DC":{
+                switch(item.itemOneArray[0].operate){
+                    case "TEXT":{
+                        const itemOne = item.itemOneArray[0]
+                        const itemTwo = item.itemTwoArray[0]
+                        frames.push(similarTendency(svg,{
+                            x1:itemOne.pos.startX,
+                            y1:itemOne.pos.startY,
+                            x2:itemOne.pos.endX,
+                            y2:itemOne.pos.endY,
+                            isCurve:true,
+                        },{
+                            x1:itemTwo.pos.startX,
+                            y1:itemTwo.pos.startY,
+                            x2:itemTwo.pos.endX,
+                            y2:itemTwo.pos.endY,
+                            isCurve:true,
+                        },{}))
+                    }
+                }              
+                continue
+            }
+            case "CE":{
+                const itemOne = item.itemOneArray
+                const itemTwo = item.itemTwoArray[0]
+                frames.push(MutliCauseEffect(svg,itemOne,itemTwo,{},{strokeDashArray:10}))
+            }
             default:
-                                
-
         }
+                //  绘制对应的箭头动画
+                // frames.push(
+                //   similiarArrow(svg,{
+                //       x1:item.pos.startX,
+                //       y1:item.pos.startY,
+                //       x2:item.pos.endX,
+                //       y2:item.pos.endY,
+                //       textContent:item.words || "1212"
+                //   },{
+                //       x1:item.pos.startX+100,
+                //       y1:item.pos.startY,
+                //       x2:item.pos.endX+100,
+                //       y2:item.pos.endY,
+                //       textContent:item.words || "1212"
+                //   },{}))
+      
+                //   frames.push(
+                //       similiarArrow(svg,{
+                //           x1:item.pos.startX,
+                //           y1:item.pos.startY,
+                //           x2:item.pos.endX,
+                //           y2:item.pos.endY,
+                //           textContent:item.words || "1212"
+                //       },{
+                //           x1:item.pos.startX+100,
+                //           y1:item.pos.startY,
+                //           x2:item.pos.endX+100,
+                //           y2:item.pos.endY,
+                //           textContent:item.words || "1212",
+                //           color:"#9983c9"
+                //       },{}))
+      
+                //       frames.push(
+                //           timeArrow(svg,{
+                //               x1:item.pos.startX,
+                //               y1:item.pos.startY,
+                //               x2:item.pos.endX,
+                //               y2:item.pos.endY,
+                //               textContent:item.words || "1212"
+                //           },{
+                //               x1:item.pos.startX+100,
+                //               y1:item.pos.startY,
+                //               x2:item.pos.endX+100,
+                //               y2:item.pos.endY,
+                //               textContent:item.words || "1212",
+                //               color:"#9983c9"
+                //           },{}))
+      
+                //   frames.push(
+                //       causeArrow(svg,{
+                //           x1:item.pos.startX,
+                //           y1:item.pos.startY,
+                //           x2:item.pos.endX,
+                //           y2:item.pos.endY,
+                //           textContent:item.words || "1212",
+                //           },{
+                //           x1:item.pos.startX+200,
+                //           y1:item.pos.startY,
+                //           x2:item.pos.endX+200,
+                //           y2:item.pos.endY,
+                //           textContent:item.words || "1212",
+                //           color:"#9983c9",
+                //       },{}))
+                
+             
+                // frames.push(
+                //     similiarRect(svg,{
+                //     ...item.pos,
+                //     textContent:item.words,
+                //     color: item.color|| "#f1a340"
+                // },`rectGroup-${item.id}`,{
+                //     ...item.pos,
+                //     x : item.pos.x + 200,
+                //     textContent:item.words,
+                //     color:  item.color|| "#f1a340"
+                // },`rectGroup-${item.id+100}`,{
+                //     twinkleTime:2,
+                    
+                // })
+                // )
+                // frames.push(
+                //     similiarRect(svg,{
+                //         ...item.pos,
+                //         color:  item.color|| "#f1a340",
+                //         textContent:item.words,
+                //     },`rectGroup-${item.id}`,{
+                //         ...item.pos,
+                //         x : item.pos.x + 200,
+                //         color:  item.color|| "#f1a340",
+                //         textContent:item.words,
+                //     },`rectGroup-${item.id+100}`,{
+                //         twinkleTime : 2
+                //     })
+                // )
+                // frames.push(
+                //     timeRect(svg,{
+                //         ...item.pos,
+                //         color: item.color|| "#f1a340",
+                //         textContent:item.words,
+                //     },`rectGroup-${item.id}`,{
+                //         ...item.pos,
+                //         color:  item.color|| "#f1a340",
+                //         x : item.pos.x + 200,
+                //         textContent:item.words,
+                //     },`rectGroup-${item.id+100}`,{
+                //         twinkleTime:2
+                //     })
+                // )
+                // frames.push(
+                //     causeRect(svg,{
+                //         ...item.pos,
+                //         color:  item.color|| "#f1a340",
+                //         textContent:item.words,
+                //         stroke : {
+                //             stroke:"rgba(0,0,0,0.3)",
+                //             strokeWidth:5,
+                //             strokeDashArray:10
+                //         }
+                //     },`rectGroup-${item.id}`,{
+                //         ...item.pos,
+                //         color:  item.color|| "#f1a340",
+                //         x : item.pos.x + 200,
+                //         textContent:item.words,
+                //         stroke : {
+                //             stroke:"rgba(0,0,0,0.3)",
+                //             strokeWidth:5,
+                //         }
+                //     },`rectGroup-${item.id+100}`,{
+                //     })
+                // )
+                
+            
+    
+                // frames.push(similarCircle(svg,{
+                //     x:item.pos.cx,
+                //     y:item.pos.cy,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     x:item.pos.cx + 100,
+                //     y:item.pos.cy + 100,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     enterDuration:duration/2,
+                //     leaveDuration: duration/2
+                // }))
+    
+                // frames.push(diffCircle(svg,{
+                //     x:item.pos.cx,
+                //     y:item.pos.cy,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     x:item.pos.cx + 100,
+                //     y:item.pos.cy - 100,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     color:"#f1a340"
+                // },{
+                //     color:"#998ec3"
+                // },
+                // {
+                //     enterDuration:duration/2,
+                //     leaveDuration: duration/2
+                // }))
+                // frames.push(timeCircle(svg,{
+                //     x:item.pos.cx,
+                //     y:item.pos.cy,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     x:item.pos.cx - 100,
+                //     y:item.pos.cy - 100,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     color:"#f1a340"
+                // },
+                // {
+                //     enterDuration:duration/2,
+                //     leaveDuration: duration/2
+                // }))
+    
+                // frames.push(causeCircle(svg,{
+                //     x:item.pos.cx,
+                //     y:item.pos.cy,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color: item.color|| "rgba(239, 217, 111)",
+                //     strokeDashArray:10,
+                // },{
+                //     x:item.pos.cx - 100,
+                //     y:item.pos.cy + 100,
+                //     innerRadius:item.pos.r-2,
+                //     outerRadius:item.pos.r+2,
+                //     textContent:item.words,
+                //     color:item.color|| "rgba(239, 217, 111)"
+                // },{
+                //     color:"#f1a340"
+                // },
+                // {
+                //     enterDuration:duration/2,
+                //     leaveDuration: duration/2
+                // }))
+                
+          
+           
+            // case "CE":{
+            //     console.log(item,"--TEXT--")
+            //     frames.push(similarTendency(svg,{
+            //         x1:item.pos.startX,
+            //         y1:item.pos.startY,
+            //         x2:item.pos.endX,
+            //         y2:item.pos.endY,
+            //     },{
+            //         x1:item.pos.startX+100,
+            //         y2:item.pos.startY,
+            //         x2:item.pos.endX+100,
+            //         y1:item.pos.endY,
+            //     },{}))
+            //     frames.push(similarTendency(svg,{
+            //         x1:item.pos.startX,
+            //         y1:item.pos.startY,
+            //         x2:item.pos.endX,
+            //         y2:item.pos.endY,
+            //     },{
+            //         x1:item.pos.startX+100,
+            //         y2:item.pos.startY,
+            //         x2:item.pos.endX+100,
+            //         y1:item.pos.endY,
+            //     },{}))
+            //     frames.push(timeTendency(svg,{
+            //         x1:item.pos.startX,
+            //         y1:item.pos.startY,
+            //         x2:item.pos.endX,
+            //         y2:item.pos.endY,
+            //     },{
+            //         x1:item.pos.startX+100,
+            //         y2:item.pos.startY,
+            //         x2:item.pos.endX+100,
+            //         y1:item.pos.endY,
+            //     },{}))
+            //     frames.push(causeTendency(svg,{
+            //         x1:item.pos.startX,
+            //         y1:item.pos.startY,
+            //         x2:item.pos.endX,
+            //         y2:item.pos.endY,
+            //     },{
+            //         x1:item.pos.startX+100,
+            //         y2:item.pos.startY,
+            //         x2:item.pos.endX+100,
+            //         y1:item.pos.endY,
+            //     },{}))
+            // }
+                
     }
     return animationForm(frames)
 }
