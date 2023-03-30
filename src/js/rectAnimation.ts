@@ -30,6 +30,26 @@ const similiarRect = (svg:SVGElement ,rectItem1:animationData,idOne = "one",rect
                 rect1.remove()
                 rect2.remove()
             }, ((enterDuration * 2 + twinkleTime) * 1000) + 1000 )
+        },
+        first:{
+            time:enterDuration,
+            animation:()=>{
+            rect1.mount(svg)
+            rect1.beginAnimation()
+        }},
+        second:{
+            time:leaveDuration,
+            animation: ()=>{
+                rect2.mount(svg)
+                rect2.beginAnimation()
+            }
+        },
+        complete:{
+            time:twinkleTime,
+            animation:()=>{
+                rect1.twinkle()
+                rect2.twinkle()
+            } 
         }
     }
 }

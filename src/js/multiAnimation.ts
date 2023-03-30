@@ -48,6 +48,29 @@ const MutliCauseEffect = (svg:SVGElement,causeArray:historyItem[],effect:history
                 })
                 effectArray?.remove()
             },(enterDuration * (causeAnimation.length + 1) + 2) * 1000)
+        },
+        cause:causeAnimation.map(val=>{
+          return {
+            time:enterDuration,
+            animation:()=>{
+                val?.mount(svg)
+                val?.beginAnimation()
+            }
+          }  
+        }),
+        effect:{
+            time:leaveDuration,
+            animation:()=>{
+                effectArray?.mount(svg)
+                effectArray?.beginAnimation()
+            }
+        },
+        complete:{
+            time:1,
+            animation:()=>{
+                causeAnimation.forEach(val=>val?.remove())
+                effectArray?.remove()
+            }
         }
     }
     

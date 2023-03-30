@@ -38,6 +38,32 @@ const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfi
                 arrow1.remove()
                 arrow2.remove()
             },(enterDuration * 2 + twinkleTime + 1 ) * 1000 )
+        },
+        first:{
+            time:enterDuration,
+            animation:()=>{
+            arrow1.mount(svg)
+            arrow1.beginAnimation()
+        }},
+        second:{
+            time:leaveDuration,
+            animation: ()=>{
+                arrow2.mount(svg)
+                arrow2.beginAnimation()
+            }
+        },
+        complete:{
+            time:twinkleTime * 2,
+            animation:()=>{
+                arrow1.twinkle()
+                setTimeout(()=>{
+                    arrow2.twinkle()
+                },twinkleTime * 1000)
+                setTimeout(()=>{
+                    arrow1.remove()
+                    arrow2.remove()
+                })
+            } 
         }
     }
 }
@@ -77,6 +103,32 @@ const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,a
                 arrow1.remove()
                 arrow2.remove()
             },(enterDuration * 2 + twinkleTime * 2 )* 1000 + 1000)
+        },
+        first:{
+            time:enterDuration,
+            animation:()=>{
+                arrow1.mount(svg)
+                arrow1.beginAnimation()
+        }},
+        second:{
+            time:leaveDuration,
+            animation: ()=>{
+                arrow2.mount(svg)
+                arrow2.beginAnimation()
+            }
+        },
+        complete:{
+            time:twinkleTime * 2,
+            animation:()=>{
+                arrow1.twinkle()
+                setTimeout(()=>{
+                    arrow2.twinkle()
+                },twinkleTime * 1000)
+                setTimeout(()=>{
+                    arrow1.remove()
+                    arrow2.remove()
+                })
+            } 
         }
     }
 }

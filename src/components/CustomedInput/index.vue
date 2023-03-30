@@ -86,7 +86,7 @@
                 <line x1="0" y1="22" x2="25" y2="22" stroke="black" stroke-width="5"></line>
               </svg>
             </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div> -->
         </div>
       </div>
     </div>
@@ -101,6 +101,7 @@ import { message } from 'ant-design-vue';
 import * as d3 from "d3";
 import { getDirection } from '../../js/getDirection';
 import { LineChart } from '../../js/LineChart';
+import { addMutation } from "../../js/"
 const emit = defineEmits(["changeBackGround"])
 
 
@@ -252,7 +253,7 @@ const highlightText = (words, method = 'ADD') => {
     if (repalceArray.length >= 1)
       str += pureInner.slice(0, repalceArray[0][0])
     for (let i = 0; i < repalceArray.length; i++) {
-      str += `<Font id="font-${repalceArray[i][2]}" style="border-bottom: 1px solid red;" color="${d3.schemeCategory10[0]}">${repalceArray[i][3]}</Font>`
+      str += `<Font id="font-${repalceArray[i][2]}" color="${d3.schemeCategory10[0]}">${repalceArray[i][3]}</Font>`
       str += pureInner.slice(repalceArray[i][1], repalceArray[i + 1] ? repalceArray[i + 1][0] : pureInner.length + 1)
     }
     textarea.innerHTML = str;
@@ -697,14 +698,15 @@ const addText = (x1, y1, text, id, length) => {
     } ${(startPos[1] + y1) / 2 - 40})`)
   // myforeign.setAttribute("transform", `translate(${x1 - 0.5 * textdiv.offsetWidth} ${y1})`)
 
-  // const onChange = () => {
-  //   const findIndex = history.value.findIndex((e) => e.id === id)
-  //   history.value[findIndex].words = textdiv.innerText
-  //   myforeign.setAttribute("width", textdiv.offsetWidth);
-  //   myforeign.setAttribute("height", textdiv.offsetHeight);
-  // }
-
-  // addMutation(id, onChange, textdiv)
+  const onChange = () => {
+    const findIndex = history.value.findIndex((e) => e.id === id)
+    if (findIndex >= 0)
+      history.value[findIndex].words = textdiv.innerText
+    myforeign.setAttribute("width", textdiv.offsetWidth);
+    myforeign.setAttribute("height", textdiv.offsetHeight);
+  }
+  // 监听div中文本node的变化
+  addMutation(id, onChange, textdiv)
 
   return { pos: {}, words: textdiv.innerText }
 }

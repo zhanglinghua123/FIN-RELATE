@@ -8,8 +8,8 @@ import { similiarRect , diffRect, timeRect , causeRect } from "./rectAnimation"
 import { similarCircle , diffCircle , timeCircle , causeCircle } from "./cirCleAnimation";
 import { similiarArrow,diffArrow,timeArrow,causeArrow } from "./arrowAnimation";
 import { similarTendency,diffTendency,timeTendency,causeTendency } from "./arrowWithoutLabel";
-import { pascalCase } from "unplugin-vue-components";
 import { MutliCauseEffect } from "./multiAnimation";
+import { animationText } from "./animationText";
 interface animationFrame {
     // 暂停多少时间后 再执行该动画 
     stopTime? : number
@@ -19,6 +19,12 @@ interface animationFrame {
     gap? : number
     // 所执行的动画函数
     animation : ()=>void
+    // 用来让你可以接受函数的分割
+    [key:string]: number | string | animationItem | animationItem[] | undefined | (()=>void) 
+}
+interface animationItem {
+    time:number,
+    animation:()=>void
 }
 interface historyItem{
     // 用来高光的文字
@@ -41,7 +47,7 @@ interface transHistoryItem{
     svgWidth?: string,
     explanation:string,
 }
-function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
+function animationFormFromHistory(realHistory:historyItem[],history:transHistoryItem[],chart:SVGElement){
     
     let startTime = 0
     // 一个动画的持续时间
@@ -49,7 +55,17 @@ function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
     let gap = 2
     let frames:animationFrame[] = []
     const svg  = chart
-    console.log(history,"---history---")
+
+    
+    const textList = animationText("textarea", "output-graph", {
+        fontSize:16,
+        wordsDict: realHistory.map(val => val.words)
+    })
+
+    console.log(textList,history,"---history---")
+    // return animationForm(frames)
+    
+    
     for(let item of  history){
         switch(item.type){
             case "SC":{
@@ -57,8 +73,10 @@ function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
                     case "RECT":
                         const itemOne = item.itemOneArray[0]
                         const itemTwo = item.itemTwoArray[0]
-                        frames.push(
-                            similiarRect(svg,{
+                        const wordOne = item.itemOneArray[0].words
+                        const wordTwo = item.itemTwoArray[0].words
+
+                        const graph = similiarRect(svg,{
                             ...itemOne.pos,
                             textContent:itemOne.words,
                             color: itemOne.color|| "#f1a340"
@@ -68,20 +86,34 @@ function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
                             textContent:itemTwo.words,
                             color:  itemTwo.color|| "#f1a340"
                         },`rectGroup-${itemTwo.id}`,{
-                            twinkleTime:2,
-                            
+                            twinkleTime:2,                            
                         })
-                        )
+
+                        // 将动画与文字相互照应
+                        textList.forEach((val)=>{
+                           if( val.keyWords.includes(wordOne) ){
+                                (val.plus as any).push(graph.first)
+                           }
+                        })
+                        console.log(wordOne,wordTwo,"--DC---")
+                        textList.forEach((val)=>{
+                            if( val.keyWords.includes(wordTwo) ){
+                                 (val.plus as any).push(...[graph.second,graph.complete])
+                            }
+                        }) 
+                        
                 }
-                continue
+                break
             }
             case "TS":{       
                 switch(item.itemOneArray[0].operate){
                     case "ARROW":{
                     const itemOne = item.itemOneArray[0]
                     const itemTwo = item.itemTwoArray[0]
-                    frames.push(
-                        timeTendency(svg,{
+                    const wordOne = item.itemOneArray[0].words
+                    const wordTwo = item.itemTwoArray[0].words
+
+                    const graph = timeTendency(svg,{
                             x1:itemOne.pos.startX,
                             y1:itemOne.pos.startY,
                             x2:itemOne.pos.endX,
@@ -96,17 +128,32 @@ function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
                             textContent:itemTwo.words || "",
                             // color:"#9983c9",
                             // isCurve:true,
-                        },{}))
+                        },{})
+                     // 将动画与文字相互照应
+                     textList.forEach((val)=>{
+                        if( val.keyWords.includes(wordOne) ){
+                            (val.plus as any).push(graph.first)   
+                        }
+                        if( val.keyWords.includes(wordTwo) ){
+                            // TODO: val.plus 经过改变后 就无法再次使用了
+                            (val.plus as any).push(...[graph.second,graph.complete])
+                        }
+                     })
+
+                     
                     }
                 }    
-                continue
+                break
             }
             case "DC":{
                 switch(item.itemOneArray[0].operate){
                     case "TEXT":{
                         const itemOne = item.itemOneArray[0]
                         const itemTwo = item.itemTwoArray[0]
-                        frames.push(similarTendency(svg,{
+                        const wordOne = item.itemOneArray[0].words
+                        const wordTwo = item.itemTwoArray[0].words
+
+                        const graph = similarTendency(svg,{
                             x1:itemOne.pos.startX,
                             y1:itemOne.pos.startY,
                             x2:itemOne.pos.endX,
@@ -118,18 +165,53 @@ function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
                             x2:itemTwo.pos.endX,
                             y2:itemTwo.pos.endY,
                             isCurve:true,
-                        },{}))
+                        },{})
+
+                        // 将动画与文字相互照应
+                     textList.forEach((val)=>{
+                        if( val.keyWords.includes(wordOne) ){
+                             (val.plus as any).push(graph.first)
+                        }
+                     })
+
+                     textList.forEach((val)=>{
+                         if( val.keyWords.includes(wordTwo) ){
+                              (val.plus as any).push(...[graph.second,graph.complete])
+                         }
+                     }) 
                     }
                 }              
-                continue
+                break
             }
             case "CE":{
                 const itemOne = item.itemOneArray
                 const itemTwo = item.itemTwoArray[0]
-                frames.push(MutliCauseEffect(svg,itemOne,itemTwo,{},{strokeDashArray:10}))
+                const wordOne = item.itemOneArray.map(val=>val.words)
+                const wordTwo = item.itemTwoArray[0].words
+                const {cause , effect , complete} =  MutliCauseEffect(svg,itemOne,itemTwo,{},{strokeDashArray:10})
+                
+                // 为文字添加对应的动画
+                wordOne.forEach((value,index)=>{
+                      textList.forEach(val=>{
+                        if(val.keyWords.includes(value)){
+                            (val.plus as any).push(cause![index])
+                        }
+                      })
+                })
+                textList.forEach(val=>{
+                    if(val.keyWords.includes(wordTwo)){
+                        (val.plus as any).push(...[effect,complete])
+                    }
+                })
+                break
             }
-            default:
+            default:{
+                console.log("--default--")
+            }
         }
+    }
+    console.log("---final---",textList)
+    return animationForm(frames)
                 //  绘制对应的箭头动画
                 // frames.push(
                 //   similiarArrow(svg,{
@@ -400,8 +482,8 @@ function animationFormFromHistory(history:transHistoryItem[],chart:SVGElement){
             //     },{}))
             // }
                 
-    }
-    return animationForm(frames)
+    
+   
 }
 // 执行生成对应的animation
 function animationForm(frames:animationFrame[]){

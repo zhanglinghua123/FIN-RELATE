@@ -146,12 +146,14 @@ const onChangeBackGround = (file) => {
 // 需要添加动画的svgNode
 const onGenerate = () => {
   // 调用子组件函数 来生成对应的动画
-  // const svgContainer = d3.select("#output-graph")
-  // const totalTime = animationFormFromHistory(transformer(history), svgContainer)
-  // const svgNode = document.getElementById("svg-container")
-  // const canvas = document.getElementById("video")
-  // animation2Video(totalTime, svgNode, canvas)
-  animationText("textarea")
+  const svgContainer = d3.select("#output-graph")
+  const totalTime = animationFormFromHistory(history, transformer(history), svgContainer)
+  const svgNode = document.getElementById("svg-container")
+  const canvas = document.getElementById("video")
+  animation2Video(totalTime, svgNode, canvas)
+  // animationText("textarea", "output-graph", {
+  //   wordsDict: history.map(val => val.words)
+  // })
 }
 const changeExplainationContent = (text) => {
   console.log(text, "--text--")
@@ -166,6 +168,14 @@ defineExpose({
 })
 </script>
 <style scoped lang="scss">
+// .renderText {
+//   -webkit-background-clip: "text";
+// }
+
+// #renderText {
+//   -webkit-background-clip: "text";
+// }
+
 #output-container {
   height: 100%;
   width: 100%;
