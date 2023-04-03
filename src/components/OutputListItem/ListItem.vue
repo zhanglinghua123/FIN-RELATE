@@ -158,17 +158,25 @@
 </template>
 <script setup>
 import { toRefs, getCurrentInstance, effect } from 'vue';
-import { number } from 'vue-types';
 const props = defineProps({
+    // 类型 
     type: String,
+    // 左侧对象的数组
     itemOneArray: Array,
+    // 右侧对象的数组
     itemTwoArray: Array,
+    // 是否为多因果逻辑
     isMulti: Boolean,
+    // svgWidth的宽度
     svgWidth: String,
+    // 对应的整体宽高
     height: String,
     width: String,
+    // 多因果的高度
     multiHeight: String,
+    // 具体的解释文字
     explain: String,
+    // 是否为最后一个的item
     isLast: Boolean,
 })
 const emit = defineEmits(["changeExplain", "changeExplainContent"])
@@ -178,6 +186,7 @@ const { type, itemOneArray, itemTwoArray, isMulti, svgWidth, height, width, mult
 // 表达鼠标正在上面
 let onHover = false
 
+// 根据参数 生成对应的样式
 const generateStyle = (type, number) => {
     if (number === 1)
         switch (type) {

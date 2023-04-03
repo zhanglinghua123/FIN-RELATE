@@ -2,7 +2,6 @@ import { Canvg } from "canvg";
 import { message } from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css'
 import {addCircle} from  "./addCircle"
-import { addArrowFree  } from "./addArrowFree";
  // 时间单位均为 秒
 import { similiarRect , diffRect, timeRect , causeRect } from "./rectAnimation"
 import { similarCircle , diffCircle , timeCircle , causeCircle } from "./cirCleAnimation";

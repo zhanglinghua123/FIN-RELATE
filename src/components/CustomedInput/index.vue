@@ -71,40 +71,20 @@
               <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="rgba(45,145,225,0.8)" stroke="rgba(45,145,225,0.8)" />
             </svg>
           </div>
-        <!-- <div id="edit-choice">
-            <p>Styles</p>
-            <div id="style" :style="{
-              position: 'relative',
-            }">
-              <svg  @click="onClickColor">
-                <path d="M 12.5 25 A 12.5 12.5 0 0 1 12.5 0" fill="red" stroke="transparent" />
-                <path d="M 12.5 25 A 12.5 12.5 0 0 0 12.5 0" fill="green" stroke="transparent" />
-              </svg>
-              <input type="color" v-model="selectColor" ref="colorPicker" />
-              <svg  view-box="0 0 25 25">
-                <line x1="0" y1="2" x2="25" y2="2" stroke="black" stroke-width="1"></line>
-                <line x1="0" y1="6" x2="25" y2="6" stroke="black" stroke-width="2"></line>
-                <line x1="0" y1="10" x2="25" y2="10" stroke="black" stroke-width="3"></line>
-                <line x1="0" y1="16" x2="25" y2="16" stroke="black" stroke-width="4"></line>
-                <line x1="0" y1="22" x2="25" y2="22" stroke="black" stroke-width="5"></line>
-              </svg>
-            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div> -->
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
 
 import { getCurrentInstance, ref, onMounted, defineComponent } from 'vue'
-import { message } from 'ant-design-vue';
 import * as d3 from "d3";
 import { getDirection } from '../../js/getDirection';
 import { LineChart } from '../../js/LineChart';
 import { addMutation } from "../../js/mutation"
+import { message } from 'ant-design-vue';
 const emit = defineEmits(["changeBackGround"])
 
 
@@ -124,13 +104,14 @@ const selectWords = (e) => {
     selectedWord = tmp;
   } else if (!["TEXT"].includes(type.value)) {
     selectedWord = "";
-    // message.error("请先选择可视化类型再选中！")
+    message.error("请先选择可视化类型再选中！")
   }
 }
 onMounted(async () => {
   // 新建背景图片
   const svg = d3.select("#graph")
 
+  // 这里是用来绘制背景图片的代码
   // let datas = []
   // // 路径是从 main.js开始算的 图形如果显示的是错误的时候 查看数据源对不对
   // await d3.csv("./caseData.csv", function (data) {
@@ -146,9 +127,11 @@ onMounted(async () => {
   //   color: "rgba(0,0,0,0.6)",
   // })
 
+  // 挂载背景图片 挂载对应的动画容器 以及调整对应的容器大小 
   svg.attr("width", document.getElementById("graph").getBoundingClientRect().width)
     .attr("height", document.getElementById("graph").getBoundingClientRect().height)
-  // 注意不是同一种 image 元素 -> img
+
+  // 注意不是同一种 image 元素 image -> img
   svg
     .append("defs")
     .append("pattern")
@@ -180,6 +163,7 @@ onMounted(async () => {
   svg.append("g").attr("class", "arrowG");
   // svg.append("g").attr("class", "textG")
 
+  // 在编辑界面挂载对应的事件 
   svg.on("mousedown", e => {
     const x0 = e.offsetX;
     const y0 = e.offsetY;
@@ -233,12 +217,14 @@ onMounted(async () => {
 
   })
 })
+// 用来将文本框的文字替换为纯文字的函数
 const labelString = (str) => {
   str = str.replace(/\<[^>]*\>(([^<])*)/gi, function () {
     return arguments[1];
   });
   return str;
 };
+// 将标注的文字高亮 
 const highlightText = (words, method = 'ADD') => {
   if (!needReSelect) {
 
@@ -265,7 +251,7 @@ const highlightText = (words, method = 'ADD') => {
 
   }
 }
-// 为font元素添加高亮效果
+// 为文本框内的font元素添加高亮效果
 const fontAddHighLightEvent = function (id, type) {
   const font = document.getElementById(`font-${id}`)
   // console.log(font, "---")
@@ -284,18 +270,7 @@ const fontAddHighLightEvent = function (id, type) {
   }
 
 }
-const highLightItem = (textId, graphId, historyItem) => {
-  let isHightLight = false
-  return () => {
-    if (isHightLight) {
-      isHightLight = false
-      const textNode = document.getElementById(textId)
-
-    } else {
-
-    }
-  }
-}
+// 向history 对象添加数据
 const addHistory = (type, id, pos, words = "", color = "black") => {
   history.value.push({
     operate: type,
@@ -304,12 +279,10 @@ const addHistory = (type, id, pos, words = "", color = "black") => {
     id,
     pos,
     // color: type === "RECT" ? "rgba(45,145,225,0.2)" : selectColor,
-    // 来一个随机类型
     type: Math.random() > 0.5 ? "SC" : "WR",
     highLight: false,
     labelWords: "",
   })
-  // console.log(history, '--history--')
   if (["CIRCLE", "RECT", "ARROW", "TEXT"].includes(type)) {
     highlightText(words, "ADD", id);
     needReSelect = true;
@@ -323,7 +296,7 @@ const addHistory = (type, id, pos, words = "", color = "black") => {
   }
   )
 }
-// 更新type
+// 更新标注type
 function onChangeType(t) {
   if (type.value !== t)
     type.value = t
@@ -331,26 +304,7 @@ function onChangeType(t) {
     type.value = undefined
   }
 }
-function onClickColor() {
-  colorPicker.value.click()
-}
-function getFieldSelection(select_field) {
-  let word = '';
-  if (document.selection) {
-    let sel = document.selection.createRange();
-    if (sel.text.length > 0) {
-      word = sel.text;
-    }
-  }
-  else if (select_field.selectionStart || select_field.selectionStart == '0') {
-    let startP = select_field.selectionStart;
-    let endP = select_field.selectionEnd;
-    if (startP != endP) {
-      word = select_field.value.substring(startP, endP);
-    }
-  }
-  return word;
-}
+
 // 根据id 删除对应的history item
 const removeHistory = (removeId) => {
   const removeIndex = history.value.findIndex(e => e.id === removeId)
@@ -363,22 +317,7 @@ const removeHistory = (removeId) => {
 
 
 
-const remove = (_, item) => {
-  // 在remove的状态下可以选择svg上的相应图标删除，同时更新history
-  if (type.value !== "REMOVE") {
-    return;
-  }
-  //TODO 点击svg时获取svg上的id 把下面的相应id替换
-  const delEl = document.getElementById(item.id);
-  if (delEl) {
-    delEl.remove();
-  }
-  const index = history.value.findIndex(his => his.id === item.id);
-  if (index !== -1) {
-    history.value.splice(index, 1);
-  }
-  highlightText(item.words, 'DELETE');
-}
+// 添加圆形标注
 const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   const delEl = document.getElementById(id)
   const delElBack = document.getElementById(`circleBack-${id}`)
@@ -431,6 +370,8 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
   d3.select("[id='0']").insert("circle", ":first-child")
   return { cx: cx * xScale, cy: cy * yScale, r: r * xScale };
 }
+
+// 圆形标注对应的高亮逻辑
 const highLightCircle = function (id) {
   const textId = `font-${id}`
   const graphId = `circleBack-${id}`
@@ -463,6 +404,7 @@ const disHighLightCircle = function (id) {
 
 }
 
+// 添加矩形元素
 const addRect = (endX, endY, id, fill = "rgba(45,145,225,0.8)", stroke = "transparent") => {
   const svg = document.querySelector("#graph")
   const delEl = document.getElementById(id)
@@ -500,11 +442,9 @@ const addRect = (endX, endY, id, fill = "rgba(45,145,225,0.8)", stroke = "transp
       }
     })
     .on("mouseover", () => {
-      // 显示提示框
       highLightRect(id)
     })
     .on("mouseout", () => {
-      // 隐藏提示框
       disHighLightRect(id)
     });
   const [xScale, yScale] = resize("graph", "output-graph")
@@ -516,6 +456,8 @@ const addRect = (endX, endY, id, fill = "rgba(45,145,225,0.8)", stroke = "transp
     id: id,
   }
 }
+
+// 添加高亮矩形的逻辑
 const highLightRect = function (id) {
   const textId = `font-${id}`
   const graphId = `rectBack-${id}`
@@ -531,6 +473,7 @@ const highLightRect = function (id) {
   changeExplainationHighLight(true)
 
 }
+
 
 const disHighLightRect = function (id) {
   const textId = `font-${id}`
@@ -548,7 +491,7 @@ const disHighLightRect = function (id) {
 
 }
 
-
+// 添加箭头的逻辑
 const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)", isSilppery, isOnHover) => {
 
   const delEl = document.getElementById(id)
@@ -642,6 +585,8 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)", isSilppery, isOnHo
     endY: endY * yScale
   }
 }
+
+// 高亮箭头的逻辑
 const highLightArrow = function (id) {
   const textId = `font-${id}`
   const graphId = `arrowBack-${id}`
@@ -673,7 +618,7 @@ const disHighLightArrow = function (id) {
   changeExplainationHighLight(false)
 }
 
-// 使用外部标签 来进行 更改svg
+//  添加可编辑的文本框
 const addText = (x1, y1, text, id, length) => {
   console.log(x1, y1, startPos, `translate(${(startPos[0] + x1) / 2} ${(startPos[1] + y1) / 2 - 20})`)
   const svg = document.querySelector("#basicChart svg")
@@ -724,29 +669,6 @@ const addText = (x1, y1, text, id, length) => {
   return { pos: {}, words: textdiv.innerText }
 }
 
-const refRemoveClass = (ref_info, class_name) => {
-  ref_info.forEach((element) => {
-    element.classList.remove(class_name)
-    // let class_name_arr = element.$el
-    //   ? element.$el.className.split(" ")
-    //   : element.className.split(" ")
-    // let index = class_name_arr.findIndex((item) => {
-    //   return item == class_name;
-    // });
-    // if (index !== -1) class_name_arr.splice(index, 1);
-    // if (element.$el) {
-    //   element.$el.className = class_name_arr.join(" ");
-    // } else {
-    //   element.className = class_name_arr.join(" ");
-    // }
-  });
-}
-const clickTag = (event) => {
-  const classList = event.target.classList;
-  type.value = event.target.dataset.key;
-  refRemoveClass(itemRefs, "no-opacity")
-  classList.add("no-opacity");
-}
 
 // 文件上传逻辑
 const upload = () => {
@@ -769,6 +691,8 @@ const onChangeSelectedImage = (index) => {
   // 更新背景图片
   ChangeSvgBack(selectedFiles.value[selectImage.value], document.querySelector('#graph #image'))
 }
+
+// 为了让左侧与右侧的背景图片一致的逻辑
 const ChangeSvgBack = (file, svgImage) => {
   const reader = new FileReader();
   reader.addEventListener('load', function () {
@@ -779,14 +703,8 @@ const ChangeSvgBack = (file, svgImage) => {
 
   reader.readAsDataURL(file);
 }
-// item控制面板的逻辑
-let visible = true
-const onContextMenu = (event) => {
-  const modal = document.getElementById("modal")
-  modal.style.left = event.clientX
-  modal.style.top = event.clientY
 
-}
+// 将左侧坐标 转换为右侧坐标
 let resize = (pastId, nowId) => {
   const past = document.getElementById(pastId).getBoundingClientRect()
   const now = document.getElementById(nowId).getBoundingClientRect()
@@ -818,7 +736,6 @@ button {
   padding-top: 2vh;
   padding-left: 3vw;
   padding-right: 3vw;
-  // box-sizing: content-box;
 }
 
 #select {

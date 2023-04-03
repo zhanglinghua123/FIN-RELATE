@@ -43,7 +43,7 @@
       <div id="title">
         <p>Video</p>
       <!-- <button @click="onGenerateSample">Sample</button>
-          <button @click="onGenerateSimple">Simple</button> -->
+                        <button @click="onGenerateSimple">Simple</button> -->
         <button @click="onGenerate">Generate</button>
         <button @click="downloadVideo">Export</button>
       </div>
@@ -67,7 +67,6 @@ import { animation2Video, animationSample, animationFormFromHistory, downloadVid
 import * as d3 from "d3";
 import { transformer } from "../../js/transformerHistory"
 import { LineChart } from "../../js/LineChart"
-import { animationText } from "../../js/animationText"
 
 const props = defineProps(['innerStr'])
 
@@ -77,7 +76,7 @@ const { proxy } = getCurrentInstance()
 const history = proxy.$history.value
 // Modal的引用
 onMounted(async () => {
-  // 新建背景图片
+  // 新建背景图片 与 添加对应的白色背景
   const svg = d3.select("#output-graph")
   svg.attr("width", document.getElementById("output-graph").getBoundingClientRect().width)
     .attr("height", document.getElementById("output-graph").getBoundingClientRect().height)
@@ -157,6 +156,8 @@ const onGenerate = () => {
   //   wordsDict: history.map(val => val.words)
   // })
 }
+
+// 用来生成未增强效果的函数
 const onGenerateSimple = () => {
   // 调用子组件函数 来生成对应的动画
   const svgContainer = d3.select("#output-graph")
@@ -168,6 +169,8 @@ const onGenerateSimple = () => {
   //   wordsDict: history.map(val => val.words)
   // })
 }
+
+// 用来生成对应的圆圈可视化函数
 const onGenerateSample = () => {
   const svgContainer = d3.select("#output-graph")
   const totalTime = animationSample(transformer(history), svgContainer)
@@ -188,13 +191,6 @@ defineExpose({
 })
 </script>
 <style scoped lang="scss">
-// .renderText {
-//   -webkit-background-clip: "text";
-// }
-
-// #renderText {
-//   -webkit-background-clip: "text";
-// }
 button {
   padding: 3px 10px;
   border-color: #11b5cccf #11B5CC #11B5CC #11b5cccf;
