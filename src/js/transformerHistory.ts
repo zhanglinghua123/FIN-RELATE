@@ -29,7 +29,7 @@ const transformer = (history)=>{
             itemOneArray:[historyMid[5]],
             itemTwoArray:[historyMid[6]],
             isMulti:false,
-            explanation:"The paragraph compares Tesla's stock price recovery in two different periods, highlighting its resilience"
+            explanation:"The paragraph compares Tesla's stock price and its recovery in its two different periods, highlighting its resilience"
         },
         {
             type:"DC",

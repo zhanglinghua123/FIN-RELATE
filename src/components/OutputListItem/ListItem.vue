@@ -8,7 +8,7 @@
             isHighLight: itemOneArray && itemOneArray[0]?.highLight
         }" @mouseenter="itemOneArray && highLight(itemOneArray[0])"
             @mouseleave="itemOneArray && dishighLight(itemOneArray[0])" :style="generateStyle(type, 1)">
-            {{ itemOneArray && itemOneArray[0]?.words }}
+            <p> {{ itemOneArray && itemOneArray[0]?.words }}</p>
         </div>
         <div class="transition" :class="{
             notShow: itemTwoArray && itemTwoArray[0] === undefined
@@ -18,23 +18,49 @@
             }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
                 @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'SC' || type === 'DC'"
                 xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
-                <path d="M0,50 L100,50" stroke='rgba(245, 247, 0, 0.3)'
-                    :opacity="
-                        (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 1 : 0" stroke-width="40"></path>
-                <path d="M20,50 L80,50" stroke="white" stroke-width="20" />
-                <path d="M100,50 L80,30 L80,70 M100,50" fill="white" stroke="white" />
-                <path d="M0,50 L20,30 L20,70 L0,50" fill="white" stroke="white" />
+                <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="8" /> <!-- 模糊半径为 20 像素 -->
+                    <feOffset dx="0" dy="0" result="offsetblur" /> <!-- 阴影偏移量为 0 像素 -->
+                    <feFlood flood-color="#11b5cccf" />
+                    <!-- 阴影颜色为黄色 -->
+                    <feComposite in2="offsetblur" operator="in" />
+                    <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <g width="100" height="100" x="0" y="0" :filter="
+                    (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 'url(#dropshadow)' :
+                        ''">
+                    <path d="M20,50 L80,50" stroke="white" stroke-width="20" />
+                    <path d="M100,50 L80,30 L80,70 M100,50" fill="white" stroke="white" />
+                    <path d="M0,50 L20,30 L20,70 L0,50" fill="white" stroke="white" />
+                </g>
+
             </svg>
             <svg :style="{
                 width: svgWidth
             }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
                 @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'TS' || type === 'CE'"
                 xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
-                <path d="M0,50 L100,50" stroke='rgba(245, 247, 0, 0.3)'
-                    :opacity="
-                        (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 1 : 0" stroke-width="40"></path>
-                <path d="M10,50 L80,50" stroke="white" stroke-width="20" />
-                <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" />
+                <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="8" /> <!-- 模糊半径为 20 像素 -->
+                    <feOffset dx="0" dy="0" result="offsetblur" /> <!-- 阴影偏移量为 0 像素 -->
+                    <feFlood flood-color="#11b5cccf" />
+                    <!-- 阴影颜色为黄色 -->
+                    <feComposite in2="offsetblur" operator="in" />
+                    <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <g width="100" height="100" x="0" y="0" :filter="
+                    (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 'url(#dropshadow)' :
+                        ''">
+                    <path d="M10,50 L80,50" stroke="white" stroke-width="20" />
+                    <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" />
+                </g>
+
             </svg>
             <svg :style="{
                 width: svgWidth
@@ -43,8 +69,24 @@
                 xmlns="http://www.w3.org/2000/svg"
                 :opacity="itemOneArray?.reduce((pre, current) => pre.highLight || current.highLight)" stroke="white"
                 viewBox="0 0 100 100">
-                <path d="M20,30 L30,20 L80,70 L70,80 M20,30" fill="white" stroke="white"></path>
-                <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="white" stroke="white" />
+                <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="8" /> <!-- 模糊半径为 20 像素 -->
+                    <feOffset dx="0" dy="0" result="offsetblur" /> <!-- 阴影偏移量为 0 像素 -->
+                    <feFlood flood-color="#11b5cccf" />
+                    <!-- 阴影颜色为黄色 -->
+                    <feComposite in2="offsetblur" operator="in" />
+                    <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <g width="100" height="100" x="0" y="0" :filter="
+                    (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 'url(#dropshadow)' :
+                        ''">
+                    <path d="M20,30 L30,20 L80,70 L70,80 M20,30" fill="white" stroke="white"></path>
+                    <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="white" stroke="white" />
+                </g>
+
             </svg>
         </div>
         <div :class="{
@@ -53,7 +95,7 @@
             notShow: itemTwoArray && itemTwoArray[0] === undefined
         }" :style="generateStyle(type, 2)" @mouseenter="itemTwoArray && highLight(itemTwoArray[0])"
             @mouseleave="itemTwoArray && dishighLight(itemTwoArray[0])">
-            {{ itemTwoArray && itemTwoArray[0]?.words }}
+            <p> {{ itemTwoArray && itemTwoArray[0]?.words }} </p>
         </div>
     </div>
     <div :style="{
@@ -65,7 +107,7 @@
                 itemOne: true,
                 isHighLight: item && item.highLight
             }" @mouseenter="highLight(item)" @mouseleave="dishighLight(item)" :style="generateStyle(type, 1)">
-                {{ item && item.words }}
+                <p> {{ item && item.words }}</p>
             </div>
         </div>
         <div class="transition">
@@ -74,15 +116,34 @@
             }" @mouseenter="highArrowLight(itemOneArray, itemTwoArray)"
                 @mouseleave="dishighMultiLight(itemOneArray, itemTwoArray)" v-if="type === 'TS' || type === 'CE'"
                 xmlns="http://www.w3.org/2000/svg" stroke="white" viewBox="0 0 100 100">
-                <path d="M0,10 L100,10 L100,90 L0,90 M0,10" :opacity="
-                    (itemTwoArray[0].highLight) || (itemOneArray && itemOneArray?.reduce((pre, current) => pre.highLight || current.highLight))
-                        ? 1 : 0
-                " fill="rgba(245,247,0,0.3)" stroke="transparent">
-                </path>
-                <path d="M10,20 L10,30 L35,30 L35,50 L50,50 L50,20 L10,20" fill="white" stroke="white"></path>
-                <path d="M10,80 L10,70 L35,70 L35,50 L50,50 L50,80 L10,80" fill="white" stroke="white"></path>
-                <path d="M50,50 L80,50" stroke="white" stroke-width="20" />
-                <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" />
+                <filter id="dropshadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="8" /> <!-- 模糊半径为 20 像素 -->
+                    <feOffset dx="0" dy="0" result="offsetblur" /> <!-- 阴影偏移量为 0 像素 -->
+                    <feFlood flood-color="#11b5cccf" />
+                    <!-- 阴影颜色为黄色 -->
+                    <feComposite in2="offsetblur" operator="in" />
+                    <feMerge>
+                        <feMergeNode />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+                <g width="100" height="100" x="0" y="0" :filter="
+                    (itemTwoArray && itemTwoArray[0]?.highLight) || (itemOneArray && itemOneArray[0]?.highLight) ? 'url(#dropshadow)' :
+                        ''">
+                    <!-- <path d="M0,10 Q30,15 70,50" fill="white" stroke="white"></path> -->
+                    <!-- <path d="M10,20 L10,30 L35,30 L35,50 L50,50 L50,20 L10,20" fill="white" stroke="white"></path> -->
+                    <!-- <path d="M10,80 L10,70 L35,70 L35,50 L50,50 L50,80 L10,80" fill="white" stroke="white"></path> -->
+                    <!-- <path d="M50,50 L80,50" stroke="white" stroke-width="20" /> -->
+                    <!-- <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" /> -->
+                    <path d="M10,20 C25,20 35,28 45,35 M45,35 C55,42 65,50 80,50" fill="transparent" stroke="white"
+                        stroke-width="12"></path>
+                    <!-- <path d="M10,20 L10,30 L35,30 L35,50 L50,50 L50,20 L10,20" fill="white" stroke="white"></path> -->
+                    <!-- <path d="M10,80 L10,70 L35,70 L35,50 L50,50 L50,80 L10,80" fill="white" stroke="white"></path> -->
+                    <!-- <path d="M50,50 L80,50" stroke="white" stroke-width="20" /> -->
+                    <path d="M100,50 L80,30 L80,70 L100,50" fill="white" stroke="white" />
+                    <path d="M10,80 C25,80 35,72 45,65 M45,65 C55,58 65,50 80,50" fill="transparent" stroke="white"
+                        stroke-width="12"></path>
+                </g>
             </svg>
         </div>
 
@@ -91,7 +152,7 @@
             isHighLight: itemTwoArray && itemTwoArray[0].highLight
         }" :style="generateStyle(type, 2)" @mouseenter="itemTwoArray && highLight(itemTwoArray[0])"
             @mouseleave="itemTwoArray && dishighLight(itemTwoArray[0])" class="content-list-multi-item2">
-            {{ itemTwoArray && itemTwoArray[0]?.words }}
+            <p> {{ itemTwoArray && itemTwoArray[0]?.words }}</p>
         </div>
     </div>
 </template>
@@ -193,12 +254,11 @@ const highLight = (item) => {
     }
     const font = document.getElementById(textId)
     if (font)
-        font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+        font.style.backgroundColor = ''
     let BackItem = document.getElementById(backId)
     if (BackItem) {
         BackItem.setAttribute("opacity", 1)
     }
-    console.log(itemTwoArray.value && itemTwoArray.value[0] !== undefined, itemTwoArray.value, BackItem, "--ItemTwo--")
     if (itemTwoArray.value && itemTwoArray.value[0] !== undefined) {
         BackItem.setAttribute("display", "unset")
         // BackItem.removeAttribute("display")
@@ -240,7 +300,7 @@ const dishighLight = (item) => {
     }
     const font = document.getElementById(textId)
     if (font)
-        font.style.backgroundColor = ''
+        font.style.backgroundColor = '#11b5cc30'
     let BackItem = document.getElementById(backId)
     if (BackItem) {
         BackItem.setAttribute("opacity", 0)
@@ -254,7 +314,7 @@ const dishighLight = (item) => {
     if (index >= 0)
         history.value[index].highLight = false
     emit("changeExplain", false)
-    emit("changeExplainContent", "")
+    // emit("changeExplainContent", "")
     onHover = false
 }
 const highArrowLight = (itemOneArray, itemTwoArray) => {
@@ -329,7 +389,6 @@ effect(() => {
     //     itemOneArray?.value?.forEach(item => removeItems(item, ""))
     //     itemTwoArray?.value?.forEach(item => removeItems(item, ""))
     // }
-    console.log(itemTwoArray.value, itemTwoArray.value && itemTwoArray.value[0] !== undefined, "--effect--")
 })
 </script>
 <style lang="scss">
@@ -340,7 +399,7 @@ effect(() => {
 }
 
 .isHighLight {
-    box-shadow: 0 0 20px yellow;
+    box-shadow: 0 0 20px #11b5cccf;
 }
 
 
@@ -354,6 +413,18 @@ effect(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    p {
+        margin: 0;
+        padding-left: 10%;
+        padding-right: 10%;
+        white-space: nowrap;
+        /* 不换行 */
+        overflow: hidden;
+        /* 溢出部分隐藏 */
+        text-overflow: ellipsis;
+        /* 超出部分用省略号表示 */
+    }
 }
 
 .transition {
@@ -389,6 +460,18 @@ effect(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    p {
+        margin: 0;
+        padding-left: 10%;
+        padding-right: 10%;
+        white-space: nowrap;
+        /* 不换行 */
+        overflow: hidden;
+        /* 溢出部分隐藏 */
+        text-overflow: ellipsis;
+        /* 超出部分用省略号表示 */
+    }
 }
 
 .item-multi {
@@ -406,6 +489,18 @@ effect(() => {
         .content-list-multi-item {
             width: 100%;
             height: 40%;
+
+            p {
+                margin: 0;
+                padding-left: 10%;
+                padding-right: 10%;
+                white-space: nowrap;
+                /* 不换行 */
+                overflow: hidden;
+                /* 溢出部分隐藏 */
+                text-overflow: ellipsis;
+                /* 超出部分用省略号表示 */
+            }
         }
 
         .transition {
@@ -433,6 +528,18 @@ effect(() => {
         .content-list-multi-item2 {
             width: 100%;
             height: 50%;
+
+            p {
+                margin: 0;
+                padding-left: 10%;
+                padding-right: 10%;
+                white-space: nowrap;
+                /* 不换行 */
+                overflow: hidden;
+                /* 溢出部分隐藏 */
+                text-overflow: ellipsis;
+                /* 超出部分用省略号表示 */
+            }
         }
 
     }

@@ -5,17 +5,18 @@ import { animation } from "./addMultiRectangular"
 const judgeColor = (arrow:ArrowConfig)=>{
     return (arrow.y2 - arrow.y1)  > 0 ? "#FF0000" : "#00FF00"
 }
-const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation):animationFrame=>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
+const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation,isIntensify:boolean = true):animationFrame=>{
+    const { enterDuration = 4,leaveDuration = 4 ,twinkleTime = 2} = animation
+    console.log(arrowOne,arrowTwo,"--arrow---")
     const arrow1 = addArrow({
         ...arrowOne,
-        textContent:"",
-        color:judgeColor(arrowOne)
+        textContent:arrowOne.textContent || "",
+        color:isIntensify ? arrowOne.color ? arrowOne.color: judgeColor(arrowOne) : arrowOne.color
     },animation,"arrowOne")
     const arrow2 = addArrow({
         ...arrowTwo,
-        textContent:"",
-        color:judgeColor(arrowTwo)
+        textContent:arrowTwo.textContent || "",
+        color:isIntensify ? arrowTwo.color ? arrowTwo.color: judgeColor(arrowTwo) : arrowTwo.color
     },animation,"arrowTwo")
     return {
         stopTime:0,
@@ -53,16 +54,25 @@ const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfi
             }
         },
         complete:{
-            time:twinkleTime * 2,
+            time:twinkleTime ,
             animation:()=>{
                 arrow1.twinkle()
-                setTimeout(()=>{
+                // setTimeout(()=>{
                     arrow2.twinkle()
-                },twinkleTime * 1000)
+                // },twinkleTime * 1000)
                 setTimeout(()=>{
                     arrow1.remove()
                     arrow2.remove()
-                })
+                },twinkleTime * 1000)
+            } 
+        },
+        nonIntensifyComplete:{
+            time:twinkleTime ,
+            animation:()=>{
+                setTimeout(()=>{
+                    arrow1.remove()
+                    arrow2.remove()
+                },twinkleTime * 1000)
             } 
         }
     }
@@ -70,17 +80,17 @@ const similarTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfi
 const diffTendency = ()=>{
 
 }
-const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation):animationFrame=>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
+const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,animation:animation,isIntensify:boolean = true):animationFrame=>{
+    const { enterDuration = 4,leaveDuration = 4 ,twinkleTime = 2} = animation
     const arrow1 = addArrow({
         ...arrowOne,
         textContent:"",
-        color:judgeColor(arrowOne)
+        color:isIntensify ? arrowOne.color ? arrowOne.color: judgeColor(arrowOne) : arrowOne.color
     },animation,"arrowOne")
     const arrow2 = addArrow({
         ...arrowTwo,
         textContent:"",
-        color:judgeColor(arrowTwo)
+        color:isIntensify ? arrowOne.color ? arrowOne.color : judgeColor(arrowTwo) : arrowTwo.color
     },animation,"arrowTwo")
     return {
         stopTime:0,
@@ -127,7 +137,16 @@ const timeTendency = (svg:SVGElement,arrowOne:ArrowConfig,arrowTwo:ArrowConfig,a
                 setTimeout(()=>{
                     arrow1.remove()
                     arrow2.remove()
-                })
+                },twinkleTime * 2000)
+            } 
+        },
+        nonIntensifyComplete:{
+            time:twinkleTime * 1,
+            animation:()=>{
+                setTimeout(()=>{
+                    arrow1.remove()
+                    arrow2.remove()
+                },twinkleTime * 1000)
             } 
         }
     }

@@ -8,7 +8,7 @@ interface rectItem {
 import { animation ,addMultiRectangularShadow,animationData} from "./addMultiRectangular"
 import { animationFrame } from "./animation"
 const similiarRect = (svg:SVGElement ,rectItem1:animationData,idOne = "one",rectItem2:animationData,idTwo = "two",animation:animation) : animationFrame=> {
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
+    const { enterDuration = 4,leaveDuration = 4 ,twinkleTime = 2} = animation
     const rect1 = addMultiRectangularShadow(idOne,[rectItem1],animation)
     const rect2 = addMultiRectangularShadow(idTwo,[rectItem2],animation)
     return {
@@ -49,7 +49,20 @@ const similiarRect = (svg:SVGElement ,rectItem1:animationData,idOne = "one",rect
             animation:()=>{
                 rect1.twinkle()
                 rect2.twinkle()
+                setTimeout(()=>{
+                    rect1.remove()
+                    rect2.remove()
+                },twinkleTime * 1000)
             } 
+        },
+        nonIntensifyComplete:{
+            time:twinkleTime,
+            animation:()=>{
+                setTimeout(()=>{
+                    rect1.remove()
+                    rect2.remove()
+                },twinkleTime * 1000)
+            }
         }
     }
 }

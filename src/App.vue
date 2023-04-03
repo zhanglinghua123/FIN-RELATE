@@ -58,11 +58,13 @@ export default defineComponent({
   display: flex;
   border-bottom: 2px solid gray;
 
+
   span {
     color: white;
     font-size: 4vh;
     margin-left: 20px;
     line-height: 10vh;
+    font-weight: 500;
     // text-align: center;
     display: block;
   }
@@ -90,6 +92,7 @@ export default defineComponent({
   width: 50%;
   height: 100%;
   border-right: 2px solid gray;
+  box-sizing: content-box;
 }
 
 #output {

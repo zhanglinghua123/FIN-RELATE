@@ -9,7 +9,7 @@ import { similarCircle , diffCircle , timeCircle , causeCircle } from "./cirCleA
 import { similiarArrow,diffArrow,timeArrow,causeArrow } from "./arrowAnimation";
 import { similarTendency,diffTendency,timeTendency,causeTendency } from "./arrowWithoutLabel";
 import { MutliCauseEffect } from "./multiAnimation";
-import { animationText } from "./animationText";
+import { animationText, textAnimationItem } from "./animationText";
 interface animationFrame {
     // 暂停多少时间后 再执行该动画 
     stopTime? : number
@@ -47,6 +47,214 @@ interface transHistoryItem{
     svgWidth?: string,
     explanation:string,
 }
+function textListItemIntoFrame(item:textAnimationItem):animationFrame{
+    // 一行字幕三秒
+    let period = 3
+    let otherTotalTime = 0
+    if(item.plus){
+        for(let frame of item.plus){
+            otherTotalTime += frame.time
+        }
+    }
+
+    // console.log(otherTotalTime,item.plus, "----")
+    return {
+        stopTime:0,
+        duration: Math.max(period,otherTotalTime),
+        gap:1,
+        animation:()=>{
+            item.animation(period,Math.max(period,otherTotalTime))
+            let totalTime = 0
+            for(let i=0;i<(item.plus.length);i++){
+                setTimeout(()=>{
+                    item.plus[i].animation()
+                },totalTime * 1000)
+                totalTime += item.plus[i].time
+            }
+        }
+    }
+}
+function animationFormFromNoNIntensifyHistory(realHistory:historyItem[],history:transHistoryItem[],chart:SVGElement){
+    
+    // 一个动画的持续时间
+    const svg  = chart
+
+    
+    const textList = animationText("textarea", "output-graph", {
+        fontSize:16,
+        wordsDict: realHistory.map(val => val.words)
+    })
+
+    console.log(textList,history,"---history---")
+    // return animationForm(frames)
+    
+    
+    for(let item of  history){
+        switch(item.type){
+            case "SC":{
+                switch(item.itemOneArray[0].operate){
+                    case "RECT":
+                        const itemOne = item.itemOneArray[0]
+                        const itemTwo = item.itemTwoArray[0]
+                        const wordOne = item.itemOneArray[0].words
+                        const wordTwo = item.itemTwoArray[0].words
+
+                        const graph = similiarRect(svg,{
+                            ...itemOne.pos,
+                            textContent:"",
+                            color: "rgba(45,145,225,0.4)"
+                        },`rectGroup-${itemOne.id}`,{
+                            ...itemTwo.pos,
+                            x : itemTwo.pos.x ,
+                            textContent:"",
+                            color: "rgba(45,145,225,0.4)"
+                        },`rectGroup-${itemTwo.id}`,{
+                            twinkleTime:2,                            
+                        })
+
+                        // 将动画与文字相互照应
+                        textList.forEach((val)=>{
+                           if( val.keyWords.includes(wordOne) ){
+                                (val.plus as any).push(graph.first)
+                           }
+                        })
+                        textList.forEach((val)=>{
+                            if( val.keyWords.includes(wordTwo) ){
+                                 (val.plus as any).push(...[graph.second,graph.nonIntensifyComplete])
+                            }
+                        }) 
+                        
+                }
+                break
+            }
+            case "TS":{       
+                switch(item.itemOneArray[0].operate){
+                    case "ARROW":{
+                    const itemOne = item.itemOneArray[0]
+                    const itemTwo = item.itemTwoArray[0]
+                    const wordOne = item.itemOneArray[0].words
+                    const wordTwo = item.itemTwoArray[0].words
+
+                    const graph = timeTendency(svg,{
+                            x1:itemOne.pos.startX,
+                            y1:itemOne.pos.startY,
+                            x2:itemOne.pos.endX,
+                            y2:itemOne.pos.endY,
+                            textContent: "",
+                            color:"rgba(45,145,225,0.8)"
+                            // isCurve:true,
+                        },{
+                            x1:itemTwo.pos.startX,
+                            y1:itemTwo.pos.startY,
+                            x2:itemTwo.pos.endX,
+                            y2:itemTwo.pos.endY,
+                            textContent: "",
+                            color:"rgba(45,145,225,0.8)"
+                            // color:"#9983c9",
+                            // isCurve:true,
+                        },{},false)
+                     // 将动画与文字相互照应
+                     textList.forEach((val)=>{
+                        if( val.keyWords.includes(wordOne) ){
+                            (val.plus as any).push(graph.first)   
+                        }
+                        if( val.keyWords.includes(wordTwo) ){
+                            // TODO: val.plus 经过改变后 就无法再次使用了
+                            (val.plus as any).push(...[graph.second,graph.nonIntensifyComplete])
+                        }
+                     })
+
+                     
+                    }
+                }    
+                break
+            }
+            case "DC":{
+                switch(item.itemOneArray[0].operate){
+                    case "TEXT":{
+                        const itemOne = item.itemOneArray[0]
+                        const itemTwo = item.itemTwoArray[0]
+                        const wordOne = item.itemOneArray[0].words
+                        const wordTwo = item.itemTwoArray[0].words
+
+                        const graph = similarTendency(svg,{
+                            x1:itemOne.pos.startX,
+                            y1:itemOne.pos.startY,
+                            x2:itemOne.pos.endX,
+                            y2:itemOne.pos.endY,
+                            isCurve:true,
+                            textContent:item.itemOneArray[0].labelWords,
+                            color:"rgba(45,145,225,0.8)"
+                        },{
+                            x1:itemTwo.pos.startX,
+                            y1:itemTwo.pos.startY,
+                            x2:itemTwo.pos.endX,
+                            y2:itemTwo.pos.endY,
+                            isCurve:true,
+                            textContent:item.itemTwoArray[0].labelWords,
+                            color:"rgba(45,145,225,0.8)"
+                        },{},false)
+
+                        // 将动画与文字相互照应
+                     textList.forEach((val)=>{
+                        if( val.keyWords.includes(wordOne) ){
+                             (val.plus as any).push(graph.first)
+                        }
+                     })
+
+                     textList.forEach((val)=>{
+                         if( val.keyWords.includes(wordTwo) ){
+                              (val.plus as any).push(...[graph.second,graph.nonIntensifyComplete])
+                         }
+                     }) 
+                    }
+                }              
+                break
+            }
+            case "CE":{
+                const itemOne = [item.itemOneArray[1],...item.itemTwoArray]
+                const itemTwo = item.itemOneArray[0]
+                const wordOne = [item.itemOneArray[1],...item.itemTwoArray].map(val=>val.words)
+                const wordTwo = item.itemOneArray[0].words
+                const {cause , effect , nonIntensifyComplete} =  MutliCauseEffect(svg,itemOne,itemTwo,{},{strokeDashArray:0})
+                // console.log(itemOne,itemTwo, wordOne,wordTwo,"--words--")
+                // 为文字添加对应的动画
+                wordOne.forEach((value,index)=>{
+                      textList.forEach(val=>{
+                        if(val.keyWords.includes(value)){
+                            (val.plus as any).push(cause![index])
+                        }
+                      })
+                })
+                const causeLast =  wordOne[wordOne.length-1]
+                textList.forEach(val=>{
+                    if(val.keyWords.includes(causeLast)){
+                        (val.plus as any).push(nonIntensifyComplete)
+                    }
+                  })
+                textList.forEach(val=>{
+                    if(val.keyWords.includes(wordTwo)){
+                        (val.plus as any).push(...[effect])
+                    }
+                })
+                break
+            }
+            default:{
+                console.log("--default--")
+            }
+        }
+    }
+    console.log("---final---",textList)
+    // let effectPlus = textList[effectIndex].plus
+    // let causeOnePlus = textList[causeOneIndex].plus
+    // let causeTwoPlus = textList[causeTwoIndex].plus
+    // textList[causeOneIndex].plus = effectPlus
+    // textList[causeTwoIndex].plus = causeOnePlus
+    // textList[effectIndex].plus = causeTwoPlus
+
+    const mid = textList.map(val=>textListItemIntoFrame(val))
+    return animationForm(mid)
+}
 function animationFormFromHistory(realHistory:historyItem[],history:transHistoryItem[],chart:SVGElement){
     
     let startTime = 0
@@ -78,13 +286,13 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
 
                         const graph = similiarRect(svg,{
                             ...itemOne.pos,
-                            textContent:itemOne.words,
-                            color: itemOne.color|| "#f1a340"
+                            textContent:"",
+                            color: 'rgba(45,145,225,0.4)',
                         },`rectGroup-${itemOne.id}`,{
                             ...itemTwo.pos,
                             x : itemTwo.pos.x ,
-                            textContent:itemTwo.words,
-                            color:  itemTwo.color|| "#f1a340"
+                            textContent:"",
+                            color: 'rgba(45,145,225,0.4)',
                         },`rectGroup-${itemTwo.id}`,{
                             twinkleTime:2,                            
                         })
@@ -95,7 +303,6 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
                                 (val.plus as any).push(graph.first)
                            }
                         })
-                        console.log(wordOne,wordTwo,"--DC---")
                         textList.forEach((val)=>{
                             if( val.keyWords.includes(wordTwo) ){
                                  (val.plus as any).push(...[graph.second,graph.complete])
@@ -119,6 +326,7 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
                             x2:itemOne.pos.endX,
                             y2:itemOne.pos.endY,
                             textContent:itemOne.words || "",
+                            
                             // isCurve:true,
                         },{
                             x1:itemTwo.pos.startX,
@@ -152,19 +360,23 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
                         const itemTwo = item.itemTwoArray[0]
                         const wordOne = item.itemOneArray[0].words
                         const wordTwo = item.itemTwoArray[0].words
-
+                        console.log(item.itemOneArray[0].labelWords,item.itemTwoArray[0].labelWords,"--DC--")
                         const graph = similarTendency(svg,{
                             x1:itemOne.pos.startX,
                             y1:itemOne.pos.startY,
                             x2:itemOne.pos.endX,
                             y2:itemOne.pos.endY,
                             isCurve:true,
+                            textContent:item.itemOneArray[0].labelWords,
+                            color:"rgba(45,145,225,0.8)",
                         },{
                             x1:itemTwo.pos.startX,
                             y1:itemTwo.pos.startY,
                             x2:itemTwo.pos.endX,
                             y2:itemTwo.pos.endY,
                             isCurve:true,
+                            textContent:item.itemTwoArray[0].labelWords,
+                            color:"#ef8a62",
                         },{})
 
                         // 将动画与文字相互照应
@@ -184,12 +396,12 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
                 break
             }
             case "CE":{
-                const itemOne = item.itemOneArray
-                const itemTwo = item.itemTwoArray[0]
-                const wordOne = item.itemOneArray.map(val=>val.words)
-                const wordTwo = item.itemTwoArray[0].words
-                const {cause , effect , complete} =  MutliCauseEffect(svg,itemOne,itemTwo,{},{strokeDashArray:10})
-                
+                const itemOne = [item.itemOneArray[1],...item.itemTwoArray]
+                const itemTwo = item.itemOneArray[0]
+                const wordOne = [item.itemOneArray[1],...item.itemTwoArray].map(val=>val.words)
+                const wordTwo = item.itemOneArray[0].words
+                const {cause , effect , complete} =  MutliCauseEffect(svg,itemOne,itemTwo,{},{strokeDashArray:6})
+                // console.log(itemOne,itemTwo, wordOne,wordTwo,"--words--")
                 // 为文字添加对应的动画
                 wordOne.forEach((value,index)=>{
                       textList.forEach(val=>{
@@ -198,9 +410,15 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
                         }
                       })
                 })
+                const causeLast =  wordOne[wordOne.length-1]
+                textList.forEach(val=>{
+                    if(val.keyWords.includes(causeLast)){
+                        (val.plus as any).push(complete)
+                    }
+                  })
                 textList.forEach(val=>{
                     if(val.keyWords.includes(wordTwo)){
-                        (val.plus as any).push(...[effect,complete])
+                        (val.plus as any).push(...[effect])
                     }
                 })
                 break
@@ -211,7 +429,15 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
         }
     }
     console.log("---final---",textList)
-    return animationForm(frames)
+    // let effectPlus = textList[effectIndex].plus
+    // let causeOnePlus = textList[causeOneIndex].plus
+    // let causeTwoPlus = textList[causeTwoIndex].plus
+    // textList[causeOneIndex].plus = effectPlus
+    // textList[causeTwoIndex].plus = causeOnePlus
+    // textList[effectIndex].plus = causeTwoPlus
+
+    const mid = textList.map(val=>textListItemIntoFrame(val))
+    return animationForm(mid)
                 //  绘制对应的箭头动画
                 // frames.push(
                 //   similiarArrow(svg,{
@@ -485,6 +711,7 @@ function animationFormFromHistory(realHistory:historyItem[],history:transHistory
     
    
 }
+
 // 执行生成对应的animation
 function animationForm(frames:animationFrame[]){
     let startTime = 0
@@ -496,16 +723,209 @@ function animationForm(frames:animationFrame[]){
     }
     return startTime
 }
+import html2canvas from 'html2canvas';
+let count = 200
+let v 
+function renderText(text,x,y,context:CanvasRenderingContext2D,color,fontSize){
+    context?.fillText(text,x,y)
+}
 async function svg2Canvas(svgNode:HTMLElement,ctx){
+    // 只负责绘制一帧
+        v = await Canvg.fromString(
+            ctx as any,
+            svgNode.innerHTML
+            // svgNode.innerHTML
+          );
+        const size =   svgNode.getBoundingClientRect()
+        v.resize(size.width,size.height)
+        v.start(); 
     
-    const v = await Canvg.fromString(
-        ctx as any,
-        svgNode.innerHTML
-        // svgNode.innerHTML
-      );
-    const size =   svgNode.getBoundingClientRect()
-    v.resize(size.width,size.height)
-    v.start(); 
+    // const textdiv = document.getElementById("foreign-text")!
+    // const canvas = document.getElementById("video") as HTMLCanvasElement
+    // const context = canvas.getContext("2d")
+
+    //  const canvas = document.getElementById("video") as any
+    //  const context = canvas.getContext('2d');
+    //  const output = document.getElementById("output-graph")!
+    //  console.log(output?.outerHTML,"html--")
+    // var draw = function (img) {
+    //     console.log(canvas,img,"--draw--")
+    //     var width = img.width, height = img.height;
+    //     // canvas绘制
+    //     canvas.width = width;
+    //     canvas.height = height;
+    //     // 画布清除
+    //     context.clearRect(0, 0, width, height);
+    //     // 绘制图片到canvas
+    //     context.drawImage(img, 0, 0);
+    //   };
+    //    // canvas画布绘制的原图片
+    // var img = new Image();
+    // var htmlSvg = `data:image/svg+xml;charset=utf-8,${output?.outerHTML}`;
+    // img.src = htmlSvg;
+    // img.width = output?.getBoundingClientRect().width
+    // img.height = output.getBoundingClientRect().height
+    // draw(img)
+
+    // console.log(document.getElementById("foreign-text"),"doc---")
+    // const canvas = document.getElementById("video") as any
+    // new XMLSerializer().serializeToString(svgNode)  
+    // var htmlSvg = 'data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="' + 
+    // svgNode.offsetWidth + '" height="' + 
+    // svgNode.offsetHeight + '"><foreignObject x="0" y="0" width="100%" height="100%">'+
+    //             new XMLSerializer().serializeToString(svgNode) +
+    //             document.querySelector('style').outerHTML +
+    //          '</foreignObject></svg>';
+    // html2canvas(document.getElementById("foreign-text")!,{
+    //     canvas:canvas,
+    //     allowTaint:true,
+    //         // foreignObjectRendering:true,
+    //     backgroundColor: '#ffffff'
+    // }).then(val=>{
+    //     console.log(count,"----count---")
+    //     if(count === 0){
+    //         count = 500
+    //         let img = document.createElement('a');
+    //         img.href = val.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+    //         img.download = 'pic_name.jpg';
+    //         img.click();
+    //     }else{
+    //         count--
+    //     }
+    // })  
+  
+    // .then(canvas => {
+    //     document.body.appendChild(canvas)
+    // });
+}
+const animationSample = (history:transHistoryItem[],chart:SVGElement)=>{
+    let startTime = 0
+    // 一个动画的持续时间
+    let duration = 6
+    let gap = 2
+    let frames:animationFrame[] = []
+    const svg  = chart
+    for(let historyitem of history){
+        let item = historyitem.itemOneArray[0]
+        let itemTwo = historyitem.itemTwoArray[0]
+        console.log(item,itemTwo,"---")
+        frames.push(similarCircle(svg,{
+            x:item.pos.cx,
+            y:item.pos.cy,
+            innerRadius:item.pos.r-2,
+            outerRadius:item.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)"
+        },{
+            x:itemTwo.pos.cx,
+            y:itemTwo.pos.cy,
+            innerRadius:itemTwo.pos.r-2,
+            outerRadius:itemTwo.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)"
+        },{
+            enterDuration:duration/2,
+            leaveDuration: duration/2
+        }))
+
+        frames.push(diffCircle(svg,{
+            x:item.pos.cx,
+            y:item.pos.cy,
+            innerRadius:item.pos.r-2,
+            outerRadius:item.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)"
+        },{
+            x:itemTwo.pos.cx,
+            y:itemTwo.pos.cy,
+            innerRadius:itemTwo.pos.r-2,
+            outerRadius:itemTwo.pos.r+2,
+            textContent:"",
+            // color: "rgba(45,145,225,0.8)"
+            color: "#efd96f",
+        },{
+            // color:"#f1a340"
+        },{
+            // color:"#998ec3"
+        },
+        {
+            enterDuration:duration/2,
+            leaveDuration: duration/2
+        }))
+        frames.push(timeCircle(svg,{
+            x:item.pos.cx,
+            y:item.pos.cy,
+            innerRadius:item.pos.r-2,
+            outerRadius:item.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)"
+        },{
+            x:itemTwo.pos.cx,
+            y:itemTwo.pos.cy,
+            innerRadius:itemTwo.pos.r-2,
+            outerRadius:itemTwo.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)"
+        },{
+            // color:"#f1a340"
+        },
+        {
+            enterDuration:duration/2,
+            leaveDuration: duration/2
+        }))
+
+        frames.push(causeCircle(svg,{
+            x:item.pos.cx,
+            y:item.pos.cy,
+            innerRadius:item.pos.r-2,
+            outerRadius:item.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)",
+            strokeDashArray:10,
+        },{
+            x:itemTwo.pos.cx,
+            y:itemTwo.pos.cy,
+            innerRadius:itemTwo.pos.r-2,
+            outerRadius:itemTwo.pos.r+2,
+            textContent:"",
+            color:"rgba(45,145,225,0.8)",
+        },{
+            // color:"#f1a340"
+        },
+        {
+            enterDuration:duration/2,
+            leaveDuration: duration/2
+        }))
+        const circleArray = addCircle([{
+            x:item.pos.cx,
+            y:item.pos.cy,
+            innerRadius:item.pos.r-2,
+            outerRadius:item.pos.r+2,
+            textContent:"",
+            color: "rgba(45,145,225,0.8)",
+            // strokeDashArray:10,
+        },{
+            x:itemTwo.pos.cx,
+            y:itemTwo.pos.cy,
+            innerRadius:itemTwo.pos.r-2,
+            outerRadius:itemTwo.pos.r+2,
+            textContent:"",
+            color:"rgba(45,145,225,0.8)",
+        }],{
+            enterDuration:duration/2,
+            leaveDuration: duration/2
+        })
+        frames.push({
+            stopTime:0,
+            gap:1,
+            duration:duration / 2 ,
+            animation:()=>{
+                circleArray.mount(svg)
+                circleArray.beginAnimation()
+            }
+        })
+    }
+    return animationForm(frames)
 }
 let canDownload = false
 // 执行动画操作的定时器
@@ -524,14 +944,14 @@ async function animation2Video(durationTime, svgNode,canvasNode:HTMLCanvasElemen
     const totalTime = durationTime
     let FrameCount = 0
     animationHandler = setInterval(()=>{
-        if(FrameCount <= totalTime * 50){
+        if(FrameCount <= totalTime * 10){
             svg2Canvas(svgNode,ctx)
             FrameCount++
         }else{
             clearInterval(animationHandler)
         }
-    },20)
-    recorder = new CanvasRecorder(canvasNode,4500000);
+    },100)
+    recorder = new CanvasRecorder(canvasNode,10000000);
     recorder.start()
     hasStopRecorder = false
     recordStopHandler = setTimeout(()=>{
@@ -565,6 +985,8 @@ export {
     animationFormFromHistory,
     interruptSvg2Video,
     downloadVideo,
+    animationFormFromNoNIntensifyHistory,
+    animationSample
 }
 // CanvasRecorder.js - smusamashah
 // To record canvas effitiently using MediaRecorder

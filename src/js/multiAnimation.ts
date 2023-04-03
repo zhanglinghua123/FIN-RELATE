@@ -18,13 +18,7 @@ interface historyItem{
     color:string,
 }
 const MutliCauseEffect = (svg:SVGElement,causeArray:historyItem[],effect:historyItem,animation:animation,itemOnePlus:{}): animationFrame =>{
-    const { enterDuration = 3,leaveDuration = 3 ,twinkleTime = 2} = animation
-    // switch(effect.operate){
-    //     case "CIRCLE":
-    //         case "RECT":
-    //             case "ARROW":
-    //                 case "TEXT":
-    // }
+    const { enterDuration = 4,leaveDuration = 4 ,twinkleTime = 2} = animation
     const causeAnimation = causeArray.map((val)=>{
         return historyIntoAnimtion(val,animation,itemOnePlus)
     })
@@ -66,12 +60,23 @@ const MutliCauseEffect = (svg:SVGElement,causeArray:historyItem[],effect:history
             }
         },
         complete:{
-            time:1,
+            time:2,
             animation:()=>{
-                causeAnimation.forEach(val=>val?.remove())
-                effectArray?.remove()
+                setTimeout(()=>{
+                    causeAnimation.forEach(val=>val?.remove())
+                    effectArray?.remove()
+                },2000)
             }
-        }
+        },
+        nonIntensifyComplete:{
+            time:2,
+            animation:()=>{
+                setTimeout(()=>{
+                    causeAnimation.forEach(val=>val?.remove())
+                    effectArray?.remove()
+                },2000)
+            }
+        },
     }
     
 }
@@ -84,8 +89,9 @@ const historyIntoAnimtion = (val,animation,plus)=>{
                     y:val.pos.cy,
                     innerRadius:val.pos.r-2,
                     outerRadius:val.pos.r+2,
-                    textContent:val.words,
-                    color: val.color|| "rgba(239, 217, 111)",
+                    textContent:"",
+                    // color: "#fadb1499",
+                    color:"rgba(45,145,225,0.8)",
                     // 默认是因果逻辑
                     ...plus
                 }],animation
@@ -102,7 +108,8 @@ const historyIntoAnimtion = (val,animation,plus)=>{
                 y1:val.pos.startY,
                 x2:val.pos.endX,
                 y2:val.pos.endY,
-                textContent:val.words || ""
+                textContent:"",
+                color:"rgba(45,145,225,0.8)"
             },animation,`arrowGroup-${val.id}`)
             case "ARROW":
                 return addArrow({
@@ -110,13 +117,8 @@ const historyIntoAnimtion = (val,animation,plus)=>{
                     y1:val.pos.startY,
                     x2:val.pos.endX,
                     y2:val.pos.endY,
-                    textContent:val.words || "",
-                    color:judgeColor({
-                        x1:val.pos.startX,
-                        y1:val.pos.startY,
-                        x2:val.pos.endX,
-                        y2:val.pos.endY,
-                    })
+                    // textContent:val.words || "",
+                    color:"rgba(45,145,225,0.8)"
             },animation,`rectGroup-${val.id}`)
     }
 }

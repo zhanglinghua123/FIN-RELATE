@@ -99,14 +99,14 @@ function addArrow( config:ArrowConfig,animation:animation = {},id:string = "") :
             const yDirect = (y2 - y1) / Math.sqrt( (y2 - y1) ** 2 + ( x2 - x1 ) ** 2  )
             
             arrow.append("text")
-            .attr("transform",`translate(${x1 - 10 * xDirect} ${y1 - 10 * yDirect + 20})`)
+            .attr("transform",`translate(${(x1 + x2) / 2  + (y2 > y1? (config.textContent || "" ) .length * 10 : -(config.textContent || "" ) .length * 14 )} ${(y1 + y2) / 2})`)
             .attr("text-anchor","middle")
             .attr("color","black")
             .text(config.textContent || "")
             if(labelStroke){
                 arrow.append("rect")
-                .attr("x",x1 - 10 * xDirect - (config.textContent || "" ) .length * 4 - 8)
-                .attr("y",y1 - 10 * yDirect - 18)
+                .attr("x",(x1 + x2) / 2  + (y2 > y1? (config.textContent || "" ) .length * 8 : -(config.textContent || "" ) .length * 8 ))
+                .attr("y",(y1 + y2) / 2)
                 .attr("width",(config.textContent || "") .length * 8 + 16)
                 .attr("height",24)
                 .attr("fill","transparent")

@@ -29,43 +29,46 @@
           <div id="category">
             <svg @click='e => onChangeType("CIRCLE")' v-bind:class="{
               isSelect: type === 'CIRCLE'
-            }" width="25" height="25" view-box="0 0 25 25">
-              <circle cx="50%" cy="50%" r="10" fill="white" stroke="black" stroke-width="4">
+            }" view-box="0 0 25 25">
+              <circle cx="50%" cy="50%" r="10" fill="white" stroke="rgba(45,145,225,0.8)" stroke-width="4">
               </circle>
             </svg>
             <svg @click='e => onChangeType("RECT")' :class="{
               isSelect: type === 'RECT'
-            }" width="25" height="25" view-box="0 0 25 25">
-              <rect x="2" y="2" width="20" height="20" stroke="black" stroke-width="4" fill="gray"></rect>
+            }" view-box="0 0 25 25">
+              <rect x="1" y="1" width="22" height="22" fill="rgba(45,145,225,0.8)"></rect>
             </svg>
             <svg @click='e => onChangeType("TEXT")' :class="{
               isSelect: type === 'TEXT'
-            }" width="25" height="25" view-box="0 0 25 25">
+            }" view-box="0 0 25 25">
               <defs>
                 <marker id="triangle" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" refX="0" refY="2"
                   orient="auto">
-                  <path d="M 0 0 L 5 2 L 0 4 z" />
+                  <path fill="rgba(45,145,225,0.8)" stroke="none" d="M 0 0 L 5 2 L 0 4 z" />
                 </marker>
               </defs>
-              <text x="12" y="12">A</text>
-              <path d="M 4,4 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
+              <text fill="rgba(45,145,225,0.8)" x="12" y="12">A</text>
+              <path d="M 4,4 Q 10,15 18,18" stroke="rgba(45,145,225,0.8)" stroke-width="2" fill="none"
+                style="marker-end: url(#triangle);" />
             </svg>
             <svg @click='e => onChangeType("ARROW")' :class="{
               isSelect: type === 'ARROW'
-            }" width="25" height="25" view-box="0 0 25 25">
+            }" view-box="0 0 25 25">
               <defs>
                 <marker id="triangle" markerUnits="strokeWidth" markerWidth="5" markerHeight="4" refX="0" refY="2"
                   orient="auto">
-                  <path d="M 0 0 L 5 2 L 0 4 z" />
+                  <path fill="rgba(45,145,225,0.8)" stroke="none" d="M 0 0 L 5 2 L 0 4 z" />
                 </marker>
               </defs>
-              <path d="M 2,2 L 18,18" stroke="black" stroke-width="2" fill="none" style="marker-end: url(#triangle);" />
+              <path d="M 2,2 L 18,18" stroke="rgba(45,145,225,0.8)" fill="rgba(45,145,225,0.8)" stroke-width="2"
+                style="marker-end: url(#triangle);" />
             </svg>
             <svg @click='e => onChangeType("DELETE")' :class="{
               isSelect: type === 'DELETE'
-            }" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 100 100">
-              <path d="M20,30 L30,20 L80,70 L70,80 M20,30" fill="black" stroke="black"></path>
-              <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="black" stroke="black" />
+            }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+              <path d="M20,30 L30,20 L80,70 L70,80 M20,30" fill="rgba(45,145,225,0.8)" stroke="rgba(45,145,225,0.8)">
+              </path>
+              <path d="M80,30 L70,20 L20,70 L30,80 M80,30" fill="rgba(45,145,225,0.8)" stroke="rgba(45,145,225,0.8)" />
             </svg>
           </div>
         <!-- <div id="edit-choice">
@@ -73,12 +76,12 @@
             <div id="style" :style="{
               position: 'relative',
             }">
-              <svg width="25" height="25" @click="onClickColor">
+              <svg  @click="onClickColor">
                 <path d="M 12.5 25 A 12.5 12.5 0 0 1 12.5 0" fill="red" stroke="transparent" />
                 <path d="M 12.5 25 A 12.5 12.5 0 0 0 12.5 0" fill="green" stroke="transparent" />
               </svg>
               <input type="color" v-model="selectColor" ref="colorPicker" />
-              <svg width="25" height="25" view-box="0 0 25 25">
+              <svg  view-box="0 0 25 25">
                 <line x1="0" y1="2" x2="25" y2="2" stroke="black" stroke-width="1"></line>
                 <line x1="0" y1="6" x2="25" y2="6" stroke="black" stroke-width="2"></line>
                 <line x1="0" y1="10" x2="25" y2="10" stroke="black" stroke-width="3"></line>
@@ -86,7 +89,7 @@
                 <line x1="0" y1="22" x2="25" y2="22" stroke="black" stroke-width="5"></line>
               </svg>
             </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div> -->
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div> -->
         </div>
       </div>
     </div>
@@ -101,7 +104,7 @@ import { message } from 'ant-design-vue';
 import * as d3 from "d3";
 import { getDirection } from '../../js/getDirection';
 import { LineChart } from '../../js/LineChart';
-import { addMutation } from "../../js/"
+import { addMutation } from "../../js/mutation"
 const emit = defineEmits(["changeBackGround"])
 
 
@@ -116,17 +119,18 @@ const history = proxy.$history
 const selectWords = (e) => {
   // 获取用户当前选中的文本
   let tmp = window.getSelection().toString();
-  if (["CIRCLE", "RECT", "ARROW"].includes(type.value)) {
+  if (["CIRCLE", "RECT", "ARROW", "TEXT"].includes(type.value)) {
     needReSelect = false;
     selectedWord = tmp;
   } else if (!["TEXT"].includes(type.value)) {
     selectedWord = "";
-    message.error("请先选择可视化类型再选中！")
+    // message.error("请先选择可视化类型再选中！")
   }
 }
 onMounted(async () => {
   // 新建背景图片
   const svg = d3.select("#graph")
+
   // let datas = []
   // // 路径是从 main.js开始算的 图形如果显示的是错误的时候 查看数据源对不对
   // await d3.csv("./caseData.csv", function (data) {
@@ -139,8 +143,9 @@ onMounted(async () => {
   //   y: (data) => parseFloat(data.open),
   //   width: document.getElementById("graph").getBoundingClientRect().width,
   //   height: document.getElementById("graph").getBoundingClientRect().height,
-  //   color: "#398bff",
+  //   color: "rgba(0,0,0,0.6)",
   // })
+
   svg.attr("width", document.getElementById("graph").getBoundingClientRect().width)
     .attr("height", document.getElementById("graph").getBoundingClientRect().height)
   // 注意不是同一种 image 元素 -> img
@@ -154,7 +159,7 @@ onMounted(async () => {
     .attr("height", "100%")
     .append("image")
     // 这个是让图片自动拉伸适应视口的属性
-    .attr("preserveAspectRatio", "slice")
+    // .attr("preserveAspectRatio", "slice")
     .attr("width", document.getElementById("graph").getBoundingClientRect().width)
     .attr("height", document.getElementById("graph").getBoundingClientRect().height)
     .attr("x", "0")
@@ -188,13 +193,13 @@ onMounted(async () => {
     // 并且当且没有选中类型
     if (!isDraw && ((Math.sqrt((x1 - startPos[0]) ** 2 + (y1 - startPos[1]) ** 2)) > 10)) {
       if (type.value === 'RECT') {
-        addRect(x1, y1, currentId, selectColor);
+        addRect(x1, y1, currentId, "rgba(45,145,225,0.4)");
       } else if (type.value === 'CIRCLE') {
-        addCircle(x1, y1, currentId, "transparent", selectColor);
+        addCircle(x1, y1, currentId, "transparent", "rgba(45,145,225,0.8)");
       } else if (type.value === 'ARROW') {
-        addArrow(x1, y1, currentId, selectColor);
+        addArrow(x1, y1, currentId, "rgba(45,145,225,0.8)");
       } else if (type.value === "TEXT") {
-        addArrow(x1, y1, currentId, selectColor, true);
+        addArrow(x1, y1, currentId, "rgba(45,145,225,0.8)", true);
       } else {
 
       }
@@ -206,19 +211,19 @@ onMounted(async () => {
     // 并且右击事件触发事务
     if ((Math.sqrt((x1 - startPos[0]) ** 2 + (y1 - startPos[1]) ** 2)) > 10) {
       if (type.value === 'RECT') {
-        const pos = addRect(x1, y1, currentId, selectColor);
+        const pos = addRect(x1, y1, currentId, "rgba(45,145,225,0.4)");
         addHistory(type.value, currentId, pos, selectedWord, selectColor);
       } else if (type.value === 'CIRCLE') {
-        const pos = addCircle(x1, y1, currentId, "transparent", selectColor);
+        const pos = addCircle(x1, y1, currentId, "transparent", "rgba(45,145,225,0.8)");
         addHistory(type.value, currentId, pos, selectedWord, selectColor);
       } else if (type.value === 'ARROW') {
-        const pos = addArrow(x1, y1, currentId, selectColor, false, true);
+        const pos = addArrow(x1, y1, currentId, "rgba(45,145,225,0.8)", false, true);
         addHistory(type.value, currentId, pos, selectedWord, selectColor);
       } else if (type.value === "TEXT") {
-        const pos = addArrow(x1, y1, currentId, selectColor, true, true)
+        const pos = addArrow(x1, y1, currentId, "rgba(45,145,225,0.8)", true, true)
         // const direction = getDirection({ x1: startPos[0], y1: startPos[1], x2: x1, y2: y1 })
-        const { _, words } = addText(x1, y1, "", currentId, history.value.length)
-        addHistory(type.value, currentId, pos, words, selectColor)
+        addText(x1, y1, "", currentId, history.value.length)
+        addHistory(type.value, currentId, pos, selectedWord, selectColor)
       } else {
 
       }
@@ -298,13 +303,14 @@ const addHistory = (type, id, pos, words = "", color = "black") => {
     time: new Date().toLocaleString(),
     id,
     pos,
-    color: type === "RECT" ? "rgba(45,145,225,0.4)" : selectColor,
+    // color: type === "RECT" ? "rgba(45,145,225,0.2)" : selectColor,
     // 来一个随机类型
     type: Math.random() > 0.5 ? "SC" : "WR",
     highLight: false,
+    labelWords: "",
   })
   // console.log(history, '--history--')
-  if (["CIRCLE", "RECT", "ARROW"].includes(type)) {
+  if (["CIRCLE", "RECT", "ARROW", "TEXT"].includes(type)) {
     highlightText(words, "ADD", id);
     needReSelect = true;
   }
@@ -392,7 +398,7 @@ const addCircle = (endX, endY, id, fill = "transparent", stroke = "black") => {
     .attr('cx', cx)
     .attr('cy', cy)
     .attr("opacity", 0)
-    .attr("fill", 'rgba(255,247,0,0.3)')
+    .attr("fill", '#11b5cc30')
 
   const circle = d3.select(".circleG").append('circle')
 
@@ -430,7 +436,7 @@ const highLightCircle = function (id) {
   const graphId = `circleBack-${id}`
   const font = document.getElementById(textId)
   if (font)
-    font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+    font.style.backgroundColor = '#11b5cc30'
   console.log(textId, graphId, "--")
   const circleBack = document.getElementById(graphId)
   circleBack.setAttribute("opacity", 1)
@@ -457,7 +463,7 @@ const disHighLightCircle = function (id) {
 
 }
 
-const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
+const addRect = (endX, endY, id, fill = "rgba(45,145,225,0.8)", stroke = "transparent") => {
   const svg = document.querySelector("#graph")
   const delEl = document.getElementById(id)
   const delElBack = document.getElementById(`rectBack-${id}`)
@@ -466,7 +472,7 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     delElBack.remove()
   }
   const width = Math.abs(endX - startPos[0]);
-  const height = Math.abs(endY - startPos[1]);
+  const height = document.getElementById("graph").getBoundingClientRect().height - 34
 
   const rectBack = d3.select(".rectG").append("rect")
   const rect = d3.select(".rectG").append('rect')
@@ -474,15 +480,15 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
     .attr('width', width + 20)
     .attr('height', height + 20)
     .attr('x', endX > startPos[0] ? startPos[0] - 10 : endX - 10)
-    .attr('y', endY > startPos[1] ? startPos[1] - 10 : endY - 10)
+    .attr('y', 0)
     .attr("opacity", 1)
-    .attr("fill", "rgba(247,255,0,0.3)")
+    .attr("fill", "#11b5cc30")
 
   rect.attr('id', id)
     .attr('width', width)
     .attr('height', height)
     .attr('x', endX > startPos[0] ? startPos[0] : endX)
-    .attr('y', endY > startPos[1] ? startPos[1] : endY)
+    .attr('y', 10)
     .attr("fill", fill)
     .attr('stroke', stroke)
     .on("click", (event) => {
@@ -504,9 +510,9 @@ const addRect = (endX, endY, id, fill = "#fffb8f", stroke = "transparent") => {
   const [xScale, yScale] = resize("graph", "output-graph")
   return {
     x: (endX > startPos[0] ? startPos[0] : endX) * xScale,
-    y: 0,
+    y: 10 * yScale,
     width: width * xScale,
-    height: svg.getBoundingClientRect().height * yScale,
+    height: height * yScale,
     id: id,
   }
 }
@@ -516,7 +522,7 @@ const highLightRect = function (id) {
   const font = document.getElementById(textId)
 
   if (font)
-    font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+    font.style.backgroundColor = '#11b5cc30'
   const circleBack = document.getElementById(graphId)
   circleBack.setAttribute("opacity", 1)
   const index = history.value.findIndex(e => e.id === id)
@@ -557,12 +563,18 @@ const addArrow = (endX, endY, id, stroke = "rgba(0,0,0,0.5)", isSilppery, isOnHo
     delMarker.remove()
     delElBack.remove()
   }
+  const { xDirect, yDirect } = getDirection({
+    x1: startPos[0],
+    y1: startPos[1],
+    x2: endX,
+    y2: endY,
+  })
   // 添加箭头背景
   const arrowBack = d3.select(".arrowG").append("path")
     .attr("id", `arrowBack-${id}`)
-    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX},${endY} `)
-    .attr("fill", "rgba(247,255,0,0.3)")
-    .attr("stroke", "rgba(247,255,0,0.3)")
+    .attr("d", `M ${startPos[0]},${startPos[1]} L ${endX + 10 * xDirect},${endY + 10 * yDirect} `)
+    .attr("fill", "#11b5cc30")
+    .attr("stroke", "#11b5cc30")
     .attr("opacity", 0)
     .attr("stroke-width", 20)
 
@@ -636,7 +648,7 @@ const highLightArrow = function (id) {
   const font = document.getElementById(textId)
 
   if (font)
-    font.style.backgroundColor = 'rgba(245,255,0,0.3)'
+    font.style.backgroundColor = '#11b5cc30'
   const circleBack = document.getElementById(graphId)
   circleBack.setAttribute("opacity", 1)
   const index = history.value.findIndex(e => e.id === id)
@@ -698,10 +710,11 @@ const addText = (x1, y1, text, id, length) => {
     } ${(startPos[1] + y1) / 2 - 40})`)
   // myforeign.setAttribute("transform", `translate(${x1 - 0.5 * textdiv.offsetWidth} ${y1})`)
 
+  // text 标注 有对应的labelText
   const onChange = () => {
     const findIndex = history.value.findIndex((e) => e.id === id)
     if (findIndex >= 0)
-      history.value[findIndex].words = textdiv.innerText
+      history.value[findIndex].labelWords = textdiv.innerText.trim()
     myforeign.setAttribute("width", textdiv.offsetWidth);
     myforeign.setAttribute("height", textdiv.offsetHeight);
   }
@@ -789,13 +802,23 @@ const changeExplainationHighLight = (val) => {
 }
 </script>
 <style lang="scss" scoped>
+p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+button {
+  padding: 3px 10px;
+  border-color: #11b5cccf #11B5CC #11B5CC #11b5cccf;
+}
+
 .input-container {
   height: 100%;
   width: 100%;
   padding-top: 2vh;
   padding-left: 3vw;
   padding-right: 3vw;
-
+  // box-sizing: content-box;
 }
 
 #select {
@@ -806,23 +829,21 @@ const changeExplainationHighLight = (val) => {
 
   .title {
     color: white !important;
-    height: 10%;
+    height: 15%;
     font-weight: 500;
-    font-size: 3vh;
-    margin-bottom: 5px;
-
+    font-size: 3.6vh;
   }
 
 
 
   .textarea {
     width: 100%;
-    height: 90%;
+    height: 85%;
     margin: 0 auto;
     padding: 3px;
     outline: 0;
-    // border: 1px solid gray;
-    font-size: 12px;
+    font-size: 18px;
+    font-weight: 500;
     color: #fff;
     word-wrap: break-word;
     overflow-x: hidden;
@@ -845,34 +866,32 @@ const changeExplainationHighLight = (val) => {
     align-items: center;
     justify-content: space-between;
     color: white !important;
-    height: 10%;
+    height: 15%;
     font-weight: 500;
-    font-size: 3vh;
+    font-size: 3.6vh;
     display: flex;
-    padding-bottom: 2px;
 
-    p {
-      margin-bottom: 5px;
-      flex: 1;
-    }
+    // padding-bottom: 2px;
+    p {}
 
     button {
       font-size: 2vh;
       background-color: black;
       max-height: 80%;
       margin-left: 2%;
-      border-color: aquamarine;
+      // border-color: aquamarine;
       cursor: pointer;
     }
   }
 
   #basicChart {
     width: 100%;
-    height: 90%;
-    border: 1px solid gray;
+    height: 85%;
+    // border: 1px solid gray;
     display: flex;
     background-color: white;
-    padding: 10px;
+    // padding: 10px;
+
 
     .isSelect {
       opacity: 0.5;
@@ -918,7 +937,10 @@ const changeExplainationHighLight = (val) => {
       height: 100%;
       display: flex;
       flex-direction: column;
+      // align-items: center
+      align-content: center;
       position: relative;
+      padding-top: 20px;
 
       input[type="color"] {
         // display: none;
@@ -928,11 +950,10 @@ const changeExplainationHighLight = (val) => {
         z-index: -10;
       }
 
-
-
       p {
         text-align: center;
-        font-size: 16px;
+        font-size: 18px;
+        font-weight: 400;
         margin-bottom: 0;
         width: 100%;
       }
@@ -941,10 +962,18 @@ const changeExplainationHighLight = (val) => {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        border: 2px solid black;
+        // border: 2px solid black;
+        margin-left: 20%;
+        margin-right: 20%;
 
         svg {
-          margin: 12px 6px 12px 6px;
+          width: 25px;
+          height: 25px;
+          margin-left: calc(50% - 12.5px);
+          margin-right: calc(50% - 12.5px);
+          margin-top: 6px;
+          margin-bottom: 6px;
+          // margin: 12px 6px 12px 6px;
           // width: 40%;
           box-sizing: border-box;
           cursor: pointer;

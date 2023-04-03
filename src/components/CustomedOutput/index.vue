@@ -8,11 +8,11 @@
       </div>
       <div id="content">
         <div id="content-example">
-          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="SC"></ListItem>
-          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="DC"></ListItem>
-          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="TS"></ListItem>
-          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="CE"></ListItem>
-          <ListItem height="100%" svgWidth="80%" class="content-example-item" type="WR"></ListItem>
+          <ListItem height="100%" svgWidth="80%" type="SC"></ListItem>
+          <ListItem height="100%" svgWidth="80%" type="DC"></ListItem>
+          <ListItem height="100%" svgWidth="80%" type="TS"></ListItem>
+          <ListItem height="100%" svgWidth="80%" type="CE"></ListItem>
+          <ListItem height="100%" svgWidth="80%" type="WR"></ListItem>
         </div>
         <div id="content-title">
           <span>Similarity/Comparison</span>
@@ -26,7 +26,7 @@
             <div v-for=" (item, index) in transformer(history)" :key="index">
               <ListItem :isLast="(index + 1) === transformer(history).length" :explain="item.explanation"
                 @changeExplainContent="changeExplainationContent" @changeExplain="changeExplainationHighLight"
-                multiHeight="12vh" height="6vh" class="content-list-item" svgWidth="80%" :itemOneArray="item.itemOneArray"
+                multiHeight="12vh" height="6vh" svgWidth="50%" :itemOneArray="item.itemOneArray"
                 :itemTwoArray="item.itemTwoArray" :isMulti="item.isMulti" :type="item.type">
               </ListItem>
             </div>
@@ -34,7 +34,7 @@
           <div :class="{
             isHighLight: explanationHighLight
           }" id="content-explanation">
-
+            <p id="content-explanation-para"></p>
           </div>
         </div>
       </div>
@@ -42,6 +42,8 @@
     <div id="edit">
       <div id="title">
         <p>Video</p>
+      <!-- <button @click="onGenerateSample">Sample</button>
+          <button @click="onGenerateSimple">Simple</button> -->
         <button @click="onGenerate">Generate</button>
         <button @click="downloadVideo">Export</button>
       </div>
@@ -61,7 +63,7 @@
 <script setup>
 import { getCurrentInstance, onMounted, ref } from 'vue'
 import ListItem from "../OutputListItem/ListItem.vue"
-import { animation2Video, animationFormFromHistory, downloadVideo } from '../../js/animation';
+import { animation2Video, animationSample, animationFormFromHistory, downloadVideo, animationFormFromNoNIntensifyHistory } from '../../js/animation';
 import * as d3 from "d3";
 import { transformer } from "../../js/transformerHistory"
 import { LineChart } from "../../js/LineChart"
@@ -128,7 +130,7 @@ onMounted(async () => {
   //   y: (data) => parseFloat(data.open),
   //   width: document.getElementById("output-graph").getBoundingClientRect().width,
   //   height: document.getElementById("output-graph").getBoundingClientRect().height,
-  //   color: "#398bff",
+  //   color: "rgba(0,0,0,0.6)",
   // })
 
 
@@ -155,9 +157,27 @@ const onGenerate = () => {
   //   wordsDict: history.map(val => val.words)
   // })
 }
+const onGenerateSimple = () => {
+  // 调用子组件函数 来生成对应的动画
+  const svgContainer = d3.select("#output-graph")
+  const totalTime = animationFormFromNoNIntensifyHistory(history, transformer(history), svgContainer)
+  const svgNode = document.getElementById("svg-container")
+  const canvas = document.getElementById("video")
+  animation2Video(totalTime, svgNode, canvas)
+  // animationText("textarea", "output-graph", {
+  //   wordsDict: history.map(val => val.words)
+  // })
+}
+const onGenerateSample = () => {
+  const svgContainer = d3.select("#output-graph")
+  const totalTime = animationSample(transformer(history), svgContainer)
+  const svgNode = document.getElementById("svg-container")
+  const canvas = document.getElementById("video")
+  animation2Video(totalTime, svgNode, canvas)
+}
 const changeExplainationContent = (text) => {
   console.log(text, "--text--")
-  document.getElementById("content-explanation").textContent = text
+  document.getElementById("content-explanation-para").textContent = text
 }
 const changeExplainationHighLight = (val) => {
   explanationHighLight.value = val
@@ -175,6 +195,14 @@ defineExpose({
 // #renderText {
 //   -webkit-background-clip: "text";
 // }
+button {
+  padding: 3px 10px;
+  border-color: #11b5cccf #11B5CC #11B5CC #11b5cccf;
+}
+
+p {
+  margin-bottom: 0;
+}
 
 #output-container {
   height: 100%;
@@ -197,11 +225,11 @@ defineExpose({
     align-items: center;
     justify-content: space-between;
     color: white;
-    height: 10%;
+    height: 15%;
     font-weight: 500;
-    font-size: 3vh;
+    font-size: 3.6vh;
     display: flex;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
 
     p {
       margin-bottom: 0;
@@ -213,7 +241,7 @@ defineExpose({
       background-color: black;
       max-height: 80%;
       margin-left: 2%;
-      border-color: aquamarine;
+      // border-color: aquamarine;
       cursor: pointer;
     }
 
@@ -221,8 +249,8 @@ defineExpose({
 
   #content {
     width: 100%;
-    height: 90%;
-    border: 3px solid gray;
+    height: 85%;
+    border: 2px solid rgba(80, 80, 80, 0.9);
     color: white;
 
     #content-example {
@@ -287,14 +315,41 @@ defineExpose({
       }
 
       #content-explanation {
-        padding: 5%;
+        padding: 10px;
         width: 25%;
-        height: 90%;
+        height: 85%;
         margin-left: 5%;
-        background-color: gray;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        background-color: #303030;
+
+        // display: flex;
+        // justify-content: center;
+        // align-items: center;
+        p {
+          font-size: 18px;
+          font-weight: 500;
+          overflow: scroll;
+          text-overflow: ellipsis;
+          // word-break: break-all;
+          max-height: 100%;
+        }
+
+        p::-webkit-scrollbar {
+          display: none;
+        }
+
+
+        // p:hover::before {
+        //   content: attr(data-content);
+        //   display: block;
+        //   position: absolute;
+        //   top: 100%;
+        //   left: 0;
+        //   width: 100%;
+        //   padding: 10px;
+        //   background-color: #f9f9f9;
+        //   border: 1px solid #ccc;
+        //   z-index: 1;
+        // }
       }
     }
   }
@@ -311,11 +366,11 @@ defineExpose({
     align-items: center;
     justify-content: space-between;
     color: white;
-    height: 10%;
+    height: 15%;
     font-weight: 500;
-    font-size: 3vh;
+    font-size: 3.6vh;
     display: flex;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
 
     p {
       margin-bottom: 0;
@@ -327,14 +382,14 @@ defineExpose({
       background-color: black;
       max-height: 80%;
       margin-left: 2%;
-      border-color: aquamarine;
+      // border-color: aquamarine;
       cursor: pointer;
     }
   }
 
   #svg-contain {
     width: 100%;
-    height: 90%;
+    height: 85%;
     border: 1px solid gray;
     position: relative;
 
@@ -349,6 +404,8 @@ defineExpose({
       position: absolute;
       top: 0;
       z-index: -1;
+      left: -200px;
+
       display: block;
       width: 100%;
       height: 100%;
@@ -359,6 +416,6 @@ defineExpose({
 }
 
 .isHighLight {
-  box-shadow: 0 0 40px yellow;
+  box-shadow: 0 0 20px #11b5cccf;
 }
 </style>
